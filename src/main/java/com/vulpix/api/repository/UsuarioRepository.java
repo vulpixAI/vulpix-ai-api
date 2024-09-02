@@ -1,6 +1,6 @@
 package com.vulpix.api.repository;
 
-import com.vulpix.api.Usuario;
+import com.vulpix.api.entity.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

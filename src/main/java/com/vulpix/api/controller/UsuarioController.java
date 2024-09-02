@@ -1,5 +1,7 @@
-package com.vulpix.api;
+package com.vulpix.api.controller;
 
+import com.vulpix.api.entity.Usuario;
+import com.vulpix.api.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +15,7 @@ import java.util.Optional;
 public class UsuarioController {
     @Autowired
     private UsuarioRepository usuarioRepository;
-    private SecurityConfig securityConfig;
+//    private SecurityConfig securityConfig;
 
     @PostMapping("/signup")
     public ResponseEntity<Usuario> cadastrar(
@@ -69,20 +71,20 @@ public class UsuarioController {
         return ResponseEntity.status(404).build();
     }
 
-    @PutMapping("/update-password/{id}")
-    public ResponseEntity<Optional<Usuario>> atualizarSenha(
-            @PathVariable int id,
-            @RequestBody String novaSenha) {
-        Optional<Usuario> usuarioOpt = usuarioRepository.findById(id);
-        if (usuarioOpt.isPresent()) {
-            Usuario usuario = usuarioOpt.get();
-            String senhaCodificada = securityConfig.criptografarSenhas().encode(novaSenha);
-            usuario.setSenha(senhaCodificada);
-            usuarioRepository.save(usuario);
-            return ResponseEntity.status(200).body(usuarioOpt);
-        }
-        return ResponseEntity.status(404).build();
-    }
+//    @PatchMapping("/update-password/{id}")
+//    public ResponseEntity<Optional<Usuario>> atualizarSenha(
+//            @PathVariable int id,
+//            @RequestBody String novaSenha) {
+//        Optional<Usuario> usuarioOpt = usuarioRepository.findById(id);
+//        if (usuarioOpt.isPresent()) {
+//            Usuario usuario = usuarioOpt.get();
+//            String senhaCodificada = securityConfig.criptografarSenhas().encode(novaSenha);
+//            usuario.setSenha(senhaCodificada);
+//            usuarioRepository.save(usuario);
+//            return ResponseEntity.status(200).body(usuarioOpt);
+//        }
+//        return ResponseEntity.status(404).build();
+//    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(

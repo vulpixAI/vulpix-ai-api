@@ -1,4 +1,4 @@
-package com.vulpix.api;
+package com.vulpix.api.entity;
 
 import jakarta.persistence.*;
 

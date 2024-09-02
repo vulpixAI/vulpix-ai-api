@@ -1,11 +1,8 @@
-package com.vulpix.api.dto;
+package com.vulpix.api.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
-public class PublicacaoDto {
+public class Publicacao {
     private String id;
     private String legenda;
     private String tipoMidia;
