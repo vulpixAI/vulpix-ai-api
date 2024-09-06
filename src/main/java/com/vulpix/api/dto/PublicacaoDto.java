@@ -2,10 +2,9 @@ package com.vulpix.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
-public class PublicacaoApiExternaDto {
+public class PublicacaoDto {
     private String id;
     @JsonProperty(value = "caption")
     private String legenda;

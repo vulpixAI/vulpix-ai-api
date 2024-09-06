@@ -1,24 +1,40 @@
 package com.vulpix.api.entity;
 
 import jakarta.persistence.*;
+import org.springframework.cache.annotation.CacheConfig;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 @Entity
 public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_usuario")
     private Integer id;
+    @Column(name = "nome")
     private String nome;
+    @Column(name = "sobrenome")
+    private String sobrenome;
+    @Column(name = "usuario")
+    private String usuario;
+    @Column(name = "email")
     private String email;
+    @Column(name = "senha")
     private String senha;
+    @Column(name = "telefone")
     private String telefone;
-    private String endereco;
+    @Column(name = "data_nascimento")
     private LocalDate dataNascimento;
+    @Column(name = "genero")
     private String genero;
-    private boolean ativo;
-    private LocalDate dataCadastro;
+    @Column(name = "status")
+    private boolean status;
+    @Column(name = "created_at")
+    private LocalDateTime created_at;
+    @Column(name = "updated_at")
+    private LocalDateTime updated_at;
 
     public Integer getId() {
         return id;
@@ -60,14 +76,6 @@ public class Usuario {
         this.telefone = telefone;
     }
 
-    public String getEndereco() {
-        return endereco;
-    }
-
-    public void setEndereco(String endereco) {
-        this.endereco = endereco;
-    }
-
     public LocalDate getDataNascimento() {
         return dataNascimento;
     }
@@ -85,18 +93,18 @@ public class Usuario {
     }
 
     public boolean isAtivo() {
-        return ativo;
+        return status;
     }
 
     public void setAtivo(boolean ativo) {
-        this.ativo = ativo;
+        this.status = ativo;
     }
 
-    public LocalDate getDataCadastro() {
-        return dataCadastro;
+    public LocalDateTime getDataCadastro() {
+        return created_at;
     }
 
-    public void setDataCadastro(LocalDate dataCadastro) {
-        this.dataCadastro = dataCadastro;
+    public void setDataCadastro(LocalDateTime dataCadastro) {
+        this.created_at = dataCadastro;
     }
 }

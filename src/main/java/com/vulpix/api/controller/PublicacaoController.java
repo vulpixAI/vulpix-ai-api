@@ -3,7 +3,6 @@ package com.vulpix.api.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.vulpix.api.dto.PublicacaoApiExternaDto;
 import com.vulpix.api.entity.Publicacao;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +21,7 @@ public class PublicacaoController {
     public ResponseEntity<List<Publicacao>> buscarPosts() {
 
         String igUserId = "17841468739640580";
-        String accessToken = "EAAGvreZCgDa4BO8vN85TUKEXZA1XAZAHMHesHSpZAKPQM5sNhY2WgZCqu28j3RoDf9MTvg6jnBf7uwFFWkiVRmqvDdFdr1VmFYwNiO9QgCGta1zTXW0vOXGRrLKlo50vzR7QoqLWJTuiXC7c1ZAZAr8XV2IM57cDgcMa0dES9XvTWQBZAe0zztDK5dHVwn1Jr0tA";
+        String accessToken = "";
         String fields = "id,caption,media_type,media_url,timestamp,like_count";
 
         String url = "https://graph.facebook.com/v17.0/" + igUserId + "/media?fields=" + fields + "&access_token=" + accessToken;
@@ -46,7 +45,7 @@ public class PublicacaoController {
                 return ResponseEntity.noContent().build();
             }
 
-            List<PublicacaoApiExternaDto> posts = objectMapper.convertValue(dataNode, objectMapper.getTypeFactory().constructCollectionType(List.class, PublicacaoApiExternaDto.class));
+            List<Publicacao> posts = objectMapper.convertValue(dataNode, objectMapper.getTypeFactory().constructCollectionType(List.class, Publicacao.class));
             List<Publicacao> resposta = posts.stream().map(item -> {
                 Publicacao postDto = new Publicacao();
                 postDto.setId(item.getId());
@@ -75,7 +74,7 @@ public class PublicacaoController {
             for (int i = 1; i < posts.size(); i++) {
                 Publicacao x = posts.get(i);
                 int j = i - 1;
-                while (j >= 0 && posts.get(j).getDataPublicacao().isAfter(x.getDataPublicacao())) {
+                while (j >= 0 && posts.get(j).getLikeCount() > x.getLikeCount()) {
                     posts.set(j + 1, posts.get(j));
                     j--;
                 }

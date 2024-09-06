@@ -1,15 +1,59 @@
 package com.vulpix.api.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
+@Entity
 public class Publicacao {
-    private String id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_publicacao")
+    private Integer id;
+    @Column(name = "legenda")
     private String legenda;
+    @Column(name = "tipo")
     private String tipoMidia;
+    @Column(name = "image_url")
     private String urlMidia;
+    @Column(name = "data_agendamento")
     private OffsetDateTime dataPublicacao;
-
+    @Column(name = "total_like")
     private Integer likeCount;
+    @Column(name = "plataforma")
+    private String plataforma;
+    @Column(name = "created_at")
+    private LocalDateTime created_at;
+
+    @ManyToOne
+    @JoinColumn(name = "fk_empresa", nullable = false)
+    private Empresa empresa;
+
+    public String getPlataforma() {
+        return plataforma;
+    }
+
+    public void setPlataforma(String plataforma) {
+        this.plataforma = plataforma;
+    }
+
+    public LocalDateTime getCreated_at() {
+        return created_at;
+    }
+
+    public void setCreated_at(LocalDateTime created_at) {
+        this.created_at = created_at;
+    }
+
+    public Empresa getEmpresa() {
+        return empresa;
+    }
+
+    public void setEmpresa(Empresa empresa) {
+        this.empresa = empresa;
+    }
 
     public Integer getLikeCount() {
         return likeCount;
@@ -18,11 +62,11 @@ public class Publicacao {
     public void setLikeCount(Integer likeCount) {
         this.likeCount = likeCount;
     }
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
