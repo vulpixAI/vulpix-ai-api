@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @Entity
 public class Empresa {
@@ -45,6 +46,8 @@ public class Empresa {
     @OneToOne
     @JoinColumn(name = "responsavel", nullable = false)
     private Usuario usuario;
+    @OneToMany(mappedBy = "empresa", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Integracao> integracoes;
 
     public Integer getId() {
         return id;

@@ -1,34 +1,35 @@
 package com.vulpix.api.entity;
 
+import com.vulpix.api.Enum.TipoIntegracao;
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-
+@Entity
 public class Integracao {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_integracao")
     private Integer id;
+    @Enumerated(EnumType.STRING)
+    private TipoIntegracao tipo;
     @Column(name = "client_id")
-    private String client_id;
+    private String clientId;
     @Column(name = "client_secret")
-    private String client_secret;
+    private String clientSecret;
     @Column(name = "access_token")
-    private String access_token;
+    private String accessToken;
     @Column(name = "access_token_expire_date")
     private LocalDateTime access_token_expire_date;
     @Column(name = "status")
     private Boolean status;
-    @OneToMany
-    @JoinColumn(name = "fk_empresa", nullable = false)
-    private Empresa empresa;
 
     @Column(name = "created_at")
     private LocalDateTime created_at;
     @Column(name = "updated_at")
     private LocalDateTime updated_at;
-
+    @ManyToOne
+    @JoinColumn(name = "fk_empresa", nullable = false)
+    private Empresa empresa;
     public Integer getId() {
         return id;
     }
@@ -37,28 +38,36 @@ public class Integracao {
         this.id = id;
     }
 
+    public TipoIntegracao getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(TipoIntegracao tipo) {
+        this.tipo = tipo;
+    }
+
     public String getClient_id() {
-        return client_id;
+        return clientId;
     }
 
     public void setClient_id(String client_id) {
-        this.client_id = client_id;
+        this.clientId = client_id;
     }
 
     public String getClient_secret() {
-        return client_secret;
+        return clientSecret;
     }
 
     public void setClient_secret(String client_secret) {
-        this.client_secret = client_secret;
+        this.clientSecret = client_secret;
     }
 
     public String getAccess_token() {
-        return access_token;
+        return accessToken;
     }
 
     public void setAccess_token(String access_token) {
-        this.access_token = access_token;
+        this.accessToken = access_token;
     }
 
     public LocalDateTime getAccess_token_expire_date() {
