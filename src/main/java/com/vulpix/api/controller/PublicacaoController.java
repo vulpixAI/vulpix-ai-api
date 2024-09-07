@@ -3,14 +3,25 @@ package com.vulpix.api.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.vulpix.api.Enum.TipoIntegracao;
+import com.vulpix.api.dto.PostPublicacaoDto;
+import com.vulpix.api.entity.Empresa;
+import com.vulpix.api.entity.Integracao;
 import com.vulpix.api.entity.Publicacao;
+import com.vulpix.api.repository.EmpresaRepository;
+import com.vulpix.api.repository.IntegracaoRepository;
+import com.vulpix.api.repository.PublicacaoRepository;
 import com.vulpix.api.services.PublicacaoService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -18,6 +29,11 @@ import java.util.stream.Collectors;
 public class PublicacaoController {
 
     private final PublicacaoService publicacaoService;
+    @Autowired
+    private PublicacaoRepository publicacaoRepository;
+
+    @Autowired
+    private EmpresaRepository empresaRepository;
 
     public PublicacaoController(PublicacaoService publicacaoService) {
         this.publicacaoService = publicacaoService;
@@ -47,6 +63,36 @@ public class PublicacaoController {
         }
 
         return ResponseEntity.ok(posts);
+    }
+
+    @PostMapping
+    public ResponseEntity<Publicacao> criarPost(@RequestBody PostPublicacaoDto post){
+
+        Optional<Empresa> empresa = empresaRepository.findById(post.getFkEmpresa());
+
+        if (empresa.isEmpty()){
+            return ResponseEntity.status(404).build();
+        }
+
+        Publicacao novoPost = new Publicacao();
+        novoPost.setLegenda(post.getCaption());
+        novoPost.setUrlMidia(post.getImageUrl());
+        novoPost.setEmpresa(empresa.get());
+        novoPost.setDataPublicacao(OffsetDateTime.now());
+        novoPost.setCreated_at(LocalDateTime.now());
+
+        Optional<Integracao> integracao = empresa.get().getIntegracoes().stream()
+                .filter(i -> TipoIntegracao.INSTAGRAM.equals(i.getTipo()))
+                .findFirst();
+
+
+        if (integracao.isEmpty()){
+            return ResponseEntity.status(404).build();
+        }
+
+        Long containerId = publicacaoService.criarContainer(integracao.get(), novoPost);
+        publicacaoService.criarPublicacao(integracao.get(), containerId);
+        return ResponseEntity.status(201).body(publicacaoRepository.save(novoPost));
     }
 }
 

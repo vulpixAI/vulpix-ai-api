@@ -1,5 +1,7 @@
 package com.vulpix.api.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.vulpix.api.entity.Integracao;
 import com.vulpix.api.entity.Publicacao;
 import com.vulpix.api.integracao.Graph;
@@ -9,6 +11,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.util.*;
@@ -36,24 +40,71 @@ public class PublicacaoService {
         this.restTemplate = restTemplate;
     }
 
-    public String criarContainer(Graph integracao, String mediaUrl, String caption) {
+    public Long criarContainer(Integracao integracao, Publicacao post) {
         String url = Graph.BASE_URL + integracao.getIgUserId() + "/media";
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
+        System.out.println("URL da Imagem: " + post.getUrlMidia());
+        System.out.println("Legenda: " + post.getLegenda());
+        System.out.println("Token de Acesso: " + integracao.getAccess_token());
+        System.out.println("Ig Id user: " + integracao.getIgUserId());
+
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("image_url", mediaUrl);
-        body.add("caption", caption);
-        body.add("access_token", integracao.getAccessToken());
+        body.add("image_url", post.getUrlMidia());
+        body.add("caption", post.getLegenda());
+        body.add("access_token", integracao.getAccess_token());
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
 
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
 
-        if (response.getStatusCode() == HttpStatus.OK) {
-            return response.getBody();
-        } else {
-            throw new RuntimeException("Falha ao criar o container: " + response.getStatusCode());
+            if (response.getStatusCode() == HttpStatus.OK) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode root = objectMapper.readTree(response.getBody());
+
+                String idString = root.path("id").asText();
+
+                return Long.parseLong(idString);
+            } else {
+                throw new RuntimeException("Falha ao criar o container: " + response.getStatusCode());
+            }
+        } catch (HttpClientErrorException e) {
+            System.err.println("Erro ao criar o container: " + e.getResponseBodyAsString());
+            throw e;
+        } catch (JsonMappingException e) {
+            throw new RuntimeException(e);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String criarPublicacao(Integracao integracao, Long idContainer) {
+        String url = Graph.BASE_URL + integracao.getIgUserId() + "/media_publish";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(url)
+                .queryParam("creation_id", idContainer)
+                .queryParam("access_token", integracao.getAccess_token());
+
+        String finalUrl = uriBuilder.toUriString();
+
+        HttpEntity<String> request = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(finalUrl, HttpMethod.POST, request, String.class);
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                return response.getBody();
+            } else {
+                throw new RuntimeException("Falha ao criar a publicação: " + response.getStatusCode());
+            }
+        } catch (HttpClientErrorException e) {
+            throw new RuntimeException("Erro ao chamar a API: " + e.getMessage(), e);
         }
     }
 

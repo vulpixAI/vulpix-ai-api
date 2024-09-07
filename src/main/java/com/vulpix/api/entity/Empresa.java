@@ -65,6 +65,14 @@ public class Empresa {
         this.razaoSocial = razaoSocial;
     }
 
+    public List<Integracao> getIntegracoes() {
+        return integracoes;
+    }
+
+    public void setIntegracoes(List<Integracao> integracoes) {
+        this.integracoes = integracoes;
+    }
+
     public String getNome_fantasia() {
         return nome_fantasia;
     }

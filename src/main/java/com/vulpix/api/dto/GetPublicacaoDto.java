@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.OffsetDateTime;
 
-public class PublicacaoDto {
+public class GetPublicacaoDto {
     private String id;
     @JsonProperty(value = "caption")
     private String legenda;
