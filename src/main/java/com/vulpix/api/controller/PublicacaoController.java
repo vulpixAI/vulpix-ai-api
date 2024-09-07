@@ -36,7 +36,7 @@ public class PublicacaoController {
             for (int i = 1; i < posts.size(); i++) {
                 Publicacao x = posts.get(i);
                 int j = i - 1;
-                while (j >= 0 && posts.get(j).getLikeCount() > x.getLikeCount()) {
+                while (j >= 0 && posts.get(j).getLikeCount() < x.getLikeCount()) {
                     posts.set(j + 1, posts.get(j));
                     j--;
                 }
