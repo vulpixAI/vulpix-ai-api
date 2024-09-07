@@ -11,16 +11,21 @@ public class Publicacao {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_publicacao")
-    private Integer id;
+    private Long id;
     @Column(name = "legenda")
+    @JsonProperty("caption")
     private String legenda;
     @Column(name = "tipo")
+    @JsonProperty("media_type")
     private String tipoMidia;
     @Column(name = "image_url")
+    @JsonProperty("media_url")
     private String urlMidia;
     @Column(name = "data_agendamento")
+    @JsonProperty("timestamp")
     private OffsetDateTime dataPublicacao;
     @Column(name = "total_like")
+    @JsonProperty("like_count")
     private Integer likeCount;
     @Column(name = "plataforma")
     private String plataforma;
@@ -62,11 +67,11 @@ public class Publicacao {
     public void setLikeCount(Integer likeCount) {
         this.likeCount = likeCount;
     }
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

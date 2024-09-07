@@ -9,4 +9,5 @@ import java.util.Optional;
 
 public interface IntegracaoRepository extends JpaRepository<Integracao, Integer> {
     Optional<Integracao> findByEmpresaAndTipo(Empresa empresa, TipoIntegracao tipo);
+    Optional<Integracao> findByEmpresaId(Integer idEmpresa);
 }

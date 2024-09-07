@@ -4,9 +4,7 @@ import com.vulpix.api.entity.Integracao;
 import com.vulpix.api.repository.IntegracaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.Optional;
 
 public class IntegracaoService {
@@ -19,7 +17,7 @@ public class IntegracaoService {
 
     public LocalDateTime verificarAccessToken(Integer integracaoId) {
         Integracao integracao = getIntegracaoById(integracaoId).get();
-        LocalDateTime expiraEm = integracao.getAccess_token_expire_date();
+        LocalDateTime expiraEm = integracao.getAccessTokenExpireDate();
 
         return expiraEm;
     }

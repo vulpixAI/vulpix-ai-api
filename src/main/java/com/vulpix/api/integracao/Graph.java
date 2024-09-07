@@ -1,15 +1,18 @@
 package com.vulpix.api.integracao;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 
 public class Graph implements Integracao{
 
-    private String client_id;
-    private String client_secret;
-    private String access_token;
-    private LocalDateTime access_token_expire_date;
+    private String clientId;
+    private String clientSecret;
+    private String accessToken;
+    private LocalDateTime accessTokenExpireDate;
     private Boolean status;
+
+    private String igUserId;
+    public static final String BASE_URL = "https://graph.facebook.com/v17.0/";
+    public static final String FIELDS = "id,caption,media_type,media_url,timestamp,like_count";
 
     @Override
     public String obterAccessToken() {
@@ -23,42 +26,52 @@ public class Graph implements Integracao{
 
     @Override
     public Boolean verificarAccessToken() {
-        if (access_token_expire_date != null && access_token_expire_date.isAfter(LocalDateTime.now())){
+        if (accessTokenExpireDate != null && accessTokenExpireDate.isAfter(LocalDateTime.now())){
             renovarAccessToken();
         }
         return true;
     }
 
-    public String getClient_id() {
-        return client_id;
+    @Override
+    public String criarContainer() {
+        return null;
     }
 
-    public void setClient_id(String client_id) {
-        this.client_id = client_id;
+    @Override
+    public String criarPublicacao() {
+        return null;
     }
 
-    public String getClient_secret() {
-        return client_secret;
+    public String getClientId() {
+        return clientId;
     }
 
-    public void setClient_secret(String client_secret) {
-        this.client_secret = client_secret;
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
     }
 
-    public String getAccess_token() {
-        return access_token;
+    public String getClientSecret() {
+        return clientSecret;
     }
 
-    public void setAccess_token(String access_token) {
-        this.access_token = access_token;
+    public void setClientSecret(String clientSecret) {
+        this.clientSecret = clientSecret;
     }
 
-    public LocalDateTime getAccess_token_expire_date() {
-        return access_token_expire_date;
+    public String getAccessToken() {
+        return accessToken;
     }
 
-    public void setAccess_token_expire_date(LocalDateTime access_token_expire_date) {
-        this.access_token_expire_date = access_token_expire_date;
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    public LocalDateTime getAccessTokenExpireDate() {
+        return accessTokenExpireDate;
+    }
+
+    public void setAccessTokenExpireDate(LocalDateTime accessTokenExpireDate) {
+        this.accessTokenExpireDate = accessTokenExpireDate;
     }
 
     public Boolean getStatus() {
@@ -67,5 +80,13 @@ public class Graph implements Integracao{
 
     public void setStatus(Boolean status) {
         this.status = status;
+    }
+
+    public String getIgUserId() {
+        return igUserId;
+    }
+
+    public void setIgUserId(String igUserId) {
+        this.igUserId = igUserId;
     }
 }

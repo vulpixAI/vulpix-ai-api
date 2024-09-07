@@ -12,6 +12,8 @@ public class Integracao {
     private Integer id;
     @Enumerated(EnumType.STRING)
     private TipoIntegracao tipo;
+    @Column(name="ig_user_id")
+    private String igUserId;
     @Column(name = "client_id")
     private String clientId;
     @Column(name = "client_secret")
@@ -19,7 +21,7 @@ public class Integracao {
     @Column(name = "access_token")
     private String accessToken;
     @Column(name = "access_token_expire_date")
-    private LocalDateTime access_token_expire_date;
+    private LocalDateTime accessTokenExpireDate;
     @Column(name = "status")
     private Boolean status;
 
@@ -70,12 +72,20 @@ public class Integracao {
         this.accessToken = access_token;
     }
 
-    public LocalDateTime getAccess_token_expire_date() {
-        return access_token_expire_date;
+    public LocalDateTime getAccessTokenExpireDate() {
+        return accessTokenExpireDate;
     }
 
-    public void setAccess_token_expire_date(LocalDateTime access_token_expire_date) {
-        this.access_token_expire_date = access_token_expire_date;
+    public void setAccessTokenExpireDate(LocalDateTime accessTokenExpireDate) {
+        this.accessTokenExpireDate = accessTokenExpireDate;
+    }
+
+    public String getIgUserId() {
+        return igUserId;
+    }
+
+    public void setIgUserId(String igUserId) {
+        this.igUserId = igUserId;
     }
 
     public Boolean getStatus() {

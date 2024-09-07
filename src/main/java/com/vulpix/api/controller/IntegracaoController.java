@@ -59,6 +59,9 @@ public class IntegracaoController {
         if (integracaoAtualizada.getClient_secret() != null) {
             integracao.setClient_secret(integracaoAtualizada.getClient_secret());
         }
+        if (integracaoAtualizada.getIgUserId() != null) {
+            integracao.setIgUserId(integracaoAtualizada.getIgUserId());
+        }
 
         return ResponseEntity.ok(integracaoRepository.save(integracao)); // Salva as alterações no banco e retorna 200
     }
