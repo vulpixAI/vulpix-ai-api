@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -39,12 +40,12 @@ public class PublicacaoController {
         this.publicacaoService = publicacaoService;
     }
     @GetMapping("/{empresaId}")
-    public ResponseEntity<List<Publicacao>> buscarPosts(@PathVariable Integer empresaId) {
+    public ResponseEntity<List<Publicacao>> buscarPosts(@PathVariable UUID empresaId) {
         return publicacaoService.buscarPosts(empresaId);
     }
 
     @GetMapping("/ordenado/{empresaId}")
-    public ResponseEntity<List<Publicacao>> postsOrdenado(@PathVariable Integer empresaId) {
+    public ResponseEntity<List<Publicacao>> postsOrdenado(@PathVariable UUID empresaId) {
         ResponseEntity<List<Publicacao>> responseEntity = buscarPosts(empresaId);
         List<Publicacao> posts = responseEntity.getBody();
 

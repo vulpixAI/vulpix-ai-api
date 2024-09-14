@@ -3,12 +3,13 @@ package com.vulpix.api.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class ConfigPrompt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_config_prompt")
-    private Integer id;
+    private UUID id;
     @Column(name = "chave")
     private String chave;
     @Column(name = "valor")
@@ -21,11 +22,11 @@ public class ConfigPrompt {
     @Column(name = "updated_at")
     private LocalDateTime updated_at;
 
-    public Integer getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

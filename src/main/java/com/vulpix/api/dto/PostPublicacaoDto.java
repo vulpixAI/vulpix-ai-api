@@ -2,13 +2,15 @@ package com.vulpix.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.UUID;
+
 public class PostPublicacaoDto {
     @JsonProperty(value = "image_url")
     private String imageUrl;
     @JsonProperty(value = "caption")
     private String caption;
     @JsonProperty(value = "fk_empresa")
-    private Integer fkEmpresa;
+    private UUID fkEmpresa;
 
     public String getImageUrl() {
         return imageUrl;
@@ -26,11 +28,11 @@ public class PostPublicacaoDto {
         this.caption = caption;
     }
 
-    public Integer getFkEmpresa() {
+    public UUID getFkEmpresa() {
         return fkEmpresa;
     }
 
-    public void setFkEmpresa(Integer fkEmpresa) {
+    public void setFkEmpresa(UUID fkEmpresa) {
         this.fkEmpresa = fkEmpresa;
     }
 }

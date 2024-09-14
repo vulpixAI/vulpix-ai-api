@@ -4,12 +4,14 @@ import com.vulpix.api.Enum.TipoIntegracao;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
+
 @Entity
 public class Integracao {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_integracao")
-    private Integer id;
+    private UUID id;
     @Enumerated(EnumType.STRING)
     private TipoIntegracao tipo;
     @Column(name="ig_user_id")
@@ -32,11 +34,11 @@ public class Integracao {
     @ManyToOne
     @JoinColumn(name = "fk_empresa", nullable = false)
     private Empresa empresa;
-    public Integer getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

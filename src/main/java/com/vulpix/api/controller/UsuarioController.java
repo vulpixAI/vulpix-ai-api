@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -39,7 +40,7 @@ public class UsuarioController {
         return ResponseEntity.status(401).build();
     }
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<List<Usuario>> listarUsuarios() {
         List<Usuario> usuarios = usuarioRepository.findAll();
         if (usuarios.isEmpty()) {
@@ -50,7 +51,7 @@ public class UsuarioController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Optional<Usuario>> buscarUsuariosPorId(
-            @PathVariable int id) {
+            @PathVariable UUID id) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findById(id);
         if (usuarioOpt.isPresent()) {
             Usuario usuarioEncontrado = usuarioOpt.get();
@@ -62,7 +63,7 @@ public class UsuarioController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Usuario> atualizar(
-            @PathVariable int id,
+            @PathVariable UUID id,
             @RequestBody Usuario usuarioAtualizado) {
         if (usuarioRepository.existsById(id)) {
             usuarioAtualizado.setId(id);
@@ -88,7 +89,7 @@ public class UsuarioController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(
-            @PathVariable int id) {
+            @PathVariable UUID id) {
         if (usuarioRepository.existsById(id)) {
             usuarioRepository.deleteById(id);
             return ResponseEntity.status(204).build();

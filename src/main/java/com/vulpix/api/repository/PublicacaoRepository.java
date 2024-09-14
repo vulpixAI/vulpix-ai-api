@@ -4,6 +4,9 @@ import com.vulpix.api.entity.Integracao;
 import com.vulpix.api.entity.Publicacao;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface PublicacaoRepository extends JpaRepository<Publicacao, Integer> {
+import java.util.Optional;
+import java.util.UUID;
 
+public interface PublicacaoRepository extends JpaRepository<Publicacao, UUID> {
+    Optional<Publicacao> findByIdInsta(Long idInsta);
 }

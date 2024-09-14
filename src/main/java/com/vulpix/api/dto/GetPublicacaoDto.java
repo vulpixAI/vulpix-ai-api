@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.OffsetDateTime;
 
 public class GetPublicacaoDto {
-    private String id;
+    @JsonProperty(value = "id")
+    private Long id;
     @JsonProperty(value = "caption")
     private String legenda;
     @JsonProperty(value = "media_type")
@@ -14,7 +15,6 @@ public class GetPublicacaoDto {
     private String urlMidia;
     @JsonProperty(value = "timestamp")
     private OffsetDateTime dataPublicacao;
-
     @JsonProperty(value = "like_count")
     private Integer likeCount;
 
@@ -26,11 +26,11 @@ public class GetPublicacaoDto {
         this.likeCount = likeCount;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

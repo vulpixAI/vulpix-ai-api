@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -24,7 +25,7 @@ public class IntegracaoController {
     @Autowired
     private IntegracaoRepository integracaoRepository;
 
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<Integracao> habilitar(
             @RequestBody Integracao novaIntegracao
     ) {
@@ -38,7 +39,7 @@ public class IntegracaoController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<Integracao> atualizar(
-            @PathVariable Integer id,
+            @PathVariable UUID id,
             @RequestBody Integracao integracaoAtualizada
     ) {
 
@@ -63,11 +64,11 @@ public class IntegracaoController {
             integracao.setIgUserId(integracaoAtualizada.getIgUserId());
         }
 
-        return ResponseEntity.ok(integracaoRepository.save(integracao)); // Salva as alterações no banco e retorna 200
+        return ResponseEntity.status(200).body(integracaoRepository.save(integracao));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable int id){
+    public ResponseEntity<Void> deletar(@PathVariable UUID id){
         Optional<Integracao> integracaoExistente = integracaoRepository.findById(id);
 
         if (integracaoExistente.isEmpty()){

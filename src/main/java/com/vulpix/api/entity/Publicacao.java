@@ -5,13 +5,14 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Entity
 public class Publicacao {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_publicacao")
-    private Long id;
+    private UUID id;
     @Column(name = "legenda")
     @JsonProperty("caption")
     private String legenda;
@@ -31,6 +32,8 @@ public class Publicacao {
     private String plataforma;
     @Column(name = "created_at")
     private LocalDateTime created_at;
+    @Column(name = "id_returned")
+    private Long idReturned;
 
     @ManyToOne
     @JoinColumn(name = "fk_empresa", nullable = false)
@@ -67,11 +70,11 @@ public class Publicacao {
     public void setLikeCount(Integer likeCount) {
         this.likeCount = likeCount;
     }
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -105,5 +108,13 @@ public class Publicacao {
 
     public void setDataPublicacao(OffsetDateTime dataPublicacao) {
         this.dataPublicacao = dataPublicacao;
+    }
+
+    public Long getIdReturned() {
+        return idReturned;
+    }
+
+    public void setIdReturned(Long idReturned) {
+        this.idReturned = idReturned;
     }
 }

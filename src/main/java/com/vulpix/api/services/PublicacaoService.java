@@ -2,10 +2,12 @@ package com.vulpix.api.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.vulpix.api.dto.GetPublicacaoDto;
 import com.vulpix.api.entity.Integracao;
 import com.vulpix.api.entity.Publicacao;
 import com.vulpix.api.integracao.Graph;
 import com.vulpix.api.repository.IntegracaoRepository;
+import com.vulpix.api.repository.PublicacaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,9 @@ public class PublicacaoService {
     private final RestTemplate restTemplate;
     @Autowired
     private IntegracaoRepository integracaoRepository;
+
+    @Autowired
+    private PublicacaoRepository publicacaoRepository;
 
     @Autowired
     public PublicacaoService(RestTemplate restTemplate) {
@@ -108,7 +113,7 @@ public class PublicacaoService {
         }
     }
 
-    public ResponseEntity<List<Publicacao>> buscarPosts(Integer idEmpresa) {
+    public ResponseEntity<List<Publicacao>> buscarPosts(UUID idEmpresa) {
         Optional<Integracao> integracaoOpt = integracaoRepository.findByEmpresaId(idEmpresa);
 
         if (integracaoOpt.isEmpty()) {
@@ -143,12 +148,12 @@ public class PublicacaoService {
                 return ResponseEntity.noContent().build();
             }
 
-            List<Publicacao> posts = objectMapper.convertValue(dataNode,
+            List<GetPublicacaoDto> posts = objectMapper.convertValue(dataNode,
                     objectMapper.getTypeFactory().constructCollectionType(List.class, Publicacao.class));
 
             List<Publicacao> resposta = posts.stream().map(item -> {
                 Publicacao postDto = new Publicacao();
-                postDto.setId(item.getId());
+                postDto.setIdReturned(item.getId());
                 postDto.setLegenda(item.getLegenda());
                 postDto.setTipoMidia(item.getTipoMidia());
                 postDto.setUrlMidia(item.getUrlMidia());
@@ -157,11 +162,28 @@ public class PublicacaoService {
                 return postDto;
             }).collect(Collectors.toList());
 
+            salvarPostNoBanco(resposta);
+
             return ResponseEntity.ok(resposta);
         } catch (IOException e) {
             e.printStackTrace();
             return ResponseEntity.status(500).build();
         }
     }
+
+    public void salvarPostNoBanco(List<Publicacao> posts){
+        List<Publicacao> postsSalvar = new ArrayList<>();
+        for (Publicacao post : posts) {
+            Optional<Publicacao> postExistente = publicacaoRepository.findByIdInsta(post.getIdReturned());
+            if (postExistente.isEmpty()) {
+                postsSalvar.add(post);
+            }
+        }
+        if (!postsSalvar.isEmpty()) {
+            publicacaoRepository.saveAll(postsSalvar);
+        }
+    }
+
+    
 
 }

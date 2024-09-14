@@ -5,6 +5,7 @@ import org.springframework.cache.annotation.CacheConfig;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 
 @Entity
@@ -12,7 +13,7 @@ public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_usuario")
-    private Integer id;
+    private UUID id;
     @Column(name = "nome")
     private String nome;
     @Column(name = "sobrenome")
@@ -36,11 +37,11 @@ public class Usuario {
     @Column(name = "updated_at")
     private LocalDateTime updated_at;
 
-    public Integer getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
