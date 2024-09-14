@@ -18,11 +18,15 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @RestController
@@ -79,8 +83,12 @@ public class PublicacaoController {
         novoPost.setLegenda(post.getCaption());
         novoPost.setUrlMidia(post.getImageUrl());
         novoPost.setEmpresa(empresa.get());
-        novoPost.setDataPublicacao(OffsetDateTime.now());
         novoPost.setCreated_at(LocalDateTime.now());
+
+        OffsetDateTime dataAgendamento = post.getAgendamento();
+        if (dataAgendamento != null) {
+            novoPost.setDataPublicacao(dataAgendamento);
+        }
 
         Optional<Integracao> integracao = empresa.get().getIntegracoes().stream()
                 .filter(i -> TipoIntegracao.INSTAGRAM.equals(i.getTipo()))
@@ -91,9 +99,27 @@ public class PublicacaoController {
             return ResponseEntity.status(404).build();
         }
 
+        if (dataAgendamento != null) {
+            LocalDateTime dataAgendamentoLocal = dataAgendamento.toLocalDateTime();
+            Duration delay = Duration.between(LocalDateTime.now(), dataAgendamentoLocal);
+            if (!delay.isNegative()) {
+                agendamentoCriarPost(integracao.get(), novoPost, delay);
+                return ResponseEntity.status(201).body(novoPost);
+            }
+        }
+
         Long containerId = publicacaoService.criarContainer(integracao.get(), novoPost);
         publicacaoService.criarPublicacao(integracao.get(), containerId);
         return ResponseEntity.status(201).body(publicacaoRepository.save(novoPost));
+    }
+    private void agendamentoCriarPost(Integracao integracao, Publicacao post, Duration delay) {
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
+        scheduler.schedule(() -> {
+            Long containerId = publicacaoService.criarContainer(integracao, post);
+            publicacaoService.criarPublicacao(integracao, containerId);
+            publicacaoRepository.save(post);
+        }, delay.toMillis(), TimeUnit.MILLISECONDS);
     }
 }
 
