@@ -1,7 +1,10 @@
 package com.vulpix.api.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.vulpix.api.Enum.TipoIntegracao;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -9,8 +12,9 @@ import java.util.UUID;
 @Entity
 public class Integracao {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_integracao")
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id_integracao", columnDefinition = "varchar(36)")
     private UUID id;
     @Enumerated(EnumType.STRING)
     private TipoIntegracao tipo;
@@ -33,6 +37,7 @@ public class Integracao {
     private LocalDateTime updated_at;
     @ManyToOne
     @JoinColumn(name = "fk_empresa", nullable = false)
+    @JsonBackReference
     private Empresa empresa;
     public UUID getId() {
         return id;

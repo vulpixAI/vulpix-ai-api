@@ -6,7 +6,7 @@ import java.time.OffsetDateTime;
 
 public class GetPublicacaoDto {
     @JsonProperty(value = "id")
-    private Long id;
+    private String id;
     @JsonProperty(value = "caption")
     private String legenda;
     @JsonProperty(value = "media_type")
@@ -26,11 +26,11 @@ public class GetPublicacaoDto {
         this.likeCount = likeCount;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

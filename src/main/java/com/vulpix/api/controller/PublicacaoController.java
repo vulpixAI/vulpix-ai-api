@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.vulpix.api.Enum.TipoIntegracao;
 import com.vulpix.api.dto.PostPublicacaoDto;
+import com.vulpix.api.dto.PostPublicacaoResponse;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.Integracao;
 import com.vulpix.api.entity.Publicacao;
@@ -71,8 +72,7 @@ public class PublicacaoController {
     }
 
     @PostMapping
-    public ResponseEntity<Publicacao> criarPost(@RequestBody PostPublicacaoDto post){
-
+    public ResponseEntity<PostPublicacaoResponse> criarPost(@RequestBody PostPublicacaoDto post) {
         Optional<Empresa> empresa = empresaRepository.findById(post.getFkEmpresa());
 
         if (empresa.isEmpty()){
@@ -84,6 +84,7 @@ public class PublicacaoController {
         novoPost.setUrlMidia(post.getImageUrl());
         novoPost.setEmpresa(empresa.get());
         novoPost.setCreated_at(LocalDateTime.now());
+        novoPost.setIdReturned(post.getIdReturned());
 
         OffsetDateTime dataAgendamento = post.getAgendamento();
         if (dataAgendamento != null) {
@@ -94,23 +95,31 @@ public class PublicacaoController {
                 .filter(i -> TipoIntegracao.INSTAGRAM.equals(i.getTipo()))
                 .findFirst();
 
-
-        if (integracao.isEmpty()){
+        if (integracao.isEmpty()) {
             return ResponseEntity.status(404).build();
         }
 
         if (dataAgendamento != null) {
-            LocalDateTime dataAgendamentoLocal = dataAgendamento.toLocalDateTime();
-            Duration delay = Duration.between(LocalDateTime.now(), dataAgendamentoLocal);
+            Duration delay = Duration.between(LocalDateTime.now(), dataAgendamento);
             if (!delay.isNegative()) {
                 agendamentoCriarPost(integracao.get(), novoPost, delay);
-                return ResponseEntity.status(201).body(novoPost);
+                return ResponseEntity.status(201).body(createResponseDto(novoPost));
             }
         }
 
         Long containerId = publicacaoService.criarContainer(integracao.get(), novoPost);
-        publicacaoService.criarPublicacao(integracao.get(), containerId);
-        return ResponseEntity.status(201).body(publicacaoRepository.save(novoPost));
+        String postIdReturned = publicacaoService.criarPublicacao(integracao.get(), containerId);
+        novoPost.setIdReturned(postIdReturned);
+        Publicacao savedPost = publicacaoRepository.save(novoPost);
+        return ResponseEntity.status(201).body(createResponseDto(savedPost));
+    }
+
+    private PostPublicacaoResponse createResponseDto(Publicacao post) {
+        PostPublicacaoResponse responseDto = new PostPublicacaoResponse();
+        responseDto.setLegenda(post.getLegenda());
+        responseDto.setId(post.getId());
+        responseDto.setFkEmpresa(post.getEmpresa().getId());
+        return responseDto;
     }
     private void agendamentoCriarPost(Integracao integracao, Publicacao post, Duration delay) {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);

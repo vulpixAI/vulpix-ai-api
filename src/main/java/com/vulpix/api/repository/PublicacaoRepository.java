@@ -8,5 +8,5 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface PublicacaoRepository extends JpaRepository<Publicacao, UUID> {
-    Optional<Publicacao> findByIdInsta(Long idInsta);
+    Optional<Publicacao> findByIdReturned(String idReturned);
 }

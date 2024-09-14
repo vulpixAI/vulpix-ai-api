@@ -1,6 +1,8 @@
 package com.vulpix.api.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.cache.annotation.CacheConfig;
 
 import java.time.LocalDate;
@@ -11,8 +13,9 @@ import java.util.UUID;
 @Entity
 public class Usuario {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_usuario")
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id_usuario", columnDefinition = "varchar(36)")
     private UUID id;
     @Column(name = "nome")
     private String nome;

@@ -1,14 +1,17 @@
 package com.vulpix.api.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class ConfigPrompt {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_config_prompt")
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id_config_prompt", columnDefinition = "varchar(36)")
     private UUID id;
     @Column(name = "chave")
     private String chave;

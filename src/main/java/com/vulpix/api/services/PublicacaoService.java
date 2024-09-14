@@ -1,6 +1,7 @@
 package com.vulpix.api.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.vulpix.api.dto.GetPublicacaoDto;
 import com.vulpix.api.entity.Integracao;
@@ -139,6 +140,7 @@ public class PublicacaoService {
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 
         try {
             JsonNode rootNode = objectMapper.readTree(rawResponse);
@@ -174,7 +176,7 @@ public class PublicacaoService {
     public void salvarPostNoBanco(List<Publicacao> posts){
         List<Publicacao> postsSalvar = new ArrayList<>();
         for (Publicacao post : posts) {
-            Optional<Publicacao> postExistente = publicacaoRepository.findByIdInsta(post.getIdReturned());
+            Optional<Publicacao> postExistente = publicacaoRepository.findByIdReturned(post.getIdReturned());
             if (postExistente.isEmpty()) {
                 postsSalvar.add(post);
             }
@@ -184,6 +186,6 @@ public class PublicacaoService {
         }
     }
 
-    
+
 
 }

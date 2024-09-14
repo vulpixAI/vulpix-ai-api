@@ -15,6 +15,8 @@ public class PostPublicacaoDto {
     private OffsetDateTime agendamento;
     @JsonProperty(value = "fk_empresa")
     private UUID fkEmpresa;
+    @JsonProperty(value = "id_returned")
+    private String idReturned;
 
     public String getImageUrl() {
         return imageUrl;
@@ -38,6 +40,13 @@ public class PostPublicacaoDto {
 
     public void setAgendamento(OffsetDateTime agendamento) {
         this.agendamento = agendamento;
+    }
+    public String getIdReturned() {
+        return idReturned;
+    }
+
+    public void setIdReturned(String idReturned) {
+        this.idReturned = idReturned;
     }
 
     public UUID getFkEmpresa() {
