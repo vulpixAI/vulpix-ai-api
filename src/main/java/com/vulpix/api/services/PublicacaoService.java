@@ -4,9 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.vulpix.api.dto.GetPublicacaoDto;
+import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.Integracao;
 import com.vulpix.api.entity.Publicacao;
 import com.vulpix.api.integracao.Graph;
+import com.vulpix.api.repository.EmpresaRepository;
 import com.vulpix.api.repository.IntegracaoRepository;
 import com.vulpix.api.repository.PublicacaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.List;
@@ -40,6 +43,9 @@ public class PublicacaoService {
 
     @Autowired
     private PublicacaoRepository publicacaoRepository;
+
+    @Autowired
+    private EmpresaRepository empresaRepository;
 
     @Autowired
     public PublicacaoService(RestTemplate restTemplate) {
@@ -114,7 +120,7 @@ public class PublicacaoService {
         }
     }
 
-    public ResponseEntity<List<Publicacao>> buscarPosts(UUID idEmpresa) {
+    public ResponseEntity<List<GetPublicacaoDto>> buscarPosts(UUID idEmpresa) {
         Optional<Integracao> integracaoOpt = integracaoRepository.findByEmpresaId(idEmpresa);
 
         if (integracaoOpt.isEmpty()) {
@@ -123,6 +129,14 @@ public class PublicacaoService {
 
         Integracao integracao = integracaoOpt.get();
 
+        Optional<Empresa> empresaOpt = empresaRepository.findById(idEmpresa);
+
+        if (empresaOpt.isEmpty()) {
+            return ResponseEntity.status(404).build();
+        }
+
+        Empresa empresa = empresaOpt.get();
+
         String url = Graph.BASE_URL + integracao.getIgUserId() + "/media?fields=" + Graph.FIELDS + "&access_token=" + integracao.getAccess_token();
 
         HttpHeaders headers = new HttpHeaders();
@@ -130,7 +144,7 @@ public class PublicacaoService {
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
-        ResponseEntity<String> rawResponseEntity = restTemplate.exchange(url, HttpMethod.GET, null, String.class);
+        ResponseEntity<String> rawResponseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 
         String rawResponse = rawResponseEntity.getBody();
 
@@ -151,7 +165,7 @@ public class PublicacaoService {
             }
 
             List<GetPublicacaoDto> posts = objectMapper.convertValue(dataNode,
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, Publicacao.class));
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, GetPublicacaoDto.class));
 
             List<Publicacao> resposta = posts.stream().map(item -> {
                 Publicacao postDto = new Publicacao();
@@ -164,18 +178,19 @@ public class PublicacaoService {
                 return postDto;
             }).collect(Collectors.toList());
 
-            salvarPostNoBanco(resposta);
+            salvarPostNoBanco(resposta, empresa);
 
-            return ResponseEntity.ok(resposta);
+            return ResponseEntity.ok(posts);
         } catch (IOException e) {
             e.printStackTrace();
             return ResponseEntity.status(500).build();
         }
     }
 
-    public void salvarPostNoBanco(List<Publicacao> posts){
+    public void salvarPostNoBanco(List<Publicacao> posts, Empresa empresa){
         List<Publicacao> postsSalvar = new ArrayList<>();
         for (Publicacao post : posts) {
+            post.setEmpresa(empresa);
             Optional<Publicacao> postExistente = publicacaoRepository.findByIdReturned(post.getIdReturned());
             if (postExistente.isEmpty()) {
                 postsSalvar.add(post);

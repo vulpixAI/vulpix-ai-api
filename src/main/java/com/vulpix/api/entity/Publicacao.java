@@ -22,7 +22,7 @@ public class Publicacao {
     @Column(name = "tipo")
     @JsonProperty("media_type")
     private String tipoMidia;
-    @Column(name = "image_url")
+    @Column(name = "image_url", columnDefinition = "varchar(2048)")
     @JsonProperty("media_url")
     private String urlMidia;
     @Column(name = "data_agendamento")

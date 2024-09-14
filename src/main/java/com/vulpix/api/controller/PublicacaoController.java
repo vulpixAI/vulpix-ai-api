@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.vulpix.api.Enum.TipoIntegracao;
+import com.vulpix.api.dto.GetPublicacaoDto;
 import com.vulpix.api.dto.PostPublicacaoDto;
 import com.vulpix.api.dto.PostPublicacaoResponse;
 import com.vulpix.api.entity.Empresa;
@@ -45,18 +46,18 @@ public class PublicacaoController {
         this.publicacaoService = publicacaoService;
     }
     @GetMapping("/{empresaId}")
-    public ResponseEntity<List<Publicacao>> buscarPosts(@PathVariable UUID empresaId) {
+    public ResponseEntity<List<GetPublicacaoDto>> buscarPosts(@PathVariable UUID empresaId) {
         return publicacaoService.buscarPosts(empresaId);
     }
 
     @GetMapping("/ordenado/{empresaId}")
-    public ResponseEntity<List<Publicacao>> postsOrdenado(@PathVariable UUID empresaId) {
-        ResponseEntity<List<Publicacao>> responseEntity = buscarPosts(empresaId);
-        List<Publicacao> posts = responseEntity.getBody();
+    public ResponseEntity<List<GetPublicacaoDto>> postsOrdenado(@PathVariable UUID empresaId) {
+        ResponseEntity<List<GetPublicacaoDto>> responseEntity = buscarPosts(empresaId);
+        List<GetPublicacaoDto> posts = responseEntity.getBody();
 
         if (posts != null && !posts.isEmpty()) {
             for (int i = 1; i < posts.size(); i++) {
-                Publicacao x = posts.get(i);
+                GetPublicacaoDto x = posts.get(i);
                 int j = i - 1;
                 while (j >= 0 && posts.get(j).getLikeCount() < x.getLikeCount()) {
                     posts.set(j + 1, posts.get(j));
