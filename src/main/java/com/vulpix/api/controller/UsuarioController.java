@@ -1,11 +1,16 @@
 package com.vulpix.api.controller;
 
+import com.vulpix.api.dto.GetUsuarioDto;
+import com.vulpix.api.entity.Integracao;
 import com.vulpix.api.entity.Usuario;
 import com.vulpix.api.repository.UsuarioRepository;
+import com.vulpix.api.services.IntegracaoService;
+import com.vulpix.api.services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,8 +23,9 @@ public class UsuarioController {
     private UsuarioRepository usuarioRepository;
 //    private SecurityConfig securityConfig;
 
+    UsuarioService usuarioService;
     @PostMapping("/signup")
-    public ResponseEntity<Usuario> cadastrar(
+    public ResponseEntity<GetUsuarioDto> cadastrar(
             @RequestBody Usuario novoUsuario
     ) {
         Optional<Usuario> usuarioExistente = usuarioRepository.findByEmail(novoUsuario.getEmail());
@@ -27,17 +33,28 @@ public class UsuarioController {
             return ResponseEntity.status(409).build();
         }
         novoUsuario.setId(null);
-        return ResponseEntity.status(201).body(usuarioRepository.save(novoUsuario));
+        novoUsuario.setCreated_at(LocalDateTime.now());
+        novoUsuario.setAtivo(true);
+        usuarioRepository.save(novoUsuario);
+
+        GetUsuarioDto usuarioRetorno = usuarioService.montaRetornoUsuario(novoUsuario);
+
+        return ResponseEntity.status(201).body(usuarioRetorno);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Optional<Usuario>> autenticar(
+    public ResponseEntity<GetUsuarioDto> autenticar(
             @RequestBody Usuario usuario) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByEmailAndSenha(usuario.getEmail(), usuario.getSenha());
-        if (usuarioOpt.isPresent()) {
-            return ResponseEntity.status(200).body(usuarioOpt);
+
+        if (!usuarioOpt.isPresent()) {
+            return ResponseEntity.status(401).build();
         }
-        return ResponseEntity.status(401).build();
+        Usuario usuarioLogin = usuarioOpt.get();
+
+        GetUsuarioDto usuarioRetorno = usuarioService.montaRetornoUsuario(usuarioLogin);
+
+        return ResponseEntity.status(200).body(usuarioRetorno);
     }
 
     @GetMapping
