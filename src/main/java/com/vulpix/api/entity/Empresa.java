@@ -22,13 +22,9 @@ public class Empresa {
     private String razaoSocial;
 
     @Column(name = "nome_fantasia")
-    private String nome_fantasia;
+    private String nomeFantasia;
     @Column(name = "cnpj")
     private String cnpj;
-    @Column(name = "email")
-    private String email;
-    @Column(name = "telefone")
-    private String telefone;
     @Column(name = "cep")
     private String cep;
     @Column(name = "logradouro")
@@ -80,11 +76,11 @@ public class Empresa {
     }
 
     public String getNome_fantasia() {
-        return nome_fantasia;
+        return nomeFantasia ;
     }
 
     public void setNome_fantasia(String nome_fantasia) {
-        this.nome_fantasia = nome_fantasia;
+        this.nomeFantasia = nome_fantasia;
     }
 
     public String getCnpj() {
@@ -94,23 +90,6 @@ public class Empresa {
     public void setCnpj(String cnpj) {
         this.cnpj = cnpj;
     }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getTelefone() {
-        return telefone;
-    }
-
-    public void setTelefone(String telefone) {
-        this.telefone = telefone;
-    }
-
     public String getCep() {
         return cep;
     }

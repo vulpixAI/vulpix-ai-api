@@ -42,12 +42,23 @@ public class EmpresaController {
         }
         Empresa empresaExistente = empresa.get();
 
-        if (empresaAtualizada.getEmail() != null && !empresaAtualizada.getEmail().isEmpty()) {
-            empresaExistente.setEmail(empresaAtualizada.getEmail());
+        if (empresaAtualizada.getCep() != null && !empresaAtualizada.getCep().isEmpty()){
+            empresaExistente.setCep(empresaAtualizada.getCep());
         }
-
-        if (empresaAtualizada.getTelefone() != null && !empresaAtualizada.getTelefone().isEmpty()) {
-            empresaExistente.setTelefone(empresaAtualizada.getTelefone());
+        if (empresaAtualizada.getLogradouro() != null && !empresaAtualizada.getLogradouro().isEmpty()){
+            empresaExistente.setLogradouro(empresaAtualizada.getLogradouro());
+        }
+        if (empresaAtualizada.getNumero() != null && !empresaAtualizada.getNumero().isEmpty()){
+            empresaExistente.setNumero(empresaAtualizada.getNumero());
+        }
+        if (empresaAtualizada.getBairro() != null && !empresaAtualizada.getBairro().isEmpty()){
+            empresaExistente.setBairro(empresaAtualizada.getBairro());
+        }
+        if (empresaAtualizada.getEstado() != null && !empresaAtualizada.getEstado().isEmpty()){
+            empresaExistente.setEstado(empresaAtualizada.getEstado());
+        }
+        if (empresaAtualizada.getCidade() != null && !empresaAtualizada.getCidade().isEmpty()){
+            empresaExistente.setCidade(empresaAtualizada.getCidade());
         }
 
         EmpresaRepository.save(empresaExistente);
