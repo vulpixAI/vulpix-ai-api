@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 public class UsuarioService {
     public GetUsuarioDto montaRetornoUsuario(Usuario usuario){
         GetUsuarioDto usuarioRetorno = new GetUsuarioDto(
+                usuario.getId(),
                 usuario.getNome(),
                 usuario.getSobrenome(),
                 usuario.getEmail(),
