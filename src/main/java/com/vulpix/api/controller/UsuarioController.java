@@ -23,7 +23,8 @@ public class UsuarioController {
     private UsuarioRepository usuarioRepository;
 //    private SecurityConfig securityConfig;
 
-    UsuarioService usuarioService;
+    @Autowired
+    private UsuarioService usuarioService;
     @PostMapping("/signup")
     public ResponseEntity<GetUsuarioDto> cadastrar(
             @RequestBody Usuario novoUsuario
