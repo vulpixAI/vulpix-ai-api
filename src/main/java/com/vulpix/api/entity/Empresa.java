@@ -3,8 +3,12 @@ package com.vulpix.api.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import org.hibernate.validator.constraints.br.CNPJ;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -19,25 +23,39 @@ public class Empresa {
     @Column(name = "id_empresa", columnDefinition = "varchar(36)")
     private UUID id;
     @Column(name = "razao_social")
+    @NotBlank
+    @Size(min = 3, max = 150)
     private String razaoSocial;
 
     @Column(name = "nome_fantasia")
+    @NotBlank
+    @Size(min = 3, max = 150)
     private String nomeFantasia;
     @Column(name = "cnpj")
+    @NotBlank
+    @CNPJ
     private String cnpj;
     @Column(name = "cep")
+    @NotBlank
+    @Pattern(regexp = "^\\d{2}\\.\\d{3}\\.\\d{3}/\\d{4}-\\d{2}$", message = "CNPJ inválido. O formato esperado é XX.XXX.XXX/XXXX-XX")
     private String cep;
     @Column(name = "logradouro")
+    @NotBlank
+    @Size(min = 3, max = 150)
     private String logradouro;
     @Column(name = "numero")
+    @NotBlank
     private String numero;
     @Column(name = "bairro")
+    @NotBlank
     private String bairro;
     @Column(name = "complemento")
     private String complemento;
     @Column(name = "cidade")
+    @NotBlank
     private String cidade;
     @Column(name = "estado")
+    @NotBlank
     private String estado;
     @Column(name = "created_at")
     private LocalDateTime created_at;
@@ -76,7 +94,7 @@ public class Empresa {
     }
 
     public String getNome_fantasia() {
-        return nomeFantasia ;
+        return nomeFantasia;
     }
 
     public void setNome_fantasia(String nome_fantasia) {
@@ -90,6 +108,7 @@ public class Empresa {
     public void setCnpj(String cnpj) {
         this.cnpj = cnpj;
     }
+
     public String getCep() {
         return cep;
     }
