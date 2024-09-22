@@ -2,8 +2,10 @@ package com.vulpix.api.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.vulpix.api.Enum.TipoIntegracao;
 import com.vulpix.api.dto.GetPublicacaoDto;
+import com.vulpix.api.dto.PostPublicacaoDto;
+import com.vulpix.api.dto.PostPublicacaoResponse;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.Integracao;
 import com.vulpix.api.entity.Publicacao;
@@ -29,21 +31,20 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.List;
 
 @Service
 public class PublicacaoService {
-
     private final RestTemplate restTemplate;
     @Autowired
     private IntegracaoRepository integracaoRepository;
-
     @Autowired
     private PublicacaoRepository publicacaoRepository;
-
     @Autowired
     private EmpresaRepository empresaRepository;
 
@@ -58,11 +59,6 @@ public class PublicacaoService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        System.out.println("URL da Imagem: " + post.getUrlMidia());
-        System.out.println("Legenda: " + post.getLegenda());
-        System.out.println("Token de Acesso: " + integracao.getAccess_token());
-        System.out.println("Ig Id user: " + integracao.getIgUserId());
-
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("image_url", post.getUrlMidia());
         body.add("caption", post.getLegenda());
@@ -73,21 +69,15 @@ public class PublicacaoService {
         try {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
 
-            if (response.getStatusCode() == HttpStatus.OK) {
+            if (response.getStatusCode().is2xxSuccessful()) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 JsonNode root = objectMapper.readTree(response.getBody());
-
-                String idString = root.path("id").asText();
-
-                return Long.parseLong(idString);
+                return Long.parseLong(root.path("id").asText());
             } else {
                 throw new RuntimeException("Falha ao criar o container: " + response.getStatusCode());
             }
         } catch (HttpClientErrorException e) {
-            System.err.println("Erro ao criar o container: " + e.getResponseBodyAsString());
-            throw e;
-        } catch (JsonMappingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Erro ao criar o container: " + e.getResponseBodyAsString(), e);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -103,14 +93,12 @@ public class PublicacaoService {
                 .queryParam("creation_id", idContainer)
                 .queryParam("access_token", integracao.getAccess_token());
 
-        String finalUrl = uriBuilder.toUriString();
-
         HttpEntity<String> request = new HttpEntity<>(headers);
 
         try {
-            ResponseEntity<String> response = restTemplate.exchange(finalUrl, HttpMethod.POST, request, String.class);
+            ResponseEntity<String> response = restTemplate.exchange(uriBuilder.toUriString(), HttpMethod.POST, request, String.class);
 
-            if (response.getStatusCode() == HttpStatus.OK) {
+            if (response.getStatusCode().is2xxSuccessful()) {
                 return response.getBody();
             } else {
                 throw new RuntimeException("Falha ao criar a publicação: " + response.getStatusCode());
@@ -128,7 +116,6 @@ public class PublicacaoService {
         }
 
         Integracao integracao = integracaoOpt.get();
-
         Optional<Empresa> empresaOpt = empresaRepository.findById(idEmpresa);
 
         if (empresaOpt.isEmpty()) {
@@ -136,19 +123,15 @@ public class PublicacaoService {
         }
 
         Empresa empresa = empresaOpt.get();
-
         String url = Graph.BASE_URL + integracao.getIgUserId() + "/media?fields=" + Graph.FIELDS + "&access_token=" + integracao.getAccess_token();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
-
         ResponseEntity<String> rawResponseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 
-        String rawResponse = rawResponseEntity.getBody();
-
-        if (rawResponse == null || rawResponse.isEmpty()) {
+        if (rawResponseEntity.getBody() == null || rawResponseEntity.getBody().isEmpty()) {
             return ResponseEntity.status(204).build();
         }
 
@@ -157,7 +140,7 @@ public class PublicacaoService {
         objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 
         try {
-            JsonNode rootNode = objectMapper.readTree(rawResponse);
+            JsonNode rootNode = objectMapper.readTree(rawResponseEntity.getBody());
             JsonNode dataNode = rootNode.path("data");
 
             if (!dataNode.isArray()) {
@@ -179,7 +162,6 @@ public class PublicacaoService {
             }).collect(Collectors.toList());
 
             salvarPostNoBanco(resposta, empresa);
-
             return ResponseEntity.ok(posts);
         } catch (IOException e) {
             e.printStackTrace();
@@ -187,20 +169,13 @@ public class PublicacaoService {
         }
     }
 
-    public void salvarPostNoBanco(List<Publicacao> posts, Empresa empresa){
-        List<Publicacao> postsSalvar = new ArrayList<>();
-        for (Publicacao post : posts) {
+    public void salvarPostNoBanco(List<Publicacao> posts, Empresa empresa) {
+        posts.forEach(post -> {
             post.setEmpresa(empresa);
             Optional<Publicacao> postExistente = publicacaoRepository.findByIdReturned(post.getIdReturned());
             if (postExistente.isEmpty()) {
-                postsSalvar.add(post);
+                publicacaoRepository.save(post);
             }
-        }
-        if (!postsSalvar.isEmpty()) {
-            publicacaoRepository.saveAll(postsSalvar);
-        }
+        });
     }
-
-
-
 }

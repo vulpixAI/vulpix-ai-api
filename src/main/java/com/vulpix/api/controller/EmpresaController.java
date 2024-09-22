@@ -12,7 +12,7 @@ import java.util.UUID;
 @RequestMapping("/empresas")
 public class EmpresaController {
     @Autowired
-    EmpresaService empresaService;
+    private EmpresaService empresaService;
 
     @PostMapping
     public ResponseEntity<Empresa> cadastrar(@RequestBody Empresa novaEmpresa) {
