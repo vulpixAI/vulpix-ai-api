@@ -1,8 +1,5 @@
 package com.vulpix.api.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.vulpix.api.Enum.TipoIntegracao;
 import com.vulpix.api.dto.GetPublicacaoDto;
 import com.vulpix.api.dto.PostPublicacaoDto;
@@ -11,25 +8,22 @@ import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.Integracao;
 import com.vulpix.api.entity.Publicacao;
 import com.vulpix.api.repository.EmpresaRepository;
-import com.vulpix.api.repository.IntegracaoRepository;
 import com.vulpix.api.repository.PublicacaoRepository;
 import com.vulpix.api.services.PublicacaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/posts")
@@ -56,20 +50,53 @@ public class PublicacaoController {
         List<GetPublicacaoDto> posts = responseEntity.getBody();
 
         if (posts != null && !posts.isEmpty()) {
-            for (int i = 1; i < posts.size(); i++) {
-                GetPublicacaoDto x = posts.get(i);
-                int j = i - 1;
-                while (j >= 0 && posts.get(j).getLikeCount() < x.getLikeCount()) {
-                    posts.set(j + 1, posts.get(j));
-                    j--;
-                }
-                posts.set(j + 1, x);
-            }
-        }else{
+            quickSort(posts, 0, posts.size() - 1);
+            return ResponseEntity.ok(posts);
+        } else {
             return ResponseEntity.status(204).build();
         }
+    }
 
-        return ResponseEntity.ok(posts);
+    private void quickSort(List<GetPublicacaoDto> posts, int indMenor, int indMaior) {
+        if (indMenor < indMaior) {
+            int pi = particiona(posts, indMenor, indMaior);
+            quickSort(posts, indMenor, pi - 1);
+            quickSort(posts, pi + 1, indMaior);
+        }
+    }
+
+    private int particiona(List<GetPublicacaoDto> posts, int indMenor, int indMaior) {
+        GetPublicacaoDto pivot = posts.get(indMaior);
+        int i = indMenor - 1;
+
+        for (int j = indMenor; j < indMaior; j++) {
+            if (posts.get(j).getLikeCount() > pivot.getLikeCount()) {
+                i++;
+                Collections.swap(posts, i, j);
+            }
+        }
+        Collections.swap(posts, i + 1, indMaior);
+        return i + 1;
+    }
+
+    @GetMapping("/somaLikes/{empresaId}")
+    public ResponseEntity<Integer> somarLikes(@PathVariable UUID empresaId) {
+        ResponseEntity<List<GetPublicacaoDto>> responseEntity = buscarPosts(empresaId);
+        List<GetPublicacaoDto> posts = responseEntity.getBody();
+
+        if (posts != null && !posts.isEmpty()) {
+            int somaTotalLikes = somarLikePosts(posts, 0);
+            return ResponseEntity.ok(somaTotalLikes);
+        } else {
+            return ResponseEntity.status(204).build();
+        }
+    }
+
+    private int somarLikePosts(List<GetPublicacaoDto> posts, int indice) {
+        if (indice == posts.size()) {
+            return 0;
+        }
+        return posts.get(indice).getLikeCount() + somarLikePosts(posts, indice + 1);
     }
 
     @PostMapping

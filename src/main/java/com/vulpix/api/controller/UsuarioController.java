@@ -20,100 +20,65 @@ import java.util.UUID;
 
 public class UsuarioController {
     @Autowired
-    private UsuarioRepository usuarioRepository;
-//    private SecurityConfig securityConfig;
-
-    @Autowired
     private UsuarioService usuarioService;
+
     @PostMapping("/signup")
-    public ResponseEntity<GetUsuarioDto> cadastrar(
-            @RequestBody Usuario novoUsuario
-    ) {
-        Optional<Usuario> usuarioExistente = usuarioRepository.findByEmail(novoUsuario.getEmail());
-        if (usuarioExistente.isPresent()) {
+    public ResponseEntity<GetUsuarioDto> cadastrar(@RequestBody Usuario novoUsuario) {
+        Optional<GetUsuarioDto> usuarioRetorno = usuarioService.cadastrarUsuario(novoUsuario);
+        if (usuarioRetorno.isPresent()) {
+            return ResponseEntity.status(201).body(usuarioRetorno.get());
+        } else {
             return ResponseEntity.status(409).build();
         }
-        novoUsuario.setId(null);
-        novoUsuario.setCreated_at(LocalDateTime.now());
-        novoUsuario.setAtivo(true);
-        usuarioRepository.save(novoUsuario);
-
-        GetUsuarioDto usuarioRetorno = usuarioService.montaRetornoUsuario(novoUsuario);
-
-        return ResponseEntity.status(201).body(usuarioRetorno);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<GetUsuarioDto> autenticar(
-            @RequestBody Usuario usuario) {
-        Optional<Usuario> usuarioOpt = usuarioRepository.findByEmailAndSenha(usuario.getEmail(), usuario.getSenha());
-
-        if (!usuarioOpt.isPresent()) {
+    public ResponseEntity<GetUsuarioDto> autenticar(@RequestBody Usuario usuario) {
+        Optional<GetUsuarioDto> usuarioRetorno = usuarioService.autenticarUsuario(usuario.getEmail(), usuario.getSenha());
+        if (usuarioRetorno.isPresent()) {
+            return ResponseEntity.ok(usuarioRetorno.get());
+        } else {
             return ResponseEntity.status(401).build();
         }
-        Usuario usuarioLogin = usuarioOpt.get();
-
-        GetUsuarioDto usuarioRetorno = usuarioService.montaRetornoUsuario(usuarioLogin);
-
-        return ResponseEntity.status(200).body(usuarioRetorno);
     }
 
     @GetMapping
     public ResponseEntity<List<Usuario>> listarUsuarios() {
-        List<Usuario> usuarios = usuarioRepository.findAll();
+        List<Usuario> usuarios = usuarioService.listarUsuarios();
         if (usuarios.isEmpty()) {
             return ResponseEntity.status(204).build();
         }
-        return ResponseEntity.status(200).body(usuarios);
+        return ResponseEntity.ok(usuarios);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Usuario>> buscarUsuariosPorId(
-            @PathVariable UUID id) {
-        Optional<Usuario> usuarioOpt = usuarioRepository.findById(id);
+    public ResponseEntity<Usuario> buscarUsuarioPorId(@PathVariable UUID id) {
+        Optional<Usuario> usuarioOpt = usuarioService.buscarUsuarioPorId(id);
         if (usuarioOpt.isPresent()) {
-            Usuario usuarioEncontrado = usuarioOpt.get();
-            return ResponseEntity.status(200).body(usuarioOpt);
+            return ResponseEntity.ok(usuarioOpt.get());
+        } else {
+            return ResponseEntity.status(404).build();
         }
-        return ResponseEntity.status(404).build();
     }
-
 
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> atualizar(
-            @PathVariable UUID id,
-            @RequestBody Usuario usuarioAtualizado) {
-        if (usuarioRepository.existsById(id)) {
-            usuarioAtualizado.setId(id);
-            return ResponseEntity.status(200).body(usuarioRepository.save(usuarioAtualizado));
+    public ResponseEntity<Usuario> atualizar(@PathVariable UUID id, @RequestBody Usuario usuarioAtualizado) {
+        Optional<Usuario> usuarioOpt = usuarioService.atualizarUsuario(id, usuarioAtualizado);
+        if (usuarioOpt.isPresent()) {
+            return ResponseEntity.ok(usuarioOpt.get());
+        } else {
+            return ResponseEntity.status(404).build();
         }
-        return ResponseEntity.status(404).build();
     }
-
-//    @PatchMapping("/update-password/{id}")
-//    public ResponseEntity<Optional<Usuario>> atualizarSenha(
-//            @PathVariable int id,
-//            @RequestBody String novaSenha) {
-//        Optional<Usuario> usuarioOpt = usuarioRepository.findById(id);
-//        if (usuarioOpt.isPresent()) {
-//            Usuario usuario = usuarioOpt.get();
-//            String senhaCodificada = securityConfig.criptografarSenhas().encode(novaSenha);
-//            usuario.setSenha(senhaCodificada);
-//            usuarioRepository.save(usuario);
-//            return ResponseEntity.status(200).body(usuarioOpt);
-//        }
-//        return ResponseEntity.status(404).build();
-//    }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(
-            @PathVariable UUID id) {
-        if (usuarioRepository.existsById(id)) {
-            usuarioRepository.deleteById(id);
+    public ResponseEntity<Void> deletar(@PathVariable UUID id) {
+        boolean deletado = usuarioService.deletarUsuario(id);
+        if (deletado) {
             return ResponseEntity.status(204).build();
+        } else {
+            return ResponseEntity.status(404).build();
         }
-        return ResponseEntity.status(404).build();
     }
-
 
 }
