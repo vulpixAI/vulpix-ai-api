@@ -8,6 +8,7 @@ import com.vulpix.api.entity.Publicacao;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.repository.IntegracaoRepository;
 import com.vulpix.api.repository.UsuarioRepository;
+import com.vulpix.api.services.IntegracaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,35 +23,28 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/integracoes")
 public class IntegracaoController {
+
     @Autowired
-    private IntegracaoRepository integracaoRepository;
+    private IntegracaoService integracaoService;
 
     @PostMapping
-    public ResponseEntity<Integracao> habilitar(
-            @RequestBody Integracao novaIntegracao
-    ) {
-        Optional<Integracao> integracaoAtiva = integracaoRepository.findByEmpresaAndTipo(novaIntegracao.getEmpresa(), novaIntegracao.getTipo());
+    public ResponseEntity<Integracao> habilitar(@RequestBody Integracao novaIntegracao) {
+        Optional<Integracao> integracaoAtiva = integracaoService.findByEmpresaAndTipo(novaIntegracao.getEmpresa(), novaIntegracao.getTipo());
         if (integracaoAtiva.isPresent()) {
             return ResponseEntity.status(409).build();
         }
         novaIntegracao.setId(null);
-        return ResponseEntity.status(201).body(integracaoRepository.save(novaIntegracao));
+        return ResponseEntity.status(201).body(integracaoService.save(novaIntegracao));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Integracao> atualizar(
-            @PathVariable UUID id,
-            @RequestBody Integracao integracaoAtualizada
-    ) {
-
-        Optional<Integracao> integracaoExistente = integracaoRepository.findById(id);
-
+    public ResponseEntity<Integracao> atualizar(@PathVariable UUID id, @RequestBody Integracao integracaoAtualizada) {
+        Optional<Integracao> integracaoExistente = integracaoService.getIntegracaoById(id);
         if (integracaoExistente.isEmpty()) {
             return ResponseEntity.status(404).build();
         }
 
         Integracao integracao = integracaoExistente.get();
-
         if (integracaoAtualizada.getAccess_token() != null) {
             integracao.setAccess_token(integracaoAtualizada.getAccess_token());
         }
@@ -64,18 +58,18 @@ public class IntegracaoController {
             integracao.setIgUserId(integracaoAtualizada.getIgUserId());
         }
 
-        return ResponseEntity.status(200).body(integracaoRepository.save(integracao));
+        return ResponseEntity.status(200).body(integracaoService.save(integracao));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable UUID id){
-        Optional<Integracao> integracaoExistente = integracaoRepository.findById(id);
-
-        if (integracaoExistente.isEmpty()){
+    public ResponseEntity<Void> deletar(@PathVariable UUID id) {
+        Optional<Integracao> integracaoExistente = integracaoService.getIntegracaoById(id);
+        if (integracaoExistente.isEmpty()) {
             return ResponseEntity.status(404).build();
         }
 
-        integracaoRepository.deleteById(id);
+        integracaoService.deleteById(id);
         return ResponseEntity.status(204).build();
     }
+
 }
