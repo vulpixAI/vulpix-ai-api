@@ -62,6 +62,18 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
+<!--        <dependency>-->
+<!--            <groupId>com.mercadopago</groupId>-->
+<!--            <artifactId>sdk-java</artifactId>-->
+<!--            <version>2.1.29</version>-->
+<!--        </dependency>-->
+
+        <dependency>
+            <groupId>com.mercadopago</groupId>
+            <artifactId>dx-java</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>
