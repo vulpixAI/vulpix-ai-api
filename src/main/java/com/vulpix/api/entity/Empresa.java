@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.hibernate.validator.constraints.br.CNPJ;
@@ -16,6 +17,11 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Empresa {
     @Id
     @JdbcTypeCode(SqlTypes.VARCHAR)
@@ -23,39 +29,25 @@ public class Empresa {
     @Column(name = "id_empresa", columnDefinition = "varchar(36)")
     private UUID id;
     @Column(name = "razao_social")
-    @NotBlank
-    @Size(min = 3, max = 150)
     private String razaoSocial;
 
     @Column(name = "nome_fantasia")
-    @NotBlank
-    @Size(min = 3, max = 150)
     private String nomeFantasia;
     @Column(name = "cnpj")
-    @NotBlank
-    @CNPJ
     private String cnpj;
     @Column(name = "cep")
-    @NotBlank
-    @Pattern(regexp = "^\\d{2}\\.\\d{3}\\.\\d{3}/\\d{4}-\\d{2}$", message = "CNPJ inválido. O formato esperado é XX.XXX.XXX/XXXX-XX")
     private String cep;
     @Column(name = "logradouro")
-    @NotBlank
-    @Size(min = 3, max = 150)
     private String logradouro;
     @Column(name = "numero")
-    @NotBlank
     private String numero;
     @Column(name = "bairro")
-    @NotBlank
     private String bairro;
     @Column(name = "complemento")
     private String complemento;
     @Column(name = "cidade")
-    @NotBlank
     private String cidade;
     @Column(name = "estado")
-    @NotBlank
     private String estado;
     @Column(name = "created_at")
     private LocalDateTime created_at;
@@ -69,123 +61,4 @@ public class Empresa {
     @JsonManagedReference
     private List<Integracao> integracoes;
 
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public String getRazaoSocial() {
-        return razaoSocial;
-    }
-
-    public void setRazaoSocial(String razaoSocial) {
-        this.razaoSocial = razaoSocial;
-    }
-
-    public List<Integracao> getIntegracoes() {
-        return integracoes;
-    }
-
-    public void setIntegracoes(List<Integracao> integracoes) {
-        this.integracoes = integracoes;
-    }
-
-    public String getNome_fantasia() {
-        return nomeFantasia;
-    }
-
-    public void setNome_fantasia(String nome_fantasia) {
-        this.nomeFantasia = nome_fantasia;
-    }
-
-    public String getCnpj() {
-        return cnpj;
-    }
-
-    public void setCnpj(String cnpj) {
-        this.cnpj = cnpj;
-    }
-
-    public String getCep() {
-        return cep;
-    }
-
-    public void setCep(String cep) {
-        this.cep = cep;
-    }
-
-    public String getLogradouro() {
-        return logradouro;
-    }
-
-    public void setLogradouro(String logradouro) {
-        this.logradouro = logradouro;
-    }
-
-    public String getNumero() {
-        return numero;
-    }
-
-    public void setNumero(String numero) {
-        this.numero = numero;
-    }
-
-    public String getBairro() {
-        return bairro;
-    }
-
-    public void setBairro(String bairro) {
-        this.bairro = bairro;
-    }
-
-    public String getComplemento() {
-        return complemento;
-    }
-
-    public void setComplemento(String complemento) {
-        this.complemento = complemento;
-    }
-
-    public String getCidade() {
-        return cidade;
-    }
-
-    public void setCidade(String cidade) {
-        this.cidade = cidade;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
-
-    public LocalDateTime getCreated_at() {
-        return created_at;
-    }
-
-    public void setCreated_at(LocalDateTime created_at) {
-        this.created_at = created_at;
-    }
-
-    public LocalDateTime getUpdated_at() {
-        return updated_at;
-    }
-
-    public void setUpdated_at(LocalDateTime updated_at) {
-        this.updated_at = updated_at;
-    }
-
-    public Usuario getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
-    }
 }

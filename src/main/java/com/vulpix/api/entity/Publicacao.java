@@ -2,6 +2,7 @@ package com.vulpix.api.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -10,6 +11,11 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Publicacao {
     @Id
     @JdbcTypeCode(SqlTypes.VARCHAR)
@@ -41,83 +47,4 @@ public class Publicacao {
     @ManyToOne
     @JoinColumn(name = "fk_empresa", nullable = false)
     private Empresa empresa;
-
-    public String getPlataforma() {
-        return plataforma;
-    }
-
-    public void setPlataforma(String plataforma) {
-        this.plataforma = plataforma;
-    }
-
-    public LocalDateTime getCreated_at() {
-        return created_at;
-    }
-
-    public void setCreated_at(LocalDateTime created_at) {
-        this.created_at = created_at;
-    }
-
-    public Empresa getEmpresa() {
-        return empresa;
-    }
-
-    public void setEmpresa(Empresa empresa) {
-        this.empresa = empresa;
-    }
-
-    public Integer getLikeCount() {
-        return likeCount;
-    }
-
-    public void setLikeCount(Integer likeCount) {
-        this.likeCount = likeCount;
-    }
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public String getLegenda() {
-        return legenda;
-    }
-
-    public void setLegenda(String legenda) {
-        this.legenda = legenda;
-    }
-
-    public String getTipoMidia() {
-        return tipoMidia;
-    }
-
-    public void setTipoMidia(String tipoMidia) {
-        this.tipoMidia = tipoMidia;
-    }
-
-    public String getUrlMidia() {
-        return urlMidia;
-    }
-
-    public void setUrlMidia(String urlMidia) {
-        this.urlMidia = urlMidia;
-    }
-
-    public OffsetDateTime getDataPublicacao() {
-        return dataPublicacao;
-    }
-
-    public void setDataPublicacao(OffsetDateTime dataPublicacao) {
-        this.dataPublicacao = dataPublicacao;
-    }
-
-    public String getIdReturned() {
-        return idReturned;
-    }
-
-    public void setIdReturned(String idReturned) {
-        this.idReturned = idReturned;
-    }
 }
