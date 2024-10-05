@@ -40,4 +40,9 @@ public class Usuario {
     private LocalDateTime created_at;
     @Column(name = "updated_at")
     private LocalDateTime updated_at;
+
+    public boolean isAtivo() {
+        if (status) return true;
+        return false;
+    }
 }

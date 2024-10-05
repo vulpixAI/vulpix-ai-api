@@ -1,12 +1,11 @@
 package com.vulpix.api.services;
 
-import com.vulpix.api.dto.GetUsuarioDto;
+import com.vulpix.api.dto.Usuario.GetUsuarioDto;
 import com.vulpix.api.entity.Usuario;
 import com.vulpix.api.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -16,17 +15,8 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    public Optional<GetUsuarioDto> cadastrarUsuario(
-            Usuario novoUsuario) {
-        Optional<Usuario> usuarioExistente = usuarioRepository.findByEmail(novoUsuario.getEmail());
-        if (usuarioExistente.isPresent()) {
-            return Optional.empty();
-        }
-        novoUsuario.setId(null);
-        novoUsuario.setCreated_at(LocalDateTime.now());
-        novoUsuario.setAtivo(true);
-        Usuario usuarioSalvo = usuarioRepository.save(novoUsuario);
-        return Optional.of(montaRetornoUsuario(usuarioSalvo));
+    public Usuario cadastrarUsuario(Usuario novoUsuario) {
+        return usuarioRepository.save(novoUsuario);
     }
 
     public Optional<GetUsuarioDto> autenticarUsuario(

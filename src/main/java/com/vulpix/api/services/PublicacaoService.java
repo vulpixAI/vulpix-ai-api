@@ -62,7 +62,7 @@ public class PublicacaoService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("image_url", post.getUrlMidia());
         body.add("caption", post.getLegenda());
-        body.add("access_token", integracao.getAccess_token());
+        body.add("access_token", integracao.getAccessToken());
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
 
@@ -91,7 +91,7 @@ public class PublicacaoService {
 
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParam("creation_id", idContainer)
-                .queryParam("access_token", integracao.getAccess_token());
+                .queryParam("access_token", integracao.getAccessToken());
 
         HttpEntity<String> request = new HttpEntity<>(headers);
 
@@ -123,7 +123,7 @@ public class PublicacaoService {
         }
 
         Empresa empresa = empresaOpt.get();
-        String url = Graph.BASE_URL + integracao.getIgUserId() + "/media?fields=" + Graph.FIELDS + "&access_token=" + integracao.getAccess_token();
+        String url = Graph.BASE_URL + integracao.getIgUserId() + "/media?fields=" + Graph.FIELDS + "&access_token=" + integracao.getAccessToken();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

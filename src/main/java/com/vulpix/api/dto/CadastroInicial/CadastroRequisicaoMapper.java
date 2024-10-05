@@ -23,7 +23,7 @@ public class CadastroRequisicaoMapper {
         return usuario;
     }
 
-    public Empresa criaEntidadeEmpresa(CadastroRequisicaoDto dto, Usuario responsavel){
+    public static Empresa criaEntidadeEmpresa(CadastroRequisicaoDto dto, Usuario responsavel){
         if (dto == null || responsavel == null) return null;
 
         Empresa empresa = Empresa.builder()
@@ -43,6 +43,35 @@ public class CadastroRequisicaoMapper {
                 .build();
 
         return empresa;
+    }
+
+    public static CadastroRetornoDto retornoCadastro(Usuario usuario, Empresa empresa) {
+
+        CadastroRetornoDto.EmpresaDto.EnderecoDto endereco = CadastroRetornoDto.EmpresaDto.EnderecoDto.builder()
+                .cep(empresa.getCep())
+                .bairro(empresa.getBairro())
+                .logradouro(empresa.getLogradouro())
+                .numero(empresa.getNumero())
+                .complemento(empresa.getComplemento())
+                .cidade(empresa.getCidade())
+                .estado(empresa.getEstado())
+                .build();
+
+        CadastroRetornoDto.EmpresaDto empresaRes = CadastroRetornoDto.EmpresaDto.builder()
+                .cnpj(empresa.getCnpj())
+                .razaoSocial(empresa.getRazaoSocial())
+                .nomeFantasia(empresa.getNomeFantasia())
+                .endereco(endereco)
+                .build();
+
+        return CadastroRetornoDto.builder()
+                .id(usuario.getId())
+                .nome(usuario.getNome())
+                .sobrenome(usuario.getSobrenome())
+                .email(usuario.getEmail())
+                .telefone(usuario.getTelefone())
+                .empresa(empresaRes)
+                .build();
     }
 
 

@@ -1,16 +1,17 @@
 package com.vulpix.api.controller;
 
-import com.vulpix.api.dto.GetUsuarioDto;
-import com.vulpix.api.entity.Integracao;
+import com.vulpix.api.dto.CadastroInicial.CadastroRequisicaoDto;
+import com.vulpix.api.dto.CadastroInicial.CadastroRequisicaoMapper;
+import com.vulpix.api.dto.CadastroInicial.CadastroRetornoDto;
+import com.vulpix.api.dto.Usuario.GetUsuarioDto;
+import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.Usuario;
-import com.vulpix.api.repository.UsuarioRepository;
-import com.vulpix.api.services.IntegracaoService;
+import com.vulpix.api.services.EmpresaService;
 import com.vulpix.api.services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,15 +22,19 @@ import java.util.UUID;
 public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
+    @Autowired
+    private EmpresaService empresaService;
 
-    @PostMapping("/signup")
-    public ResponseEntity<GetUsuarioDto> cadastrar(@RequestBody Usuario novoUsuario) {
-        Optional<GetUsuarioDto> usuarioRetorno = usuarioService.cadastrarUsuario(novoUsuario);
-        if (usuarioRetorno.isPresent()) {
-            return ResponseEntity.status(201).body(usuarioRetorno.get());
-        } else {
-            return ResponseEntity.status(409).build();
-        }
+    @PostMapping
+    public ResponseEntity<CadastroRetornoDto> cadastrar(@RequestBody CadastroRequisicaoDto cadastroInicial) {
+        Usuario usuarioEntidade = CadastroRequisicaoMapper.criaEntidadeUsuario(cadastroInicial);
+        Usuario usuarioSalvo = usuarioService.cadastrarUsuario(usuarioEntidade);
+        Empresa empresaEntidade = CadastroRequisicaoMapper.criaEntidadeEmpresa(cadastroInicial, usuarioSalvo);
+        Empresa empresaSalva = empresaService.salvarEmpresa(empresaEntidade);
+
+        CadastroRetornoDto retorno = CadastroRequisicaoMapper.retornoCadastro(usuarioSalvo, empresaSalva);
+
+        return ResponseEntity.status(201).body(retorno);
     }
 
     @PostMapping("/login")

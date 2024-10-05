@@ -45,14 +45,14 @@ public class IntegracaoController {
         }
 
         Integracao integracao = integracaoExistente.get();
-        if (integracaoAtualizada.getAccess_token() != null) {
-            integracao.setAccess_token(integracaoAtualizada.getAccess_token());
+        if (integracaoAtualizada.getAccessToken() != null) {
+            integracao.setAccessToken(integracaoAtualizada.getAccessToken());
         }
-        if (integracaoAtualizada.getClient_id() != null) {
-            integracao.setClient_id(integracaoAtualizada.getClient_id());
+        if (integracaoAtualizada.getClientId() != null) {
+            integracao.setClientId(integracaoAtualizada.getClientId());
         }
-        if (integracaoAtualizada.getClient_secret() != null) {
-            integracao.setClient_secret(integracaoAtualizada.getClient_secret());
+        if (integracaoAtualizada.getClientSecret() != null) {
+            integracao.setClientSecret(integracaoAtualizada.getClientSecret());
         }
         if (integracaoAtualizada.getIgUserId() != null) {
             integracao.setIgUserId(integracaoAtualizada.getIgUserId());

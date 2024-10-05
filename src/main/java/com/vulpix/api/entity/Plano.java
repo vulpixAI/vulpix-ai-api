@@ -3,6 +3,8 @@ package com.vulpix.api.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 
 import java.io.Serializable;
@@ -22,7 +24,8 @@ public class Plano implements Serializable {
     private static final long serialVersionUID = 3221425; // Id fake 
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name = "nome")

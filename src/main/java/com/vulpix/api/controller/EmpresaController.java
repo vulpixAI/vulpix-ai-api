@@ -14,15 +14,6 @@ public class EmpresaController {
     @Autowired
     private EmpresaService empresaService;
 
-    @PostMapping
-    public ResponseEntity<Empresa> cadastrar(@RequestBody Empresa novaEmpresa) {
-        if (empresaService.empresaExistePorRazaoSocialECnpj(novaEmpresa.getRazaoSocial(), novaEmpresa.getCnpj())) {
-            return ResponseEntity.status(409).build();
-        }
-        Empresa empresaSalva = empresaService.salvarEmpresa(novaEmpresa);
-        return ResponseEntity.status(201).body(empresaSalva);
-    }
-
     @PatchMapping("/{id}")
     public ResponseEntity<Empresa> atualizar(@PathVariable UUID id, @RequestBody Empresa empresaAtualizada) {
         Empresa empresaAtualizadaSalva = empresaService.atualizarEmpresa(id, empresaAtualizada);

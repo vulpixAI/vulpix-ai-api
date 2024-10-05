@@ -1,4 +1,4 @@
-package com.vulpix.api.dto;
+package com.vulpix.api.dto.Usuario;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
