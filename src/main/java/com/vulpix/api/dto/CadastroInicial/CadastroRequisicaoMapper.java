@@ -58,6 +58,7 @@ public class CadastroRequisicaoMapper {
                 .build();
 
         CadastroRetornoDto.EmpresaDto empresaRes = CadastroRetornoDto.EmpresaDto.builder()
+                .idEmpresa(empresa.getId())
                 .cnpj(empresa.getCnpj())
                 .razaoSocial(empresa.getRazaoSocial())
                 .nomeFantasia(empresa.getNomeFantasia())

@@ -3,11 +3,14 @@ package com.vulpix.api.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.vulpix.api.dto.Integracao.Req.IntegracaoDto;
+import com.vulpix.api.dto.Integracao.Req.IntegracaoMapper;
 import com.vulpix.api.entity.Integracao;
 import com.vulpix.api.entity.Publicacao;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.repository.IntegracaoRepository;
 import com.vulpix.api.repository.UsuarioRepository;
+import com.vulpix.api.services.EmpresaService;
 import com.vulpix.api.services.IntegracaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,13 +31,16 @@ public class IntegracaoController {
     private IntegracaoService integracaoService;
 
     @PostMapping
-    public ResponseEntity<Integracao> habilitar(@RequestBody Integracao novaIntegracao) {
-        Optional<Integracao> integracaoAtiva = integracaoService.findByEmpresaAndTipo(novaIntegracao.getEmpresa(), novaIntegracao.getTipo());
-        if (integracaoAtiva.isPresent()) {
-            return ResponseEntity.status(409).build();
-        }
-        novaIntegracao.setId(null);
-        return ResponseEntity.status(201).body(integracaoService.save(novaIntegracao));
+    public ResponseEntity<Integracao> habilitar(@RequestBody IntegracaoDto novaIntegracao) {
+        if (novaIntegracao == null) return null;
+        Empresa empresa = integracaoService.identificaEmpresa(novaIntegracao.getIdEmpresa());
+
+        Integracao integracao = IntegracaoMapper.criaEntidadeIntegracao(novaIntegracao, empresa);
+
+        Optional<Integracao> integracaoAtiva = integracaoService.findByEmpresaAndTipo(integracao.getEmpresa(), integracao.getTipo());
+        if (integracaoAtiva.isPresent()) return ResponseEntity.status(409).build();
+
+        return ResponseEntity.status(201).body(integracaoService.save(integracao));
     }
 
     @PatchMapping("/{id}")

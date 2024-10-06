@@ -3,6 +3,7 @@ package com.vulpix.api.services;
 import com.vulpix.api.Enum.TipoIntegracao;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.Integracao;
+import com.vulpix.api.repository.EmpresaRepository;
 import com.vulpix.api.repository.IntegracaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,8 @@ import java.util.UUID;
 public class IntegracaoService {
     @Autowired
     private IntegracaoRepository integracaoRepository;
+    @Autowired
+    EmpresaRepository empresaRepository;
 
     public Optional<Integracao> getIntegracaoById(UUID id) {
         return integracaoRepository.findById(id);
@@ -30,6 +33,7 @@ public class IntegracaoService {
     }
 
     public Integracao save(Integracao integracao) {
+        Optional<Empresa> empresa = empresaRepository.findById(integracao.getEmpresa().getId());
         return integracaoRepository.save(integracao);
     }
 
@@ -38,5 +42,12 @@ public class IntegracaoService {
             throw new RuntimeException("Integração não encontrada");
         }
         integracaoRepository.deleteById(id);
+    }
+
+    public Empresa identificaEmpresa(UUID idEmpresa) {
+        Optional<Empresa> empresa = empresaRepository.findById(idEmpresa);
+        if(empresa.isPresent()) return empresa.get();
+
+        return null;
     }
 }

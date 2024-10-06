@@ -1,4 +1,4 @@
-package com.vulpix.api.services;
+package com.vulpix.api.services.integracoes.Graph;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -13,6 +13,7 @@ import com.vulpix.api.integracao.Graph;
 import com.vulpix.api.repository.EmpresaRepository;
 import com.vulpix.api.repository.IntegracaoRepository;
 import com.vulpix.api.repository.PublicacaoRepository;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,8 @@ public class PublicacaoService {
     @Autowired
     private EmpresaRepository empresaRepository;
 
+    private TokenService tokenService;
+
     @Autowired
     public PublicacaoService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -55,6 +58,8 @@ public class PublicacaoService {
 
     public Long criarContainer(Integracao integracao, Publicacao post) {
         String url = Graph.BASE_URL + integracao.getIgUserId() + "/media";
+
+        tokenService.renovarAccessToken(integracao);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);

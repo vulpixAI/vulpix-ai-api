@@ -18,6 +18,7 @@ public class CadastroRetornoDto {
     @Data
     @Builder
     public static class EmpresaDto {
+        private UUID idEmpresa;
         private String razaoSocial;
         private String nomeFantasia;
         private String cnpj;
