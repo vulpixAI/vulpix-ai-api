@@ -27,8 +27,6 @@ public class CadastroRequisicaoDto {
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_]).{8,}$", message = "Senha não é segura")
     private String senha;
     @NotBlank
-    private String confirmaSenha;
-    @NotBlank
     @Size(min = 3, max = 150)
     private String razaoSocial;
     @NotBlank
