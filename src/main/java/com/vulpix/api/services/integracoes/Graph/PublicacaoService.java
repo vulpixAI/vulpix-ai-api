@@ -48,7 +48,7 @@ public class PublicacaoService {
     private PublicacaoRepository publicacaoRepository;
     @Autowired
     private EmpresaRepository empresaRepository;
-
+    @Autowired
     private TokenService tokenService;
 
     @Autowired

@@ -6,6 +6,7 @@ import com.vulpix.api.repository.IntegracaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -15,14 +16,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+@Service
 public class TokenService {
     private final String BASE_URL_TOKEN = "https://graph.facebook.com/oauth/access_token";
     @Autowired
     private IntegracaoRepository integracaoRepository;
     @Autowired
     private RestTemplate restTemplate;
-    public boolean renovarAccessToken(Integracao integracao){
-        if (!integracao.getStatus() || integracao.getTipo() != TipoIntegracao.INSTAGRAM) return false;
+    public Integracao renovarAccessToken(Integracao integracao){
+        if (!integracao.getStatus() || integracao.getTipo() != TipoIntegracao.INSTAGRAM) return integracao;
 
         String url = UriComponentsBuilder.fromHttpUrl(BASE_URL_TOKEN)
                 .queryParam("grant_type", "fb_exchange_token")
@@ -42,9 +44,8 @@ public class TokenService {
                 integracao.setAccessToken(novoAccessToken);
                 integracao.setAccessTokenExpireDate(LocalDateTime.now().plusSeconds(expiresIn));
 
-                integracaoRepository.save(integracao);
                 System.out.println("Access Token renovado com sucesso!");
-                return true;
+                return integracao;
             } else {
                 throw new RuntimeException("Falha ao renovar o access token: " + response.getStatusCode());
             }

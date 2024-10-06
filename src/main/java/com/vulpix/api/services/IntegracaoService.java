@@ -5,6 +5,7 @@ import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.Integracao;
 import com.vulpix.api.repository.EmpresaRepository;
 import com.vulpix.api.repository.IntegracaoRepository;
+import com.vulpix.api.services.integracoes.Graph.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,8 @@ public class IntegracaoService {
     private IntegracaoRepository integracaoRepository;
     @Autowired
     EmpresaRepository empresaRepository;
+    @Autowired
+    private TokenService tokenService;
 
     public Optional<Integracao> getIntegracaoById(UUID id) {
         return integracaoRepository.findById(id);
@@ -33,7 +36,6 @@ public class IntegracaoService {
     }
 
     public Integracao save(Integracao integracao) {
-        Optional<Empresa> empresa = empresaRepository.findById(integracao.getEmpresa().getId());
         return integracaoRepository.save(integracao);
     }
 
@@ -50,4 +52,31 @@ public class IntegracaoService {
 
         return null;
     }
+
+    public Integracao atualizaIntegracao(UUID id, Integracao integracaoAtualizada) {
+        Optional<Integracao> integracaoExiste = integracaoRepository.findById(id);
+
+        if (integracaoExiste.isEmpty()) return null;
+
+        Integracao integracao = integracaoExiste.get();
+
+        if (integracaoAtualizada.getAccessToken() != null) {
+            integracao.setAccessToken(integracaoAtualizada.getAccessToken());
+        }
+        if (integracaoAtualizada.getClientId() != null) {
+            integracao.setClientId(integracaoAtualizada.getClientId());
+        }
+        if (integracaoAtualizada.getClientSecret() != null) {
+            integracao.setClientSecret(integracaoAtualizada.getClientSecret());
+        }
+        if (integracaoAtualizada.getIgUserId() != null) {
+            integracao.setIgUserId(integracaoAtualizada.getIgUserId());
+        }
+
+        Integracao integracaoRenovado = tokenService.renovarAccessToken(integracao);
+
+        return integracaoRenovado;
+    }
+
+
 }

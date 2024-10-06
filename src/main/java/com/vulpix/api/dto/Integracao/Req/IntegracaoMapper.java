@@ -1,5 +1,6 @@
 package com.vulpix.api.dto.Integracao.Req;
 
+import com.vulpix.api.Enum.TipoIntegracao;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.Integracao;
 
@@ -10,6 +11,23 @@ public class IntegracaoMapper {
         Integracao integracao = Integracao.builder()
                 .tipo(dto.getTipo())
                 .empresa(empresa)
+                .status(true)
+                .build();
+
+        return integracao;
+    }
+
+    public static Integracao criaEntidadeAtualizada(Empresa empresa, IntegracaoUpdateDto dto){
+        if (dto == null) return null;
+
+        Integracao integracao = Integracao.builder()
+                .empresa(empresa)
+                .clientId(dto.getClientId())
+                .clientSecret(dto.getClientSecret())
+                .accessToken(dto.getAccessToken())
+                .igUserId(dto.getIgUserId())
+                .tipo(TipoIntegracao.INSTAGRAM)
+                .status(true)
                 .build();
 
         return integracao;

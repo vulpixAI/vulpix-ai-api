@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.vulpix.api.dto.Integracao.Req.IntegracaoDto;
 import com.vulpix.api.dto.Integracao.Req.IntegracaoMapper;
+import com.vulpix.api.dto.Integracao.Req.IntegracaoUpdateDto;
 import com.vulpix.api.entity.Integracao;
 import com.vulpix.api.entity.Publicacao;
 import com.vulpix.api.entity.Empresa;
@@ -44,25 +45,15 @@ public class IntegracaoController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Integracao> atualizar(@PathVariable UUID id, @RequestBody Integracao integracaoAtualizada) {
+    public ResponseEntity<Integracao> atualizar(@PathVariable UUID id, @RequestBody IntegracaoUpdateDto integracaoAtualizada) {
         Optional<Integracao> integracaoExistente = integracaoService.getIntegracaoById(id);
-        if (integracaoExistente.isEmpty()) {
-            return ResponseEntity.status(404).build();
-        }
+        if (integracaoExistente.isEmpty()) return ResponseEntity.status(404).build();
 
-        Integracao integracao = integracaoExistente.get();
-        if (integracaoAtualizada.getAccessToken() != null) {
-            integracao.setAccessToken(integracaoAtualizada.getAccessToken());
-        }
-        if (integracaoAtualizada.getClientId() != null) {
-            integracao.setClientId(integracaoAtualizada.getClientId());
-        }
-        if (integracaoAtualizada.getClientSecret() != null) {
-            integracao.setClientSecret(integracaoAtualizada.getClientSecret());
-        }
-        if (integracaoAtualizada.getIgUserId() != null) {
-            integracao.setIgUserId(integracaoAtualizada.getIgUserId());
-        }
+        Empresa empresa = integracaoService.identificaEmpresa(integracaoExistente.get().getEmpresa().getId());
+
+        Integracao integracao = IntegracaoMapper.criaEntidadeAtualizada(empresa, integracaoAtualizada);
+
+        integracaoService.atualizaIntegracao(id, integracao);
 
         return ResponseEntity.status(200).body(integracaoService.save(integracao));
     }
