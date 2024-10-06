@@ -32,7 +32,7 @@ public class UsuarioController {
         Empresa empresaEntidade = CadastroRequisicaoMapper.criaEntidadeEmpresa(cadastroInicial, usuarioSalvo);
         Empresa empresaSalva = empresaService.salvarEmpresa(empresaEntidade);
 
-        if (empresaSalva == null) return ResponseEntity.status(401).build();
+        if (empresaSalva == null) return ResponseEntity.status(409).build();
 
         CadastroRetornoDto retorno = CadastroRequisicaoMapper.retornoCadastro(usuarioSalvo, empresaSalva);
 
