@@ -56,27 +56,11 @@ public class GerenciadorTokenJwt {
         return Jwts.parserBuilder()
                 .setSigningKey(parseSecret())
                 .build()
-                .parseClaimsJws(token) 
+                .parseClaimsJws(token)
                 .getBody();
     }
 
     private SecretKey parseSecret() {
         return Keys.hmacShaKeyFor(this.secret.getBytes(StandardCharsets.UTF_8));
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

@@ -40,9 +40,7 @@ public class SecurityConfiguracao {
     private AutenticacaoEntryPoint autenticacaoJwtEntryPoint;
 
     private static final AntPathRequestMatcher[] URLS_PERMITIDAS = {
-            new AntPathRequestMatcher("/home"),
             new AntPathRequestMatcher("/usuarios/login"),
-            new AntPathRequestMatcher("/not-found"),
             new AntPathRequestMatcher("/usuarios")
     };
 
@@ -118,50 +116,4 @@ public class SecurityConfiguracao {
 
         return origem;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
