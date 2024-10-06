@@ -23,6 +23,7 @@ public class Integracao {
     @Column(name = "id_integracao", columnDefinition = "varchar(36)")
     private UUID id;
     @Enumerated(EnumType.STRING)
+    @Column(name = "tipo")
     private TipoIntegracao tipo;
     @Column(name="ig_user_id")
     private String igUserId;
