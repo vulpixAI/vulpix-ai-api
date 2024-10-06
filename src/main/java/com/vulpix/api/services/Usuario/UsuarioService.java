@@ -1,4 +1,4 @@
-package com.vulpix.api.services;
+package com.vulpix.api.services.Usuario;
 
 import com.vulpix.api.dto.Usuario.GetUsuarioDto;
 import com.vulpix.api.entity.Usuario;

@@ -7,7 +7,7 @@ import com.vulpix.api.dto.Usuario.GetUsuarioDto;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.Usuario;
 import com.vulpix.api.services.EmpresaService;
-import com.vulpix.api.services.UsuarioService;
+import com.vulpix.api.services.Usuario.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
