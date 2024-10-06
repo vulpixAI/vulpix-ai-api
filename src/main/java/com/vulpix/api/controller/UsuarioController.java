@@ -3,10 +3,11 @@ package com.vulpix.api.controller;
 import com.vulpix.api.dto.CadastroInicial.CadastroRequisicaoDto;
 import com.vulpix.api.dto.CadastroInicial.CadastroRequisicaoMapper;
 import com.vulpix.api.dto.CadastroInicial.CadastroRetornoDto;
-import com.vulpix.api.dto.Usuario.GetUsuarioDto;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.Usuario;
 import com.vulpix.api.services.EmpresaService;
+import com.vulpix.api.services.Usuario.Autenticacao.dto.UsuarioLoginDto;
+import com.vulpix.api.services.Usuario.Autenticacao.dto.UsuarioTokenDto;
 import com.vulpix.api.services.Usuario.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -40,13 +41,9 @@ public class UsuarioController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<GetUsuarioDto> autenticar(@RequestBody Usuario usuario) {
-        Optional<GetUsuarioDto> usuarioRetorno = usuarioService.autenticarUsuario(usuario.getEmail(), usuario.getSenha());
-        if (usuarioRetorno.isPresent()) {
-            return ResponseEntity.ok(usuarioRetorno.get());
-        } else {
-            return ResponseEntity.status(401).build();
-        }
+    public ResponseEntity<UsuarioTokenDto> autenticar(@RequestBody UsuarioLoginDto usuario) {
+        UsuarioTokenDto usuarioRetorno = usuarioService.autenticarUsuario(usuario);
+        return ResponseEntity.status(200).body(usuarioRetorno);
     }
 
     @GetMapping

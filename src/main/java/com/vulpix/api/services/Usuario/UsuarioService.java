@@ -1,10 +1,19 @@
 package com.vulpix.api.services.Usuario;
 
-import com.vulpix.api.dto.Usuario.GetUsuarioDto;
+import com.vulpix.api.config.security.jwt.GerenciadorTokenJwt;
 import com.vulpix.api.entity.Usuario;
 import com.vulpix.api.repository.UsuarioRepository;
+import com.vulpix.api.services.Usuario.Autenticacao.dto.UsuarioLoginDto;
+import com.vulpix.api.services.Usuario.Autenticacao.dto.UsuarioMapper;
+import com.vulpix.api.services.Usuario.Autenticacao.dto.UsuarioTokenDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,14 +24,34 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private GerenciadorTokenJwt gerenciadorTokenJwt;
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
     public Usuario cadastrarUsuario(Usuario novoUsuario) {
+        String senhaCriptografada = passwordEncoder.encode(novoUsuario.getSenha());
+        novoUsuario.setSenha(senhaCriptografada);
         return usuarioRepository.save(novoUsuario);
     }
 
-    public Optional<GetUsuarioDto> autenticarUsuario(
-            String email, String senha) {
-        Optional<Usuario> usuarioOpt = usuarioRepository.findByEmailAndSenha(email, senha);
-        return usuarioOpt.map(this::montaRetornoUsuario);
+    public UsuarioTokenDto autenticarUsuario(UsuarioLoginDto usuarioLoginDto) {
+        final UsernamePasswordAuthenticationToken credentials = new UsernamePasswordAuthenticationToken(
+                usuarioLoginDto.getEmail(), usuarioLoginDto.getSenha()
+        );
+        final Authentication authentication = this.authenticationManager.authenticate(credentials);
+
+        Usuario usuarioAutenticado = usuarioRepository.findByEmail(usuarioLoginDto.getEmail())
+                .orElseThrow(
+                        () -> new ResponseStatusException(404, "Email do usuário não encontrado", null)
+                );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        final String token = gerenciadorTokenJwt.generateToken(authentication);
+
+        return UsuarioMapper.retornaUsuario(usuarioAutenticado, token);
     }
 
     public List<Usuario> listarUsuarios() {
@@ -50,19 +79,5 @@ public class UsuarioService {
             return true;
         }
         return false;
-    }
-
-    public GetUsuarioDto montaRetornoUsuario(Usuario usuario) {
-        GetUsuarioDto usuarioRetorno = new GetUsuarioDto(
-                usuario.getId(),
-                usuario.getNome(),
-                usuario.getSobrenome(),
-                usuario.getEmail(),
-                usuario.isAtivo(),
-                usuario.getTelefone(),
-                usuario.getCreated_at(),
-                usuario.getUpdated_at()
-        );
-        return usuarioRetorno;
     }
 }
