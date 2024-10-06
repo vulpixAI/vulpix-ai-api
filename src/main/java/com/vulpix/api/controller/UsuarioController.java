@@ -32,6 +32,8 @@ public class UsuarioController {
         Empresa empresaEntidade = CadastroRequisicaoMapper.criaEntidadeEmpresa(cadastroInicial, usuarioSalvo);
         Empresa empresaSalva = empresaService.salvarEmpresa(empresaEntidade);
 
+        if (empresaSalva == null) return ResponseEntity.status(401).build();
+
         CadastroRetornoDto retorno = CadastroRequisicaoMapper.retornoCadastro(usuarioSalvo, empresaSalva);
 
         return ResponseEntity.status(201).body(retorno);

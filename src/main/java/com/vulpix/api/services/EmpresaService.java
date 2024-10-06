@@ -3,6 +3,7 @@ package com.vulpix.api.services;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.repository.EmpresaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -18,7 +19,9 @@ public class EmpresaService {
     }
 
     public Empresa salvarEmpresa(Empresa novaEmpresa) {
-        return empresaRepository.save(novaEmpresa);
+        if (!empresaExistePorRazaoSocialECnpj(novaEmpresa.getRazaoSocial(), novaEmpresa.getCnpj()))
+            return empresaRepository.save(novaEmpresa);
+        return null;
     }
 
     public Empresa atualizarEmpresa(UUID id, Empresa empresaAtualizada) {
