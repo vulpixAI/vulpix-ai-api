@@ -9,7 +9,7 @@ import com.vulpix.api.entity.Integracao;
 import com.vulpix.api.entity.Publicacao;
 import com.vulpix.api.repository.EmpresaRepository;
 import com.vulpix.api.repository.PublicacaoRepository;
-import com.vulpix.api.services.integracoes.Graph.PublicacaoService;
+import com.vulpix.api.services.Integracoes.Graph.PublicacaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -1,4 +1,4 @@
-package com.vulpix.api.services.integracoes.Graph;
+package com.vulpix.api.services.Integracoes.Graph;
 
 import com.vulpix.api.Enum.TipoIntegracao;
 import com.vulpix.api.entity.Integracao;
@@ -13,8 +13,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class TokenService {

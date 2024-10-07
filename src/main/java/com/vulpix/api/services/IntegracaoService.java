@@ -5,7 +5,7 @@ import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.Integracao;
 import com.vulpix.api.repository.EmpresaRepository;
 import com.vulpix.api.repository.IntegracaoRepository;
-import com.vulpix.api.services.integracoes.Graph.TokenService;
+import com.vulpix.api.services.Integracoes.Graph.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

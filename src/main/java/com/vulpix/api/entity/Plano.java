@@ -1,54 +1,20 @@
 package com.vulpix.api.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
-
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "planos")
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-
-public class Plano implements Serializable {
-    private static final long serialVersionUID = 3221425; // Id fake 
+public class Plano {
 
     @Id
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-
-    @Column(name = "nome")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
     private String nome;
-
-    @Column(name = "descricao")
-    private String descricao;
-
-    @Column(name = "preco")
     private Double preco;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at")
-    private Date createdAt;
-
-    @Override
-    public String toString() {
-        return "Plano{" +
-                "id=" + id +
-                ", nome='" + nome + '\'' +
-                ", descricao='" + descricao + '\'' +
-                ", preco=" + preco +
-                ", createdAt=" + createdAt +
-                '}';
-    }
 }
+

@@ -1,11 +1,8 @@
-package com.vulpix.api.services.integracoes.Graph;
+package com.vulpix.api.services.Integracoes.Graph;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.vulpix.api.Enum.TipoIntegracao;
 import com.vulpix.api.dto.GetPublicacaoDto;
-import com.vulpix.api.dto.PostPublicacaoDto;
-import com.vulpix.api.dto.PostPublicacaoResponse;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.Integracao;
 import com.vulpix.api.entity.Publicacao;
@@ -13,9 +10,7 @@ import com.vulpix.api.integracao.Graph;
 import com.vulpix.api.repository.EmpresaRepository;
 import com.vulpix.api.repository.IntegracaoRepository;
 import com.vulpix.api.repository.PublicacaoRepository;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -32,9 +27,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.List;
