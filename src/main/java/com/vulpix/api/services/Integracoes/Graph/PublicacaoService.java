@@ -2,7 +2,7 @@ package com.vulpix.api.services.Integracoes.Graph;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.vulpix.api.dto.GetPublicacaoDto;
+import com.vulpix.api.dto.Publicacao.GetPublicacaoDto;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.Integracao;
 import com.vulpix.api.entity.Publicacao;

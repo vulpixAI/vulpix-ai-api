@@ -1,9 +1,9 @@
 package com.vulpix.api.controller;
 
 import com.vulpix.api.Enum.TipoIntegracao;
-import com.vulpix.api.dto.GetPublicacaoDto;
-import com.vulpix.api.dto.PostPublicacaoDto;
-import com.vulpix.api.dto.PostPublicacaoResponse;
+import com.vulpix.api.dto.Publicacao.GetPublicacaoDto;
+import com.vulpix.api.dto.Publicacao.PostPublicacaoDto;
+import com.vulpix.api.dto.Publicacao.PostPublicacaoResponse;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.Integracao;
 import com.vulpix.api.entity.Publicacao;
