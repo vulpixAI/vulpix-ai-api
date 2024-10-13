@@ -6,6 +6,7 @@ import com.vulpix.api.Entity.Integracao;
 import com.vulpix.api.Repository.EmpresaRepository;
 import com.vulpix.api.Repository.IntegracaoRepository;
 import com.vulpix.api.Services.Integracoes.Graph.TokenService;
+import com.vulpix.api.Services.Usuario.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,8 @@ public class IntegracaoService {
     EmpresaRepository empresaRepository;
     @Autowired
     private TokenService tokenService;
+    @Autowired
+    private UsuarioService usuarioService;
 
     public Optional<Integracao> getIntegracaoById(UUID id) {
         return integracaoRepository.findById(id);

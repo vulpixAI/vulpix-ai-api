@@ -6,6 +6,7 @@ import com.vulpix.api.Repository.UsuarioRepository;
 import com.vulpix.api.Services.Usuario.Autenticacao.Dto.UsuarioLoginDto;
 import com.vulpix.api.Services.Usuario.Autenticacao.Dto.UsuarioMapper;
 import com.vulpix.api.Services.Usuario.Autenticacao.Dto.UsuarioTokenDto;
+import com.vulpix.api.Services.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,6 +31,9 @@ public class UsuarioService {
     private GerenciadorTokenJwt gerenciadorTokenJwt;
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
 
     public Usuario cadastrarUsuario(Usuario novoUsuario) {
         String senhaCriptografada = passwordEncoder.encode(novoUsuario.getSenha());
@@ -79,5 +83,11 @@ public class UsuarioService {
             return true;
         }
         return false;
+    }
+
+    public UUID retornaIdUsuarioLogado() {
+        String usuario = usuarioAutenticadoUtil.getUsernameAutenticado();
+
+        return usuarioRepository.findByEmail(usuario).get().getId();
     }
 }
