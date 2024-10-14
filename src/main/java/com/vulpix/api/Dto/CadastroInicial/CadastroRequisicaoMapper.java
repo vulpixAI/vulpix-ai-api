@@ -6,7 +6,7 @@ import com.vulpix.api.Entity.Usuario;
 import java.time.LocalDateTime;
 
 public class CadastroRequisicaoMapper {
-    public static Usuario criaEntidadeUsuario(CadastroRequisicaoDto dto){
+    public static Usuario criaEntidadeUsuario(com.vulpix.api.Dto.CadastroInicial.CadastroRequisicaoDto dto){
         if (dto == null) return null;
 
         Usuario usuario = Usuario.builder()
@@ -23,7 +23,7 @@ public class CadastroRequisicaoMapper {
         return usuario;
     }
 
-    public static Empresa criaEntidadeEmpresa(CadastroRequisicaoDto dto, Usuario responsavel){
+    public static Empresa criaEntidadeEmpresa(com.vulpix.api.Dto.CadastroInicial.CadastroRequisicaoDto dto, Usuario responsavel){
         if (dto == null || responsavel == null) return null;
 
         Empresa empresa = Empresa.builder()
@@ -45,9 +45,9 @@ public class CadastroRequisicaoMapper {
         return empresa;
     }
 
-    public static CadastroRetornoDto retornoCadastro(Usuario usuario, Empresa empresa) {
+    public static com.vulpix.api.Dto.CadastroInicial.CadastroRetornoDto retornoCadastro(Usuario usuario, Empresa empresa) {
 
-        CadastroRetornoDto.EmpresaDto.EnderecoDto endereco = CadastroRetornoDto.EmpresaDto.EnderecoDto.builder()
+        com.vulpix.api.Dto.CadastroInicial.CadastroRetornoDto.EmpresaDto.EnderecoDto endereco = com.vulpix.api.Dto.CadastroInicial.CadastroRetornoDto.EmpresaDto.EnderecoDto.builder()
                 .cep(empresa.getCep())
                 .bairro(empresa.getBairro())
                 .logradouro(empresa.getLogradouro())
@@ -57,7 +57,7 @@ public class CadastroRequisicaoMapper {
                 .estado(empresa.getEstado())
                 .build();
 
-        CadastroRetornoDto.EmpresaDto empresaRes = CadastroRetornoDto.EmpresaDto.builder()
+        com.vulpix.api.Dto.CadastroInicial.CadastroRetornoDto.EmpresaDto empresaRes = com.vulpix.api.Dto.CadastroInicial.CadastroRetornoDto.EmpresaDto.builder()
                 .idEmpresa(empresa.getId())
                 .cnpj(empresa.getCnpj())
                 .razaoSocial(empresa.getRazaoSocial())
@@ -65,7 +65,7 @@ public class CadastroRequisicaoMapper {
                 .endereco(endereco)
                 .build();
 
-        return CadastroRetornoDto.builder()
+        return com.vulpix.api.Dto.CadastroInicial.CadastroRetornoDto.builder()
                 .id(usuario.getId())
                 .nome(usuario.getNome())
                 .sobrenome(usuario.getSobrenome())

@@ -1,16 +1,20 @@
 package com.vulpix.api.Services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vulpix.api.Entity.ConfigPrompt;
 import com.vulpix.api.Entity.Empresa;
+import com.vulpix.api.Repository.ConfigRepository;
 import com.vulpix.api.Repository.EmpresaRepository;
 import com.vulpix.api.Services.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Services.Usuario.UsuarioService;
+import com.vulpix.api.dto.Empresa.FormularioRequisicaoDto;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
-
 @Service
 public class EmpresaService {
     @Autowired
@@ -19,6 +23,17 @@ public class EmpresaService {
     private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private ConfigRepository configRepository;
+
+    public Empresa buscaPorId(UUID id){
+        Optional<Empresa> empresaOpt = empresaRepository.findById(id);
+
+        if (empresaOpt.isEmpty()) return null;
+
+        return empresaOpt.get();
+    }
 
     public boolean empresaExistePorRazaoSocialECnpj(String razaoSocial, String cnpj) {
         return empresaRepository.findByRazaoSocialAndCnpj(razaoSocial, cnpj).isPresent();
@@ -74,5 +89,21 @@ public class EmpresaService {
         }
 
         throw new EntityNotFoundException("Empresa não encontrada para o usuário autenticado");
+    }
+
+    public void cadastrarFormulario(Empresa empresa, FormularioRequisicaoDto formulario) {
+        ConfigPrompt configPrompt = new ConfigPrompt();
+
+        configPrompt.setForm(formulario);
+        configPrompt.setEmpresa(empresa);
+
+        configRepository.save(configPrompt);
+    }
+
+    public void buscaFormulario(Empresa empresa) {
+        Optional<ConfigPrompt> configOpt = configRepository.findByEmpresaId(empresa.getId());
+
+//        return configOpt.get();
+        System.out.println(configOpt.get().getForm());
     }
 }

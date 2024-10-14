@@ -3,7 +3,9 @@ package com.vulpix.api.Services.Usuario.Autenticacao;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
 
+@Service
 public class UsuarioAutenticadoUtil {
     public String getUsernameAutenticado() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
