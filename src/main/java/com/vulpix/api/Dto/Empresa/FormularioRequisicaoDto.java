@@ -41,4 +41,5 @@ public class FormularioRequisicaoDto implements Serializable {
     private String datasImportantes;
     private String estiloCriativos;
     private String referenciasVisuais;
+    private String observacoesGerais;
 }
