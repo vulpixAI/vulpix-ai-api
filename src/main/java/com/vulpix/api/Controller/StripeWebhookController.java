@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/webhook/stripe")
+@RequestMapping("/pagamentos/webhook")
 public class StripeWebhookController {
 
     @Value("${STRIPE_WEBHOOK_SECRET}")
