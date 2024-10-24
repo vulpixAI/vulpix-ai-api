@@ -93,17 +93,13 @@ public class EmpresaService {
 
     public void cadastrarFormulario(Empresa empresa, FormularioRequisicaoDto formulario) {
         ConfigPrompt configPrompt = new ConfigPrompt();
-
         configPrompt.setForm(formulario);
         configPrompt.setEmpresa(empresa);
-
         configRepository.save(configPrompt);
     }
 
     public void buscaFormulario(Empresa empresa) {
         Optional<ConfigPrompt> configOpt = configRepository.findByEmpresaId(empresa.getId());
-
-//        return configOpt.get();
         System.out.println(configOpt.get().getForm());
     }
 }

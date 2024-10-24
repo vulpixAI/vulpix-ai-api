@@ -81,5 +81,24 @@ public class PublicacaoController {
         responseDto.setFkEmpresa(post.getEmpresa().getId());
         return responseDto;
     }
+
+    @GetMapping("/somaLikes/{empresaId}")
+    public ResponseEntity<Integer> somarLikes(@PathVariable UUID empresaId) {
+        ResponseEntity<List<GetPublicacaoDto>> responseEntity = buscarPosts(empresaId);
+        List<GetPublicacaoDto> posts = responseEntity.getBody();
+        if (posts != null && !posts.isEmpty()) {
+            int somaTotalLikes = somarLikePosts(posts, 0);
+            return ResponseEntity.ok(somaTotalLikes);
+        } else {
+            return ResponseEntity.status(204).build();
+        }
+    }
+
+    private int somarLikePosts(List<GetPublicacaoDto> posts, int indice) {
+        if (indice == posts.size()) {
+            return 0;
+        }
+        return posts.get(indice).getLikeCount() + somarLikePosts(posts, indice + 1);
+    }
 }
 
