@@ -71,6 +71,7 @@ public class CadastroRequisicaoMapper {
                 .sobrenome(usuario.getSobrenome())
                 .email(usuario.getEmail())
                 .telefone(usuario.getTelefone())
+                .status(usuario.isAtivo())
                 .empresa(empresaRes)
                 .build();
     }

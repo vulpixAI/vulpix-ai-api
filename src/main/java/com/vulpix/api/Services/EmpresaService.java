@@ -79,10 +79,8 @@ public class EmpresaService {
         }
     }
 
-    public Empresa buscarEmpresaPeloUsuario() {
-        UUID usuarioId = usuarioService.retornaIdUsuarioLogado();
-
-        Optional<Empresa> empresaOpt = empresaRepository.findByUsuarioId(usuarioId);
+    public Empresa buscarEmpresaPeloUsuario(String email) {
+        Optional<Empresa> empresaOpt = empresaRepository.findByUsuarioEmail(email);
 
         if (empresaOpt.isPresent()) {
             return empresaOpt.get();

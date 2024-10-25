@@ -13,6 +13,7 @@ public class CadastroRetornoDto {
     private String sobrenome;
     private String email;
     private String telefone;
+    private Boolean status;
     private EmpresaDto empresa;
 
     @Data
