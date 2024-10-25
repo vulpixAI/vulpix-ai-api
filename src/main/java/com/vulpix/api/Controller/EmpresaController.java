@@ -1,6 +1,5 @@
 package com.vulpix.api.Controller;
 
-import com.vulpix.api.Entity.ConfigPrompt;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Services.EmpresaService;
 import com.vulpix.api.Services.Usuario.Autenticacao.UsuarioAutenticadoUtil;
@@ -11,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -31,16 +29,16 @@ public class EmpresaController {
         return ResponseEntity.ok(empresaAtualizadaSalva);
     }
 
-    @PostMapping("/form/{idEmpresa}")
-    public ResponseEntity<String> cadastrarFormulario(@RequestBody FormularioRequisicaoDto formulario) {
+    @PostMapping("/form")
+    public ResponseEntity<FormularioRequisicaoDto> cadastrarFormulario(@RequestBody FormularioRequisicaoDto formulario) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
         Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
 
-        if (empresa == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Empresa não encontrada.");
+        if (empresa == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
-        empresaService.cadastrarFormulario(empresa, formulario);
-        return ResponseEntity.ok("Formulário cadastrado com sucesso.");
+        FormularioRequisicaoDto retorno = empresaService.cadastrarFormulario(empresa, formulario);
+        return ResponseEntity.ok().body(retorno);
     }
 
     @GetMapping("/form/{idEmpresa}")

@@ -8,6 +8,7 @@ import com.vulpix.api.Repository.EmpresaRepository;
 import com.vulpix.api.Services.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Services.Usuario.UsuarioService;
 import com.vulpix.api.dto.Empresa.FormularioRequisicaoDto;
+import com.vulpix.api.dto.Empresa.JsonConverter;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -89,11 +90,12 @@ public class EmpresaService {
         throw new EntityNotFoundException("Empresa não encontrada para o usuário autenticado");
     }
 
-    public void cadastrarFormulario(Empresa empresa, FormularioRequisicaoDto formulario) {
+    public FormularioRequisicaoDto cadastrarFormulario(Empresa empresa, FormularioRequisicaoDto formulario) {
         ConfigPrompt configPrompt = new ConfigPrompt();
         configPrompt.setForm(formulario);
         configPrompt.setEmpresa(empresa);
         configRepository.save(configPrompt);
+        return formulario;
     }
 
     public void buscaFormulario(Empresa empresa) {
