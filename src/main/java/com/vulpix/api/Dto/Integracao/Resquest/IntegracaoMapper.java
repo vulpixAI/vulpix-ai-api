@@ -1,11 +1,11 @@
-package com.vulpix.api.Dto.Integracao.Resquest;
+package com.vulpix.api.dto.Integracao.Resquest;
 
 import com.vulpix.api.Enum.TipoIntegracao;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Entity.Integracao;
 
 public class IntegracaoMapper {
-    public static Integracao criaEntidadeIntegracao(com.vulpix.api.Dto.Integracao.Resquest.IntegracaoDto dto, Empresa empresa){
+    public static Integracao criaEntidadeIntegracao(com.vulpix.api.dto.Integracao.Resquest.IntegracaoDto dto, Empresa empresa){
         if (dto == null) return null;
 
         Integracao integracao = Integracao.builder()
@@ -17,7 +17,7 @@ public class IntegracaoMapper {
         return integracao;
     }
 
-    public static Integracao criaEntidadeAtualizada(Empresa empresa, com.vulpix.api.Dto.Integracao.Resquest.IntegracaoUpdateDto dto){
+    public static Integracao criaEntidadeAtualizada(Empresa empresa, com.vulpix.api.dto.Integracao.Resquest.IntegracaoUpdateDto dto){
         if (dto == null) return null;
 
         Integracao integracao = Integracao.builder()

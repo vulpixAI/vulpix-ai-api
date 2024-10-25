@@ -1,13 +1,20 @@
 package com.vulpix.api.Controller;
 
-import com.vulpix.api.Dto.Integracao.Resquest.IntegracaoDto;
-import com.vulpix.api.Dto.Integracao.Resquest.IntegracaoMapper;
-import com.vulpix.api.Dto.Integracao.Resquest.IntegracaoUpdateDto;
+import com.vulpix.api.dto.Integracao.Resquest.IntegracaoDto;
+import com.vulpix.api.dto.Integracao.Resquest.IntegracaoDto;
+import com.vulpix.api.dto.Integracao.Resquest.IntegracaoMapper;
+import com.vulpix.api.dto.Integracao.Resquest.IntegracaoUpdateDto;
 import com.vulpix.api.Entity.Integracao;
 import com.vulpix.api.Entity.Empresa;
+import com.vulpix.api.Enum.TipoIntegracao;
+import com.vulpix.api.Services.EmpresaService;
 import com.vulpix.api.Services.IntegracaoService;
+import com.vulpix.api.Services.Usuario.Autenticacao.UsuarioAutenticadoUtil;
+import com.vulpix.api.dto.Integracao.Resquest.IntegracaoUpdateDto;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -19,32 +26,43 @@ public class IntegracaoController {
 
     @Autowired
     private IntegracaoService integracaoService;
+    @Autowired
+    private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
+    @Autowired
+    private EmpresaService empresaService;
 
     @PostMapping
     public ResponseEntity<Integracao> habilitar(@RequestBody IntegracaoDto novaIntegracao) {
-        if (novaIntegracao == null) return null;
-        Empresa empresa = integracaoService.identificaEmpresa(novaIntegracao.getIdEmpresa());
+        if (novaIntegracao == null) return ResponseEntity.badRequest().build();
+
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String emailUsuario = userDetails.getUsername();
+        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
 
         Integracao integracao = IntegracaoMapper.criaEntidadeIntegracao(novaIntegracao, empresa);
 
-        Optional<Integracao> integracaoAtiva = integracaoService.findByEmpresaAndTipo(integracao.getEmpresa(), integracao.getTipo());
-        if (integracaoAtiva.isPresent()) return ResponseEntity.status(409).build();
+        Optional<Integracao> integracaoAtiva = integracaoService.findByEmpresaAndTipo(empresa, integracao.getTipo());
+        if (integracaoAtiva.isPresent()) {
+            return ResponseEntity.status(409).build();
+        }
 
         return ResponseEntity.status(201).body(integracaoService.save(integracao));
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<Integracao> atualizar(@PathVariable UUID id, @RequestBody IntegracaoUpdateDto integracaoAtualizada) {
-        Optional<Integracao> integracaoExistente = integracaoService.getIntegracaoById(id);
-        if (integracaoExistente.isEmpty()) return ResponseEntity.status(404).build();
+    @PatchMapping()
+    public ResponseEntity<Integracao> atualizar(@RequestBody IntegracaoUpdateDto integracaoAtualizada) {
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String emailUsuario = userDetails.getUsername();
+        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
 
-        Empresa empresa = integracaoService.identificaEmpresa(integracaoExistente.get().getEmpresa().getId());
+        Optional<Integracao> integracaoExistente = integracaoService.findByEmpresaAndTipo(empresa, TipoIntegracao.INSTAGRAM);
+
+        if (integracaoExistente.isEmpty()) return ResponseEntity.status(404).build();
 
         Integracao integracao = IntegracaoMapper.criaEntidadeAtualizada(empresa, integracaoAtualizada);
 
-        integracaoService.atualizaIntegracao(id, integracao);
-
-        return ResponseEntity.status(200).body(integracaoService.save(integracao));
+        Integracao integracaoAtualizadaSalva = integracaoService.atualizaIntegracao(integracaoExistente.get().getId(), integracao);
+        return ResponseEntity.status(200).body(integracaoAtualizadaSalva);
     }
 
     @DeleteMapping("/{id}")

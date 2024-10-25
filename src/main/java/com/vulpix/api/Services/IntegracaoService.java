@@ -76,9 +76,13 @@ public class IntegracaoService {
             integracao.setIgUserId(integracaoAtualizada.getIgUserId());
         }
 
-        Integracao integracaoRenovado = tokenService.renovarAccessToken(integracao);
+        if (integracaoAtualizada.getAccessToken() == null || integracaoAtualizada.getAccessToken().isEmpty()) {
+            Integracao integracaoRenovada = tokenService.renovarAccessToken(integracao);
+            return integracaoRepository.save(integracaoRenovada);
+        }
 
-        return integracaoRenovado;
+        integracao.setAccessTokenExpireDate(LocalDateTime.now());
+        return integracaoRepository.save(integracao);
     }
 
 

@@ -46,17 +46,14 @@ public class EmpresaService {
         return null;
     }
 
-    public Empresa atualizarEmpresa(UUID id, Empresa empresaAtualizada) {
-        Optional<Empresa> empresaOpt = empresaRepository.findById(id);
-
-        if (empresaOpt.isEmpty()) {
+    public Empresa atualizarEmpresa(Empresa empresa, Empresa empresaAtualizada) {
+        if (empresa == null) {
             return null;
         }
 
-        Empresa empresaExistente = empresaOpt.get();
-        atualizarDadosEmpresa(empresaExistente, empresaAtualizada);
+        atualizarDadosEmpresa(empresa, empresaAtualizada);
 
-        return empresaRepository.save(empresaExistente);
+        return empresaRepository.save(empresa);
     }
 
     private void atualizarDadosEmpresa(Empresa empresaExistente, Empresa empresaAtualizada) {

@@ -20,9 +20,12 @@ public class EmpresaController {
     @Autowired
     private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<Empresa> atualizar(@PathVariable UUID id, @RequestBody Empresa empresaAtualizada) {
-        Empresa empresaAtualizadaSalva = empresaService.atualizarEmpresa(id, empresaAtualizada);
+    @PatchMapping("")
+    public ResponseEntity<Empresa> atualizar(@RequestBody Empresa empresaAtualizada) {
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String emailUsuario = userDetails.getUsername();
+        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+        Empresa empresaAtualizadaSalva = empresaService.atualizarEmpresa(empresa,empresaAtualizada);
         if (empresaAtualizadaSalva == null) {
             return ResponseEntity.status(404).build();
         }
@@ -41,9 +44,11 @@ public class EmpresaController {
         return ResponseEntity.ok().body(retorno);
     }
 
-    @GetMapping("/form/{idEmpresa}")
-    public void buscaFormulario(@PathVariable UUID idEmpresa){
-        Empresa empresa = empresaService.buscaPorId(idEmpresa);
+    @GetMapping("/form")
+    public void buscaFormulario(){
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String emailUsuario = userDetails.getUsername();
+        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
 
         empresaService.buscaFormulario(empresa);
 
