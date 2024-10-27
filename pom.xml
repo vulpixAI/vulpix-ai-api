@@ -61,13 +61,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>com.mercadopago</groupId>
-            <artifactId>dx-java</artifactId>
-            <version>1.8.0</version>
-        </dependency>
-
+        
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
