@@ -9,6 +9,10 @@ import com.vulpix.api.Services.EmpresaService;
 import com.vulpix.api.Services.Usuario.Autenticacao.Dto.UsuarioLoginDto;
 import com.vulpix.api.Services.Usuario.Autenticacao.Dto.UsuarioTokenDto;
 import com.vulpix.api.Services.Usuario.UsuarioService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,13 +23,19 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/usuarios")
-
 public class UsuarioController {
+
     @Autowired
     private UsuarioService usuarioService;
+
     @Autowired
     private EmpresaService empresaService;
 
+    @Operation(summary = "Cadastrar um novo usuário", description = "Realiza o cadastro de um novo usuário e sua empresa associada.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Usuário e empresa cadastrados com sucesso."),
+            @ApiResponse(responseCode = "409", description = "Conflito ao tentar salvar a empresa.")
+    })
     @PostMapping
     public ResponseEntity<CadastroRetornoDto> cadastrar(@RequestBody CadastroRequisicaoDto cadastroInicial) {
         Usuario usuarioEntidade = CadastroRequisicaoMapper.criaEntidadeUsuario(cadastroInicial);
@@ -36,16 +46,25 @@ public class UsuarioController {
         if (empresaSalva == null) return ResponseEntity.status(409).build();
 
         CadastroRetornoDto retorno = CadastroRequisicaoMapper.retornoCadastro(usuarioSalvo, empresaSalva);
-
         return ResponseEntity.status(201).body(retorno);
     }
 
+    @Operation(summary = "Autenticar um usuário", description = "Realiza a autenticação de um usuário.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuário autenticado com sucesso."),
+            @ApiResponse(responseCode = "401", description = "Falha na autenticação.")
+    })
     @PostMapping("/login")
     public ResponseEntity<UsuarioTokenDto> autenticar(@RequestBody UsuarioLoginDto usuario) {
         UsuarioTokenDto usuarioRetorno = usuarioService.autenticarUsuario(usuario);
         return ResponseEntity.status(200).body(usuarioRetorno);
     }
 
+    @Operation(summary = "Listar usuários", description = "Retorna uma lista de todos os usuários cadastrados.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de usuários retornada com sucesso."),
+            @ApiResponse(responseCode = "204", description = "Nenhum usuário encontrado.")
+    })
     @GetMapping
     public ResponseEntity<List<Usuario>> listarUsuarios() {
         List<Usuario> usuarios = usuarioService.listarUsuarios();
@@ -55,8 +74,13 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarios);
     }
 
+    @Operation(summary = "Buscar usuário por ID", description = "Retorna um usuário específico com base no ID fornecido.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuário encontrado."),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado.")
+    })
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> buscarUsuarioPorId(@PathVariable UUID id) {
+    public ResponseEntity<Usuario> buscarUsuarioPorId(@Parameter(description = "ID do usuário a ser buscado", required = true) @PathVariable UUID id) {
         Optional<Usuario> usuarioOpt = usuarioService.buscarUsuarioPorId(id);
         if (usuarioOpt.isPresent()) {
             return ResponseEntity.ok(usuarioOpt.get());
@@ -65,8 +89,13 @@ public class UsuarioController {
         }
     }
 
+    @Operation(summary = "Atualizar usuário", description = "Atualiza as informações de um usuário com base no ID fornecido.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso."),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado.")
+    })
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> atualizar(@PathVariable UUID id, @RequestBody Usuario usuarioAtualizado) {
+    public ResponseEntity<Usuario> atualizar(@Parameter(description = "ID do usuário a ser atualizado", required = true) @PathVariable UUID id, @RequestBody Usuario usuarioAtualizado) {
         Optional<Usuario> usuarioOpt = usuarioService.atualizarUsuario(id, usuarioAtualizado);
         if (usuarioOpt.isPresent()) {
             return ResponseEntity.ok(usuarioOpt.get());
@@ -75,8 +104,13 @@ public class UsuarioController {
         }
     }
 
+    @Operation(summary = "Deletar usuário", description = "Remove um usuário com base no ID fornecido.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Usuário deletado com sucesso."),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado.")
+    })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable UUID id) {
+    public ResponseEntity<Void> deletar(@Parameter(description = "ID do usuário a ser deletado", required = true) @PathVariable UUID id) {
         boolean deletado = usuarioService.deletarUsuario(id);
         if (deletado) {
             return ResponseEntity.status(204).build();
@@ -84,5 +118,4 @@ public class UsuarioController {
             return ResponseEntity.status(404).build();
         }
     }
-
 }
