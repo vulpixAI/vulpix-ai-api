@@ -1,4 +1,4 @@
-package com.vulpix.api.Enum;
+package com.vulpix.api.Utils.Enum;
 
 public enum TipoIntegracao {
     INSTAGRAM

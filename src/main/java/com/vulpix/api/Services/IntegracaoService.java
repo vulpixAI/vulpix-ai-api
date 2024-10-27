@@ -1,6 +1,6 @@
 package com.vulpix.api.Services;
 
-import com.vulpix.api.Enum.TipoIntegracao;
+import com.vulpix.api.Utils.Enum.TipoIntegracao;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Entity.Integracao;
 import com.vulpix.api.Repository.EmpresaRepository;

@@ -1,17 +1,14 @@
 package com.vulpix.api.Controller;
 
 import com.vulpix.api.dto.Integracao.Resquest.IntegracaoDto;
-import com.vulpix.api.dto.Integracao.Resquest.IntegracaoDto;
 import com.vulpix.api.dto.Integracao.Resquest.IntegracaoMapper;
 import com.vulpix.api.dto.Integracao.Resquest.IntegracaoUpdateDto;
 import com.vulpix.api.Entity.Integracao;
 import com.vulpix.api.Entity.Empresa;
-import com.vulpix.api.Enum.TipoIntegracao;
+import com.vulpix.api.Utils.Enum.TipoIntegracao;
 import com.vulpix.api.Services.EmpresaService;
 import com.vulpix.api.Services.IntegracaoService;
 import com.vulpix.api.Services.Usuario.Autenticacao.UsuarioAutenticadoUtil;
-import com.vulpix.api.dto.Integracao.Resquest.IntegracaoUpdateDto;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;

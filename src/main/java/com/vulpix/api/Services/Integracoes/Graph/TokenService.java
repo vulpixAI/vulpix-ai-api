@@ -1,6 +1,6 @@
 package com.vulpix.api.Services.Integracoes.Graph;
 
-import com.vulpix.api.Enum.TipoIntegracao;
+import com.vulpix.api.Utils.Enum.TipoIntegracao;
 import com.vulpix.api.Entity.Integracao;
 import com.vulpix.api.Repository.IntegracaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;

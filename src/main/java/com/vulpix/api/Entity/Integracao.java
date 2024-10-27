@@ -1,7 +1,7 @@
 package com.vulpix.api.Entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.vulpix.api.Enum.TipoIntegracao;
+import com.vulpix.api.Utils.Enum.TipoIntegracao;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;

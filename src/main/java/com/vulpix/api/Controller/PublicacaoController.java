@@ -1,6 +1,6 @@
 package com.vulpix.api.Controller;
 
-import com.vulpix.api.Enum.TipoIntegracao;
+import com.vulpix.api.Utils.Enum.TipoIntegracao;
 import com.vulpix.api.Dto.Publicacao.GetPublicacaoDto;
 import com.vulpix.api.Dto.Publicacao.PostPublicacaoDto;
 import com.vulpix.api.Dto.Publicacao.PostPublicacaoResponse;

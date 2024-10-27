@@ -6,7 +6,7 @@ import com.vulpix.api.Dto.Publicacao.GetPublicacaoDto;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Entity.Integracao;
 import com.vulpix.api.Entity.Publicacao;
-import com.vulpix.api.Integracao.Graph;
+import com.vulpix.api.Utils.Integracao.Graph;
 import com.vulpix.api.Repository.EmpresaRepository;
 import com.vulpix.api.Repository.IntegracaoRepository;
 import com.vulpix.api.Repository.PublicacaoRepository;

@@ -1,4 +1,4 @@
-package com.vulpix.api.Integracao;
+package com.vulpix.api.Utils.Integracao;
 
 public interface Integracao {
     public abstract String obterAccessToken();

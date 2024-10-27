@@ -1,4 +1,4 @@
-package com.vulpix.api.Integracao;
+package com.vulpix.api.Utils.Integracao;
 
 import java.time.LocalDateTime;
 
