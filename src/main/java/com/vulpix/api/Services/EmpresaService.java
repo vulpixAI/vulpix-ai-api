@@ -1,5 +1,6 @@
 package com.vulpix.api.Services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vulpix.api.Entity.ConfigPrompt;
 import com.vulpix.api.Entity.Empresa;
@@ -95,10 +96,7 @@ public class EmpresaService {
         return formulario;
     }
 
-    public FormularioRequisicaoDto buscaFormulario(Empresa empresa) {
-        Optional<ConfigPrompt> configOpt = configRepository.findByEmpresaId(empresa.getId());
-
-        FormularioRequisicaoDto formRetorno = configOpt.get().getForm();
-        return formRetorno;
+    public String buscaFormulario(Empresa empresa) {
+        return configRepository.findFormAsStringByEmpresaId(empresa.getId());
     }
 }

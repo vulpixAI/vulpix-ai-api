@@ -22,7 +22,7 @@ public class JsonConverter implements AttributeConverter<FormularioRequisicaoDto
         try {
             return objectMapper.readValue(dbData, FormularioRequisicaoDto.class);
         } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Erro ao converter JSON para FormularioRequisicaoDto", e);
+            throw new IllegalArgumentException("Erro ao converter o JSON para FormularioRequisicaoDto", e);
         }
     }
 }

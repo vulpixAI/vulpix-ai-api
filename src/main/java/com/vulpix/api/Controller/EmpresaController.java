@@ -45,12 +45,12 @@ public class EmpresaController {
     }
 
     @GetMapping("/form")
-    public ResponseEntity<FormularioRequisicaoDto> buscaFormulario(){
+    public ResponseEntity<String> buscaFormulario(){
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
         Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
 
-        FormularioRequisicaoDto formularioResponse = empresaService.buscaFormulario(empresa);
+        String formularioResponse = empresaService.buscaFormulario(empresa);
 
         if (formularioResponse == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok().body(formularioResponse);
