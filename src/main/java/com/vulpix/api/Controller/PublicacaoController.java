@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -100,5 +101,25 @@ public class PublicacaoController {
         }
         return posts.get(indice).getLikeCount() + somarLikePosts(posts, indice + 1);
     }
-}
 
+    @GetMapping("/buscar-por-data/{empresaId}/{dataPublicacao}")
+    public ResponseEntity<GetPublicacaoDto> buscarPorData(
+            @PathVariable UUID empresaId,
+            @PathVariable String dataPublicacao) {
+        try {
+            OffsetDateTime dataBusca = OffsetDateTime.parse(dataPublicacao);
+            List<GetPublicacaoDto> posts = buscarPosts(empresaId).getBody();
+
+            if (posts == null || posts.isEmpty()) return ResponseEntity.noContent().build();
+            posts.sort(Comparator.comparing(GetPublicacaoDto::getDataPublicacao));
+
+            return posts.stream()
+                    .filter(post -> post.getDataPublicacao().isEqual(dataBusca))
+                    .findFirst()
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+}
