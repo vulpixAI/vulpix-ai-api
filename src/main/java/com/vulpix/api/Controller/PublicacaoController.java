@@ -11,9 +11,14 @@ import com.vulpix.api.Repository.EmpresaRepository;
 import com.vulpix.api.Repository.PublicacaoRepository;
 import com.vulpix.api.Services.Integracoes.Graph.PublicacaoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -120,6 +125,44 @@ public class PublicacaoController {
                     .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/exportar-csv/{empresaId}")
+    public ResponseEntity<InputStreamResource> exportarPublicacoesCSV(@PathVariable UUID empresaId) {
+        List<GetPublicacaoDto> posts = buscarPosts(empresaId).getBody();
+
+        if (posts == null || posts.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        String arquivo = "publicacao.csv";
+        try (OutputStream file = new FileOutputStream(arquivo);
+             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(file))) {
+
+            writer.write("ID,Legenda,Tipo Mídia,URL Mídia,Data Publicação,Likes");
+            writer.newLine();
+
+            for (GetPublicacaoDto post : posts) {
+                writer.write(String.format("%s,%s,%s,%s,%s,%d%n",
+                        post.getId(),
+                        post.getLegenda(),
+                        post.getTipoMidia(),
+                        post.getUrlMidia(),
+                        post.getDataPublicacao() != null ? post.getDataPublicacao().toString() : "",
+                        post.getLikeCount() != null ? post.getLikeCount() : 0));
+            }
+
+            InputStreamResource resource = new InputStreamResource(new FileInputStream(arquivo));
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + arquivo)
+                    .contentType(MediaType.parseMediaType("text/csv"))
+                    .body(resource);
+
+        } catch (IOException e) {
+            System.err.println("Erro ao exportar os dados: " + e.getMessage());
+            return ResponseEntity.status(500).build();
         }
     }
 }
