@@ -95,8 +95,10 @@ public class EmpresaService {
         return formulario;
     }
 
-    public void buscaFormulario(Empresa empresa) {
+    public FormularioRequisicaoDto buscaFormulario(Empresa empresa) {
         Optional<ConfigPrompt> configOpt = configRepository.findByEmpresaId(empresa.getId());
-        System.out.println(configOpt.get().getForm());
+
+        FormularioRequisicaoDto formRetorno = configOpt.get().getForm();
+        return formRetorno;
     }
 }
