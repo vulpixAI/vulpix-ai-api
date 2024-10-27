@@ -82,7 +82,7 @@ public class PublicacaoController {
         return responseDto;
     }
 
-    @GetMapping("/somaLikes/{empresaId}")
+    @GetMapping("/somar-likes-publicacao/{empresaId}")
     public ResponseEntity<Integer> somarLikes(@PathVariable UUID empresaId) {
         ResponseEntity<List<GetPublicacaoDto>> responseEntity = buscarPosts(empresaId);
         List<GetPublicacaoDto> posts = responseEntity.getBody();
