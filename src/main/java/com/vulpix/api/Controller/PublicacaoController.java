@@ -10,6 +10,8 @@ import com.vulpix.api.Entity.Publicacao;
 import com.vulpix.api.Repository.EmpresaRepository;
 import com.vulpix.api.Repository.PublicacaoRepository;
 import com.vulpix.api.Services.Integracoes.Graph.PublicacaoService;
+import io.swagger.v3.oas.annotations.Operation;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -30,18 +32,25 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/posts")
 public class PublicacaoController {
+
     private PublicacaoService publicacaoService;
+
     @Autowired
     private PublicacaoRepository publicacaoRepository;
+
     @Autowired
     private EmpresaRepository empresaRepository;
 
     @GetMapping("/{empresaId}")
+    @Operation(summary = "Buscar posts por empresa",
+            description = "Retorna uma lista de publicações associadas a uma empresa especificada pelo ID.")
     public ResponseEntity<List<GetPublicacaoDto>> buscarPosts(@PathVariable UUID empresaId) {
         return publicacaoService.buscarPosts(empresaId);
     }
 
     @PostMapping
+    @Operation(summary = "Criar um novo post",
+            description = "Cria um novo post para a empresa informada. O post deve incluir a legenda e a URL da mídia.")
     public ResponseEntity<PostPublicacaoResponse> criarPost(@RequestBody PostPublicacaoDto post) {
         Optional<Empresa> empresa = empresaRepository.findById(post.getFkEmpresa());
 
@@ -89,6 +98,8 @@ public class PublicacaoController {
     }
 
     @GetMapping("/somar-likes-publicacao/{empresaId}")
+    @Operation(summary = "Somar likes das publicações utilizando Recursão",
+            description = "Retorna a soma total de likes de todas as publicações da empresa especificada pelo ID.")
     public ResponseEntity<Integer> somarLikes(@PathVariable UUID empresaId) {
         ResponseEntity<List<GetPublicacaoDto>> responseEntity = buscarPosts(empresaId);
         List<GetPublicacaoDto> posts = responseEntity.getBody();
@@ -108,6 +119,8 @@ public class PublicacaoController {
     }
 
     @GetMapping("/buscar-por-data/{empresaId}/{dataPublicacao}")
+    @Operation(summary = "Buscar publicações por data utilizando Busca Binária",
+            description = "Busca uma publicação específica pela data informada.")
     public ResponseEntity<GetPublicacaoDto> buscarPorData(
             @PathVariable UUID empresaId,
             @PathVariable String dataPublicacao) {
@@ -129,6 +142,8 @@ public class PublicacaoController {
     }
 
     @GetMapping("/exportar-csv/{empresaId}")
+    @Operation(summary = "Exportar publicações para CSV",
+            description = "Exporta as publicações da empresa para um arquivo CSV.")
     public ResponseEntity<InputStreamResource> exportarPublicacoesCSV(@PathVariable UUID empresaId) {
         List<GetPublicacaoDto> posts = buscarPosts(empresaId).getBody();
 
