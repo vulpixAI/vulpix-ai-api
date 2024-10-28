@@ -43,7 +43,7 @@ public class SecurityConfiguracao {
             new AntPathRequestMatcher("/usuarios/login"),
             new AntPathRequestMatcher("/usuarios"),
             new AntPathRequestMatcher("/pagamentos/webhook"),
-            new AntPathRequestMatcher("/swagger-ui/index.html"),
+            new AntPathRequestMatcher("/swagger-ui/**"),
             new AntPathRequestMatcher("/v3/api-docs")
     };
 
