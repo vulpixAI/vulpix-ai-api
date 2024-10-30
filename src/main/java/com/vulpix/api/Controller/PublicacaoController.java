@@ -141,7 +141,7 @@ public class PublicacaoController {
         }
     }
 
-    @GetMapping("/exportar-csv/{empresaId}")
+    @GetMapping("/csv/{empresaId}")
     @Operation(summary = "Exportar publicações para CSV",
             description = "Exporta as publicações da empresa para um arquivo CSV.")
     public ResponseEntity<InputStreamResource> exportarPublicacoesCSV(@PathVariable UUID empresaId) {
