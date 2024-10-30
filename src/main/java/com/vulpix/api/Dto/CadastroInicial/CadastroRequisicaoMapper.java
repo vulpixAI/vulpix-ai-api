@@ -4,6 +4,8 @@ import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Entity.Usuario;
 
 import java.time.LocalDateTime;
+import java.util.Random;
+import java.util.UUID;
 
 public class CadastroRequisicaoMapper {
     public static Usuario criaEntidadeUsuario(com.vulpix.api.Dto.CadastroInicial.CadastroRequisicaoDto dto){

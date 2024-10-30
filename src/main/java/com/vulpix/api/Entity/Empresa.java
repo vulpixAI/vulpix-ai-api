@@ -18,9 +18,8 @@ import java.util.UUID;
 @Builder
 public class Empresa {
     @Id
-    @JdbcTypeCode(SqlTypes.VARCHAR)
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id_empresa", columnDefinition = "varchar(36)")
+    @Column(name = "id_empresa")
     private UUID id;
     @Column(name = "razao_social")
     private String razaoSocial;

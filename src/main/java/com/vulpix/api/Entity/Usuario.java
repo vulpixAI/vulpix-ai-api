@@ -1,5 +1,6 @@
 package com.vulpix.api.Entity;
 
+import com.vulpix.api.Utils.Enum.StatusUsuario;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -17,9 +18,8 @@ import java.util.UUID;
 @Builder
 public class Usuario {
     @Id
-    @JdbcTypeCode(SqlTypes.VARCHAR)
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id_usuario", columnDefinition = "varchar(36)")
+    @Column(name = "id_usuario")
     private UUID id;
     @Column(name = "nome")
     private String nome;
@@ -30,7 +30,7 @@ public class Usuario {
     @Column(name = "senha")
     private String senha;
     @Column(name = "status")
-    private boolean status;
+    private StatusUsuario status;
     @Column(name = "telefone")
     private String telefone;
     @Column(name = "created_at")
