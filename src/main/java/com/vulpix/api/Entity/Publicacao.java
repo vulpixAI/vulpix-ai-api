@@ -18,9 +18,8 @@ import java.util.UUID;
 @Builder
 public class Publicacao {
     @Id
-    @JdbcTypeCode(SqlTypes.VARCHAR)
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id_publicacao", columnDefinition = "varchar(36)")
+    @Column(name = "id_publicacao")
     private UUID id;
     @Column(name = "legenda")
     @JsonProperty("caption")

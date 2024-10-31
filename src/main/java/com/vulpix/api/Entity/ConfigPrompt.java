@@ -16,9 +16,8 @@ import java.util.UUID;
 @Builder
 public class ConfigPrompt {
     @Id
-    @JdbcTypeCode(SqlTypes.VARCHAR)
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id_config_prompt", columnDefinition = "varchar(36)")
+    @Column(name = "id_config_prompt")
     private UUID id;
 
     @Convert(converter = JsonConverter.class)

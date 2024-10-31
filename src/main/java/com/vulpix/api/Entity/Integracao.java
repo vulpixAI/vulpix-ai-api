@@ -18,9 +18,8 @@ import java.util.UUID;
 @Builder
 public class Integracao {
     @Id
-    @JdbcTypeCode(SqlTypes.VARCHAR)
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id_integracao", columnDefinition = "varchar(36)")
+    @Column(name = "id_integracao")
     private UUID id;
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo")
