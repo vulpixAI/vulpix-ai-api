@@ -2,13 +2,14 @@ package com.vulpix.api.Dto.CadastroInicial;
 
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Entity.Usuario;
+import com.vulpix.api.Utils.Enum.StatusUsuario;
 
 import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.UUID;
 
 public class CadastroRequisicaoMapper {
-    public static Usuario criaEntidadeUsuario(com.vulpix.api.Dto.CadastroInicial.CadastroRequisicaoDto dto){
+    public static Usuario criaEntidadeUsuario(com.vulpix.api.Dto.CadastroInicial.CadastroRequisicaoDto dto) {
         if (dto == null) return null;
 
         Usuario usuario = Usuario.builder()
@@ -17,7 +18,7 @@ public class CadastroRequisicaoMapper {
                 .email(dto.getEmail())
                 .senha(dto.getSenha())
                 .telefone(dto.getTelefone())
-                .status(true)
+                .status(StatusUsuario.AGUARDANDO_PAGAMENTO)
                 .created_at(LocalDateTime.now())
                 .updated_at(LocalDateTime.now())
                 .build();
@@ -25,7 +26,7 @@ public class CadastroRequisicaoMapper {
         return usuario;
     }
 
-    public static Empresa criaEntidadeEmpresa(com.vulpix.api.Dto.CadastroInicial.CadastroRequisicaoDto dto, Usuario responsavel){
+    public static Empresa criaEntidadeEmpresa(com.vulpix.api.Dto.CadastroInicial.CadastroRequisicaoDto dto, Usuario responsavel) {
         if (dto == null || responsavel == null) return null;
 
         Empresa empresa = Empresa.builder()
@@ -73,10 +74,8 @@ public class CadastroRequisicaoMapper {
                 .sobrenome(usuario.getSobrenome())
                 .email(usuario.getEmail())
                 .telefone(usuario.getTelefone())
-                .status(usuario.isAtivo())
+                .status(usuario.getStatus())
                 .empresa(empresaRes)
                 .build();
     }
-
-
 }

@@ -11,7 +11,7 @@ public class UsuarioMapper {
                 .nome(usuario.getNome())
                 .email(usuario.getEmail())
                 .userId(usuario.getId())
-                .status(usuario.isAtivo())
+                .status(usuario.getStatus())
                 .build();
         return usuarioTokenDto;
     }

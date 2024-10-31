@@ -1,5 +1,6 @@
 package com.vulpix.api.Dto.CadastroInicial;
 
+import com.vulpix.api.Utils.Enum.StatusUsuario;
 import lombok.Builder;
 import lombok.Data;
 
@@ -13,7 +14,7 @@ public class CadastroRetornoDto {
     private String sobrenome;
     private String email;
     private String telefone;
-    private Boolean status;
+    private StatusUsuario status;
     private EmpresaDto empresa;
 
     @Data
