@@ -27,7 +27,7 @@ CREATE TABLE empresa (
     bairro VARCHAR(255),
     complemento VARCHAR(255),
     cidade VARCHAR(255),
-    estado VARCHAR(2),
+    estado VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     responsavel UUID REFERENCES usuario(id_usuario) ON DELETE SET NULL
