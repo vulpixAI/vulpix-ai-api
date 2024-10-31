@@ -1,3 +1,7 @@
+-- Criação do banco de dados
+CREATE DATABASE IF NOT EXISTS vulpix_db
+    WITH ENCODING 'UTF8';
+
 -- Criação da tabela Usuario
 CREATE TABLE usuario (
     id_usuario UUID PRIMARY KEY DEFAULT gen_random_uuid(),
