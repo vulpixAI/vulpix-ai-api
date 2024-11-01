@@ -1,5 +1,7 @@
 package com.vulpix.api.Controller;
 
+import com.vulpix.api.Services.EmpresaService;
+import com.vulpix.api.Services.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Utils.Enum.TipoIntegracao;
 import com.vulpix.api.Dto.Publicacao.GetPublicacaoDto;
 import com.vulpix.api.Dto.Publicacao.PostPublicacaoDto;
@@ -17,6 +19,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
@@ -32,20 +35,25 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/posts")
 public class PublicacaoController {
-
     private PublicacaoService publicacaoService;
-
     @Autowired
     private PublicacaoRepository publicacaoRepository;
-
     @Autowired
     private EmpresaRepository empresaRepository;
+    @Autowired
+    private EmpresaService empresaService;
+    @Autowired
+    private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
 
-    @GetMapping("/{empresaId}")
+    @GetMapping()
     @Operation(summary = "Buscar posts por empresa",
             description = "Retorna uma lista de publicações associadas a uma empresa especificada pelo ID.")
-    public ResponseEntity<List<GetPublicacaoDto>> buscarPosts(@PathVariable UUID empresaId) {
-        return publicacaoService.buscarPosts(empresaId);
+    public ResponseEntity<List<GetPublicacaoDto>> buscarPosts() {
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String emailUsuario = userDetails.getUsername();
+        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+
+        return publicacaoService.buscarPosts(empresa.getId());
     }
 
     @PostMapping
@@ -97,11 +105,11 @@ public class PublicacaoController {
         return responseDto;
     }
 
-    @GetMapping("/somar-likes-publicacao/{empresaId}")
+    @GetMapping("/somar-likes-publicacao")
     @Operation(summary = "Somar likes das publicações utilizando Recursão",
             description = "Retorna a soma total de likes de todas as publicações da empresa especificada pelo ID.")
-    public ResponseEntity<Integer> somarLikes(@PathVariable UUID empresaId) {
-        ResponseEntity<List<GetPublicacaoDto>> responseEntity = buscarPosts(empresaId);
+    public ResponseEntity<Integer> somarLikes() {
+        ResponseEntity<List<GetPublicacaoDto>> responseEntity = buscarPosts();
         List<GetPublicacaoDto> posts = responseEntity.getBody();
         if (posts != null && !posts.isEmpty()) {
             int somaTotalLikes = somarLikePosts(posts, 0);
@@ -122,11 +130,10 @@ public class PublicacaoController {
     @Operation(summary = "Buscar publicações por data utilizando Busca Binária",
             description = "Busca uma publicação específica pela data informada.")
     public ResponseEntity<GetPublicacaoDto> buscarPorData(
-            @PathVariable UUID empresaId,
             @PathVariable String dataPublicacao) {
         try {
             OffsetDateTime dataBusca = OffsetDateTime.parse(dataPublicacao);
-            List<GetPublicacaoDto> posts = buscarPosts(empresaId).getBody();
+            List<GetPublicacaoDto> posts = buscarPosts().getBody();
 
             if (posts == null || posts.isEmpty()) return ResponseEntity.noContent().build();
             posts.sort(Comparator.comparing(GetPublicacaoDto::getDataPublicacao));
@@ -144,8 +151,8 @@ public class PublicacaoController {
     @GetMapping("/csv/{empresaId}")
     @Operation(summary = "Exportar publicações para CSV",
             description = "Exporta as publicações da empresa para um arquivo CSV.")
-    public ResponseEntity<InputStreamResource> exportarPublicacoesCSV(@PathVariable UUID empresaId) {
-        List<GetPublicacaoDto> posts = buscarPosts(empresaId).getBody();
+    public ResponseEntity<InputStreamResource> exportarPublicacoesCSV() {
+        List<GetPublicacaoDto> posts = buscarPosts().getBody();
 
         if (posts == null || posts.isEmpty()) {
             return ResponseEntity.noContent().build();
