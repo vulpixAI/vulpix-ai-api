@@ -1,5 +1,5 @@
 -- Criação do banco de dados
-CREATE DATABASE IF NOT EXISTS vulpix_db
+CREATE DATABASE vulpix_db
     WITH ENCODING 'UTF8';
 
 -- Criação da tabela Usuario
