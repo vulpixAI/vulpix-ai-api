@@ -104,4 +104,17 @@ public class EmpresaService {
 
         return JsonConverter.fromJson(configPrompt.getForm());
     }
+
+    public FormularioRequisicaoDto atualizaFormulario(Empresa empresa, FormularioRequisicaoDto formulario) {
+        ConfigPrompt configPrompt = configRepository.findByEmpresaId(empresa.getId())
+                .orElseThrow(() -> new RuntimeException("ConfigPrompt não encontrado"));;
+
+
+
+        String jsonForm = JsonConverter.toJson(formulario);
+        configPrompt.setForm(jsonForm);
+
+        configRepository.save(configPrompt);
+        return formulario;
+    }
 }

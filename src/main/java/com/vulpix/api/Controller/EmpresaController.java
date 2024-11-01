@@ -74,4 +74,16 @@ public class EmpresaController {
         if (formularioResponse == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok().body(formularioResponse);
     }
+
+    @PutMapping("/form")
+    public ResponseEntity<FormularioRequisicaoDto> atualizaFormulario(@RequestBody FormularioRequisicaoDto formulario) {
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String emailUsuario = userDetails.getUsername();
+        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+
+        if (empresa == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        FormularioRequisicaoDto retorno = empresaService.atualizaFormulario(empresa, formulario);
+        return ResponseEntity.ok().body(retorno);
+    }
 }
