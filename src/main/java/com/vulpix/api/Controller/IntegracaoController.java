@@ -82,15 +82,31 @@ public class IntegracaoController {
             @ApiResponse(responseCode = "204", description = "Integração deletada com sucesso."),
             @ApiResponse(responseCode = "404", description = "Integração não encontrada.")
     })
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable UUID id) {
-        Optional<Integracao> integracaoExistente = integracaoService.getIntegracaoById(id);
-        if (integracaoExistente.isEmpty()) {
-            return ResponseEntity.status(404).build();
-        }
+    @DeleteMapping("")
+    public ResponseEntity<Void> deletar() {
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String emailUsuario = userDetails.getUsername();
+        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
 
-        integracaoService.deleteById(id);
+        Optional<Integracao> integracaoExistente = integracaoService.findByEmpresaAndTipo(empresa, TipoIntegracao.INSTAGRAM);
+
+        if (integracaoExistente.isEmpty()) return ResponseEntity.status(404).build();
+
+        integracaoService.deleteById(integracaoExistente.get().getId());
         return ResponseEntity.status(204).build();
     }
+
+    @GetMapping("/possui-integracao")
+    public boolean possuiIntegracao() {
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String emailUsuario = userDetails.getUsername();
+        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+
+        Optional<Integracao> integracaoExistente = integracaoService.findByEmpresaAndTipo(empresa, TipoIntegracao.INSTAGRAM);
+
+        if (integracaoExistente.isEmpty()) return false;
+        return true;
+    }
+
 
 }

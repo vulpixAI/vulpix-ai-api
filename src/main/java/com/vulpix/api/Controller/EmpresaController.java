@@ -86,4 +86,5 @@ public class EmpresaController {
         FormularioRequisicaoDto retorno = empresaService.atualizaFormulario(empresa, formulario);
         return ResponseEntity.ok().body(retorno);
     }
+
 }
