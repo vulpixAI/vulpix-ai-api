@@ -64,12 +64,12 @@ public class EmpresaController {
             @ApiResponse(responseCode = "404", description = "Formulário não encontrado.")
     })
     @GetMapping("/form")
-    public ResponseEntity<String> buscaFormulario() {
+    public ResponseEntity<FormularioRequisicaoDto> buscaFormulario() {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
         Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
 
-        String formularioResponse = empresaService.buscaFormulario(empresa);
+        FormularioRequisicaoDto formularioResponse = empresaService.buscaFormulario(empresa);
 
         if (formularioResponse == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok().body(formularioResponse);

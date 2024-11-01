@@ -2,6 +2,7 @@ package com.vulpix.api.Services.Integracoes.AgentAi;
 
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Services.EmpresaService;
+import com.vulpix.api.dto.Empresa.FormularioRequisicaoDto;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class CriativosService {
@@ -9,13 +10,13 @@ public class CriativosService {
 
     @Autowired
     private EmpresaService empresaService;
-    public String buscaForm(Empresa empresa) {
-        String form = empresaService.buscaFormulario(empresa);
+    public FormularioRequisicaoDto buscaForm(Empresa empresa) {
+        FormularioRequisicaoDto form = empresaService.buscaFormulario(empresa);
         return form;
     }
 
     public String buscaCriativos(Empresa empresa) {
-        String form = buscaForm(empresa);
+        FormularioRequisicaoDto form = buscaForm(empresa);
 
         String urlImages = "Requisicao get";
 

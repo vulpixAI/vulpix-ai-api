@@ -15,8 +15,7 @@ import java.io.Serializable;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class FormularioRequisicaoDto implements Serializable {
+public class FormularioRequisicaoDto {
     private String slogan;
     @NotBlank
     private String descricao;

@@ -1,11 +1,7 @@
 package com.vulpix.api.Entity;
 
-import com.vulpix.api.dto.Empresa.FormularioRequisicaoDto;
-import com.vulpix.api.dto.Empresa.JsonConverter;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 import java.util.UUID;
 @Entity
@@ -20,9 +16,11 @@ public class ConfigPrompt {
     @Column(name = "id_config_prompt")
     private UUID id;
 
-    @Convert(converter = JsonConverter.class)
-    @Column(columnDefinition = "json")
-    private FormularioRequisicaoDto form;
+    @Column(name = "form")
+    private String form;
+
+    @Column(name = "prompt")
+    private String prompt;
 
     @OneToOne
     @JoinColumn(name = "fk_empresa", nullable = false)

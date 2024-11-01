@@ -8,13 +8,12 @@ import com.vulpix.api.Repository.ConfigRepository;
 import com.vulpix.api.Repository.EmpresaRepository;
 import com.vulpix.api.Services.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Services.Usuario.UsuarioService;
+import com.vulpix.api.Utils.JsonConverter;
 import com.vulpix.api.dto.Empresa.FormularioRequisicaoDto;
-import com.vulpix.api.dto.Empresa.JsonConverter;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 @Service
@@ -90,13 +89,19 @@ public class EmpresaService {
 
     public FormularioRequisicaoDto cadastrarFormulario(Empresa empresa, FormularioRequisicaoDto formulario) {
         ConfigPrompt configPrompt = new ConfigPrompt();
-        configPrompt.setForm(formulario);
+
+        String jsonForm = JsonConverter.toJson(formulario);
+        configPrompt.setForm(jsonForm);
+
         configPrompt.setEmpresa(empresa);
         configRepository.save(configPrompt);
         return formulario;
     }
 
-    public String buscaFormulario(Empresa empresa) {
-        return configRepository.findFormAsStringByEmpresaId(empresa.getId());
+    public FormularioRequisicaoDto buscaFormulario(Empresa empresa) {
+        ConfigPrompt configPrompt = configRepository.findByEmpresaId(empresa.getId())
+                .orElseThrow(() -> new RuntimeException("ConfigPrompt não encontrado"));;
+
+        return JsonConverter.fromJson(configPrompt.getForm());
     }
 }
