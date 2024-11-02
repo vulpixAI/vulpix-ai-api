@@ -91,6 +91,8 @@ public class EmpresaService {
         String jsonForm = JsonConverter.toJson(formulario);
         configPrompt.setForm(jsonForm);
 
+        if (configRepository.findByEmpresaId(empresa.getId()).isPresent()) return null;
+
         configPrompt.setEmpresa(empresa);
         configRepository.save(configPrompt);
         return formulario;
