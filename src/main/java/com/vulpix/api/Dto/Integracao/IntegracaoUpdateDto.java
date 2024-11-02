@@ -1,4 +1,4 @@
-package com.vulpix.api.dto.Integracao.Resquest;
+package com.vulpix.api.Dto.Integracao;
 
 import lombok.Builder;
 import lombok.Data;
