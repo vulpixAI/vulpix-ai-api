@@ -1,7 +1,7 @@
 package com.vulpix.api.Controller;
 
-import com.vulpix.api.Services.EmpresaService;
-import com.vulpix.api.Services.Usuario.Autenticacao.UsuarioAutenticadoUtil;
+import com.vulpix.api.Service.EmpresaService;
+import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Utils.Enum.TipoIntegracao;
 import com.vulpix.api.Dto.Publicacao.GetPublicacaoDto;
 import com.vulpix.api.Dto.Publicacao.PostPublicacaoDto;
@@ -11,9 +11,8 @@ import com.vulpix.api.Entity.Integracao;
 import com.vulpix.api.Entity.Publicacao;
 import com.vulpix.api.Repository.EmpresaRepository;
 import com.vulpix.api.Repository.PublicacaoRepository;
-import com.vulpix.api.Services.Integracoes.Graph.PublicacaoService;
+import com.vulpix.api.Service.Integracoes.Graph.PublicacaoService;
 import io.swagger.v3.oas.annotations.Operation;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -23,7 +22,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;

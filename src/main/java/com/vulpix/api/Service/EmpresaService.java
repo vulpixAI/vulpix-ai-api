@@ -1,13 +1,11 @@
-package com.vulpix.api.Services;
+package com.vulpix.api.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vulpix.api.Entity.ConfigPrompt;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Repository.ConfigRepository;
 import com.vulpix.api.Repository.EmpresaRepository;
-import com.vulpix.api.Services.Usuario.Autenticacao.UsuarioAutenticadoUtil;
-import com.vulpix.api.Services.Usuario.UsuarioService;
+import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
+import com.vulpix.api.Service.Usuario.UsuarioService;
 import com.vulpix.api.Utils.JsonConverter;
 import com.vulpix.api.dto.Empresa.FormularioRequisicaoDto;
 import jakarta.persistence.EntityNotFoundException;

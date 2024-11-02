@@ -1,12 +1,12 @@
-package com.vulpix.api.Services;
+package com.vulpix.api.Service;
 
 import com.vulpix.api.Utils.Enum.TipoIntegracao;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Entity.Integracao;
 import com.vulpix.api.Repository.EmpresaRepository;
 import com.vulpix.api.Repository.IntegracaoRepository;
-import com.vulpix.api.Services.Integracoes.Graph.TokenService;
-import com.vulpix.api.Services.Usuario.UsuarioService;
+import com.vulpix.api.Service.Integracoes.Graph.TokenService;
+import com.vulpix.api.Service.Usuario.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

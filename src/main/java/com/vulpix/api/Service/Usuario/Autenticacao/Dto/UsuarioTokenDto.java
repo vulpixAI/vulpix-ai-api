@@ -1,4 +1,4 @@
-package com.vulpix.api.Services.Usuario.Autenticacao.Dto;
+package com.vulpix.api.Service.Usuario.Autenticacao.Dto;
 
 import com.vulpix.api.Utils.Enum.StatusUsuario;
 import lombok.AllArgsConstructor;

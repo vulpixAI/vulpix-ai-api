@@ -1,7 +1,7 @@
 package com.vulpix.api.Config.Security;
 
 import com.vulpix.api.Config.Security.Jwt.GerenciadorTokenJwt;
-import com.vulpix.api.Services.Usuario.Autenticacao.AutenticacaoService;
+import com.vulpix.api.Service.Usuario.Autenticacao.AutenticacaoService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

@@ -1,4 +1,4 @@
-package com.vulpix.api.Services.Integracoes.Graph;
+package com.vulpix.api.Service.Integracoes.Graph;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;

@@ -1,4 +1,4 @@
-package com.vulpix.api.Services.Usuario.Autenticacao;
+package com.vulpix.api.Service.Usuario.Autenticacao;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

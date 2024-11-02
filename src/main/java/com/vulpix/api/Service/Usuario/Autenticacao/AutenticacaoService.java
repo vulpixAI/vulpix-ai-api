@@ -1,8 +1,8 @@
-package com.vulpix.api.Services.Usuario.Autenticacao;
+package com.vulpix.api.Service.Usuario.Autenticacao;
 
 import com.vulpix.api.Entity.Usuario;
 import com.vulpix.api.Repository.UsuarioRepository;
-import com.vulpix.api.Services.Usuario.Autenticacao.Dto.UsuarioDetalhesDto;
+import com.vulpix.api.Service.Usuario.Autenticacao.Dto.UsuarioDetalhesDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

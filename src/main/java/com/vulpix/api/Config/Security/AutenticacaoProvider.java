@@ -1,6 +1,6 @@
 package com.vulpix.api.Config.Security;
 
-import com.vulpix.api.Services.Usuario.Autenticacao.AutenticacaoService;
+import com.vulpix.api.Service.Usuario.Autenticacao.AutenticacaoService;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

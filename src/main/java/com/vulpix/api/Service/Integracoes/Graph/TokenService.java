@@ -1,4 +1,4 @@
-package com.vulpix.api.Services.Integracoes.Graph;
+package com.vulpix.api.Service.Integracoes.Graph;
 
 import com.vulpix.api.Utils.Enum.TipoIntegracao;
 import com.vulpix.api.Entity.Integracao;

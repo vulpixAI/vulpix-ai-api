@@ -1,7 +1,7 @@
-package com.vulpix.api.Services.Integracoes.AgentAi;
+package com.vulpix.api.Service.Integracoes.AgentAi;
 
 import com.vulpix.api.Entity.Empresa;
-import com.vulpix.api.Services.EmpresaService;
+import com.vulpix.api.Service.EmpresaService;
 import com.vulpix.api.dto.Empresa.FormularioRequisicaoDto;
 import org.springframework.beans.factory.annotation.Autowired;
 

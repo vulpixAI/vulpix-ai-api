@@ -1,8 +1,8 @@
 package com.vulpix.api.Controller;
 
 import com.vulpix.api.Entity.Empresa;
-import com.vulpix.api.Services.EmpresaService;
-import com.vulpix.api.Services.Usuario.Autenticacao.UsuarioAutenticadoUtil;
+import com.vulpix.api.Service.EmpresaService;
+import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.dto.Empresa.FormularioRequisicaoDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,8 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/empresas")

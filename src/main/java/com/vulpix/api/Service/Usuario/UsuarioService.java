@@ -1,12 +1,12 @@
-package com.vulpix.api.Services.Usuario;
+package com.vulpix.api.Service.Usuario;
 
 import com.vulpix.api.Config.Security.Jwt.GerenciadorTokenJwt;
 import com.vulpix.api.Entity.Usuario;
 import com.vulpix.api.Repository.UsuarioRepository;
-import com.vulpix.api.Services.Usuario.Autenticacao.Dto.UsuarioLoginDto;
-import com.vulpix.api.Services.Usuario.Autenticacao.Dto.UsuarioMapper;
-import com.vulpix.api.Services.Usuario.Autenticacao.Dto.UsuarioTokenDto;
-import com.vulpix.api.Services.Usuario.Autenticacao.UsuarioAutenticadoUtil;
+import com.vulpix.api.Service.Usuario.Autenticacao.Dto.UsuarioLoginDto;
+import com.vulpix.api.Service.Usuario.Autenticacao.Dto.UsuarioMapper;
+import com.vulpix.api.Service.Usuario.Autenticacao.Dto.UsuarioTokenDto;
+import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

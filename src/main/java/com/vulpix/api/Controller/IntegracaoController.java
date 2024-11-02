@@ -6,9 +6,9 @@ import com.vulpix.api.dto.Integracao.Resquest.IntegracaoUpdateDto;
 import com.vulpix.api.Entity.Integracao;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Utils.Enum.TipoIntegracao;
-import com.vulpix.api.Services.EmpresaService;
-import com.vulpix.api.Services.IntegracaoService;
-import com.vulpix.api.Services.Usuario.Autenticacao.UsuarioAutenticadoUtil;
+import com.vulpix.api.Service.EmpresaService;
+import com.vulpix.api.Service.IntegracaoService;
+import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -18,7 +18,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/integracoes")
