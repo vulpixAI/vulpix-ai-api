@@ -190,4 +190,17 @@ public class PublicacaoController {
             return ResponseEntity.status(500).build();
         }
     }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Deletar uma publicação",
+            description = "Deleta uma publicação específica pelo ID.")
+    public ResponseEntity<Void> deletarPublicacao(@PathVariable UUID id) {
+        Optional<Publicacao> publicacao = publicacaoRepository.findById(id);
+        if (publicacao.isPresent()) {
+            publicacaoRepository.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
