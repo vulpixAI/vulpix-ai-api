@@ -35,6 +35,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/posts")
 public class PublicacaoController {
+    @Autowired
     private PublicacaoService publicacaoService;
     @Autowired
     private PublicacaoRepository publicacaoRepository;
@@ -56,20 +57,22 @@ public class PublicacaoController {
         return publicacaoService.buscarPosts(empresa.getId());
     }
 
-    @PostMapping
+    @PostMapping()
     @Operation(summary = "Criar um novo post",
             description = "Cria um novo post para a empresa informada. O post deve incluir a legenda e a URL da mídia.")
     public ResponseEntity<PostPublicacaoResponse> criarPost(@RequestBody PostPublicacaoDto post) {
-        Optional<Empresa> empresa = empresaRepository.findById(post.getFkEmpresa());
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String emailUsuario = userDetails.getUsername();
+        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
 
-        if (empresa.isEmpty()) {
+        if (empresa == null) {
             return ResponseEntity.status(404).build();
         }
 
         Publicacao novoPost = new Publicacao();
         novoPost.setLegenda(post.getCaption());
         novoPost.setUrlMidia(post.getImageUrl());
-        novoPost.setEmpresa(empresa.get());
+        novoPost.setEmpresa(empresa);
         novoPost.setCreated_at(LocalDateTime.now());
         novoPost.setIdReturned(post.getIdReturned());
 
@@ -81,7 +84,7 @@ public class PublicacaoController {
             }
         }
 
-        Integracao integracao = empresa.get().getIntegracoes().stream()
+        Integracao integracao = empresa.getIntegracoes().stream()
                 .filter(i -> TipoIntegracao.INSTAGRAM.equals(i.getTipo()))
                 .findFirst()
                 .orElse(null);
