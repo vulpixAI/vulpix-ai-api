@@ -3,6 +3,8 @@ package com.vulpix.api.Controller;
 import com.vulpix.api.Dto.CadastroInicial.CadastroRequisicaoDto;
 import com.vulpix.api.Dto.CadastroInicial.CadastroRequisicaoMapper;
 import com.vulpix.api.Dto.CadastroInicial.CadastroRetornoDto;
+import com.vulpix.api.Dto.Usuario.UsuarioEmpresaDto;
+import com.vulpix.api.Dto.Usuario.UsuarioEmpresaMapper;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Entity.Usuario;
 import com.vulpix.api.Services.EmpresaService;
@@ -87,6 +89,30 @@ public class UsuarioController {
         } else {
             return ResponseEntity.status(404).build();
         }
+    }
+
+    @Operation(summary = "Buscar dados do usuário e da empresa associada", description = "Retorna os dados do usuário juntamente com os dados da empresa associada.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Dados do usuário e empresa retornados com sucesso."),
+            @ApiResponse(responseCode = "404", description = "Usuário ou empresa não encontrados.")
+    })
+    @GetMapping("/{id}/empresa")
+    public ResponseEntity<UsuarioEmpresaDto> buscarUsuarioComEmpresa(@Parameter(description = "ID do usuário", required = true) @PathVariable UUID id) {
+        Optional<Usuario> usuarioOpt = usuarioService.buscarUsuarioPorId(id);
+
+        if (usuarioOpt.isEmpty()) {
+            return ResponseEntity.status(404).build();
+        }
+
+        Usuario usuario = usuarioOpt.get();
+        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(usuario.getEmail());
+
+        if (empresa == null) {
+            return ResponseEntity.status(404).build();
+        }
+
+        UsuarioEmpresaDto dto = UsuarioEmpresaMapper.toDto(usuario, empresa);
+        return ResponseEntity.ok(dto);
     }
 
     @Operation(summary = "Atualizar usuário", description = "Atualiza as informações de um usuário com base no ID fornecido.")
