@@ -37,5 +37,7 @@ public class Usuario {
     private LocalDateTime created_at;
     @Column(name = "updated_at")
     private LocalDateTime updated_at;
-    
+
+    @OneToOne(mappedBy = "usuario")
+    private Empresa empresa;
 }
