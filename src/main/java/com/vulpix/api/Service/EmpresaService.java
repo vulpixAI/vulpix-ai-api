@@ -4,6 +4,7 @@ import com.vulpix.api.Entity.ConfigPrompt;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Repository.ConfigRepository;
 import com.vulpix.api.Repository.EmpresaRepository;
+import com.vulpix.api.Service.Integracoes.AgentAi.PromptService;
 import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Service.Usuario.UsuarioService;
 import com.vulpix.api.Utils.JsonConverter;
@@ -25,6 +26,8 @@ public class EmpresaService {
 
     @Autowired
     private ConfigRepository configRepository;
+    @Autowired
+    private PromptService promptService;
 
     public Empresa buscaPorId(UUID id){
         Optional<Empresa> empresaOpt = empresaRepository.findById(id);
@@ -95,6 +98,9 @@ public class EmpresaService {
 
         configPrompt.setEmpresa(empresa);
         configRepository.save(configPrompt);
+
+        salvaPrompt(empresa);
+
         return formulario;
     }
 
@@ -116,5 +122,15 @@ public class EmpresaService {
 
         configRepository.save(configPrompt);
         return formulario;
+    }
+
+    public void salvaPrompt(Empresa empresa) {
+        ConfigPrompt configPrompt = configRepository.findByEmpresaId(empresa.getId())
+                .orElseThrow(() -> new RuntimeException("ConfigPrompt não encontrado"));
+
+        String prompt = promptService.salvarPrompt(configPrompt);
+
+        configPrompt.setPrompt(prompt);
+        configRepository.save(configPrompt);
     }
 }
