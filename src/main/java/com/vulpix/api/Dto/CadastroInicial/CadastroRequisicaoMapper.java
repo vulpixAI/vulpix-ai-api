@@ -18,7 +18,7 @@ public class CadastroRequisicaoMapper {
                 .email(dto.getEmail())
                 .senha(dto.getSenha())
                 .telefone(dto.getTelefone())
-                .status(StatusUsuario.AGUARDANDO_FORMULARIO)
+                .status(StatusUsuario.AGUARDANDO_PAGAMENTO)
                 .created_at(LocalDateTime.now())
                 .updated_at(LocalDateTime.now())
                 .build();
