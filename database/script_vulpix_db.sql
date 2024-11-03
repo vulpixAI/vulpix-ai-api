@@ -72,6 +72,7 @@ CREATE TABLE publicacao (
 -- Criação da tabela ConfigPrompt
 CREATE TABLE config_prompt (
     id_config_prompt UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    form JSON,
+    form TEXT,
+    prompt TEXT,
     fk_empresa UUID REFERENCES empresa(id_empresa) ON DELETE CASCADE
 );
