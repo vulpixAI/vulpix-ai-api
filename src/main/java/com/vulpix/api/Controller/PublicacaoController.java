@@ -52,33 +52,6 @@ public class PublicacaoController {
     @Autowired
     private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
 
-    @GetMapping()
-    @Operation(summary = "Buscar posts por empresa",
-            description = "Retorna uma lista de publicações associadas a uma empresa especificada pelo ID.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de publicações retornada com sucesso.",
-                    content = @Content(mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(value = "[{\"id\":\"1\",\"legenda\":\"Post 1\",\"tipoMidia\":\"image\",\"urlMidia\":\"http://exemplo.com/post1\",\"dataPublicacao\":\"2024-11-01T10:00:00Z\",\"likeCount\":10}]"),
-                                    @ExampleObject(value = "[{\"id\":\"2\",\"legenda\":\"Post 2\",\"tipoMidia\":\"video\",\"urlMidia\":\"http://exemplo.com/post2\",\"dataPublicacao\":\"2024-11-02T10:00:00Z\",\"likeCount\":20}]"),
-                                    @ExampleObject(value = "[{\"id\":\"3\",\"legenda\":\"Post 3\",\"tipoMidia\":\"image\",\"urlMidia\":\"http://exemplo.com/post3\",\"dataPublicacao\":\"2024-11-03T10:00:00Z\",\"likeCount\":30}]"),
-                                    @ExampleObject(value = "[{\"id\":\"4\",\"legenda\":\"Post 4\",\"tipoMidia\":\"image\",\"urlMidia\":\"http://exemplo.com/post4\",\"dataPublicacao\":\"2024-11-04T10:00:00Z\",\"likeCount\":40}]"),
-                                    @ExampleObject(value = "[{\"id\":\"5\",\"legenda\":\"Post 5\",\"tipoMidia\":\"video\",\"urlMidia\":\"http://exemplo.com/post5\",\"dataPublicacao\":\"2024-11-05T10:00:00Z\",\"likeCount\":50}]"),
-                                    @ExampleObject(value = "[{\"id\":\"6\",\"legenda\":\"Post 6\",\"tipoMidia\":\"image\",\"urlMidia\":\"http://exemplo.com/post6\",\"dataPublicacao\":\"2024-11-06T10:00:00Z\",\"likeCount\":60}]")
-                            })),
-            @ApiResponse(responseCode = "404", description = "Empresa não encontrada.",
-                    content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(value = "{ \"message\": \"Erro: Empresa não encontrada.\" }")))
-    })
-    public ResponseEntity<List<GetPublicacaoDto>> buscarPosts() {
-        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
-        String emailUsuario = userDetails.getUsername();
-        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
-
-        return publicacaoService.buscarPosts(empresa.getId());
-    }
-
-    @PostMapping()
     @Operation(summary = "Criar um novo post",
             description = "Cria um novo post para a empresa informada. O post deve incluir a legenda e a URL da mídia.")
     @ApiResponses(value = {
@@ -96,6 +69,7 @@ public class PublicacaoController {
                     content = @Content(mediaType = "application/json",
                             examples = @ExampleObject(value = "{ \"message\": \"Erro: Empresa não encontrada.\" }")))
     })
+    @PostMapping()
     public ResponseEntity<PostPublicacaoResponse> criarPost(@RequestBody PostPublicacaoDto post) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
@@ -143,8 +117,60 @@ public class PublicacaoController {
         responseDto.setFkEmpresa(post.getEmpresa().getId());
         return responseDto;
     }
+    @Operation(summary = "Gera uma publicação criativa com a AI",
+            description = "Gera uma publicação baseada na solicitação do usuário autenticado.",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Publicação gerada com sucesso.",
+                            content = @Content(mediaType = "application/json",
+                                    examples = {
+                                            @ExampleObject(value = "[{\"id\":\"1\",\"legenda\":\"Post 1\",\"tipoMidia\":\"image\",\"urlMidia\":\"http://exemplo.com/post1\",\"dataPublicacao\":\"2024-11-01T10:00:00Z\",\"likeCount\":10}]"),
+                                            @ExampleObject(value = "[{\"id\":\"2\",\"legenda\":\"Post 2\",\"tipoMidia\":\"video\",\"urlMidia\":\"http://exemplo.com/post2\",\"dataPublicacao\":\"2024-11-02T10:00:00Z\",\"likeCount\":20}]"),
+                                            @ExampleObject(value = "[{\"id\":\"3\",\"legenda\":\"Post 3\",\"tipoMidia\":\"image\",\"urlMidia\":\"http://exemplo.com/post3\",\"dataPublicacao\":\"2024-11-03T10:00:00Z\",\"likeCount\":30}]"),
+                                            @ExampleObject(value = "[{\"id\":\"4\",\"legenda\":\"Post 4\",\"tipoMidia\":\"image\",\"urlMidia\":\"http://exemplo.com/post4\",\"dataPublicacao\":\"2024-11-04T10:00:00Z\",\"likeCount\":40}]"),
+                                            @ExampleObject(value = "[{\"id\":\"5\",\"legenda\":\"Post 5\",\"tipoMidia\":\"video\",\"urlMidia\":\"http://exemplo.com/post5\",\"dataPublicacao\":\"2024-11-05T10:00:00Z\",\"likeCount\":50}]"),
+                                            @ExampleObject(value = "[{\"id\":\"6\",\"legenda\":\"Post 6\",\"tipoMidia\":\"image\",\"urlMidia\":\"http://exemplo.com/post6\",\"dataPublicacao\":\"2024-11-06T10:00:00Z\",\"likeCount\":60}]")
+                                    })),
+                    @ApiResponse(responseCode = "500", description = "Erro ao gerar a publicação.")
+            })
+    @PostMapping("/gerar-post")
+    public ResponseEntity<PublicacaoGeradaRetorno> gerarPublicacao(@RequestBody String userRequest) {
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String emailUsuario = userDetails.getUsername();
+        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
 
-    @GetMapping("/somar-likes-publicacao")
+        PublicacaoGeradaRetorno retorno = empresaService.buscaCriativos(empresa, userRequest);
+
+        if (retorno == null) return ResponseEntity.status(500).build();
+
+        return ResponseEntity.status(201).body(retorno);
+    }
+
+    @Operation(summary = "Buscar posts por empresa",
+            description = "Retorna uma lista de publicações associadas a uma empresa especificada pelo ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de publicações retornada com sucesso.",
+                    content = @Content(mediaType = "application/json",
+                            examples = {
+                                    @ExampleObject(value = "[{\"id\":\"1\",\"legenda\":\"Post 1\",\"tipoMidia\":\"image\",\"urlMidia\":\"http://exemplo.com/post1\",\"dataPublicacao\":\"2024-11-01T10:00:00Z\",\"likeCount\":10}]"),
+                                    @ExampleObject(value = "[{\"id\":\"2\",\"legenda\":\"Post 2\",\"tipoMidia\":\"video\",\"urlMidia\":\"http://exemplo.com/post2\",\"dataPublicacao\":\"2024-11-02T10:00:00Z\",\"likeCount\":20}]"),
+                                    @ExampleObject(value = "[{\"id\":\"3\",\"legenda\":\"Post 3\",\"tipoMidia\":\"image\",\"urlMidia\":\"http://exemplo.com/post3\",\"dataPublicacao\":\"2024-11-03T10:00:00Z\",\"likeCount\":30}]"),
+                                    @ExampleObject(value = "[{\"id\":\"4\",\"legenda\":\"Post 4\",\"tipoMidia\":\"image\",\"urlMidia\":\"http://exemplo.com/post4\",\"dataPublicacao\":\"2024-11-04T10:00:00Z\",\"likeCount\":40}]"),
+                                    @ExampleObject(value = "[{\"id\":\"5\",\"legenda\":\"Post 5\",\"tipoMidia\":\"video\",\"urlMidia\":\"http://exemplo.com/post5\",\"dataPublicacao\":\"2024-11-05T10:00:00Z\",\"likeCount\":50}]"),
+                                    @ExampleObject(value = "[{\"id\":\"6\",\"legenda\":\"Post 6\",\"tipoMidia\":\"image\",\"urlMidia\":\"http://exemplo.com/post6\",\"dataPublicacao\":\"2024-11-06T10:00:00Z\",\"likeCount\":60}]")
+                            })),
+            @ApiResponse(responseCode = "404", description = "Empresa não encontrada.",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"message\": \"Erro: Empresa não encontrada.\" }")))
+    })
+    @GetMapping()
+    public ResponseEntity<List<GetPublicacaoDto>> buscarPosts() {
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String emailUsuario = userDetails.getUsername();
+        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+
+        return publicacaoService.buscarPosts(empresa.getId());
+    }
+
     @Operation(summary = "Somar likes das publicações utilizando Recursão",
             description = "Retorna a soma total de likes de todas as publicações da empresa especificada pelo ID.")
     @ApiResponses(value = {
@@ -162,6 +188,7 @@ public class PublicacaoController {
                     content = @Content(mediaType = "application/json",
                             examples = @ExampleObject(value = "{ \"message\": \"Nenhuma publicação encontrada.\" }")))
     })
+    @GetMapping("/somar-likes-publicacao")
     public ResponseEntity<Integer> somarLikes() {
         ResponseEntity<List<GetPublicacaoDto>> responseEntity = buscarPosts();
         List<GetPublicacaoDto> posts = responseEntity.getBody();
@@ -172,7 +199,6 @@ public class PublicacaoController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/somar-likes-publicacao-iterativo")
     @Operation(summary = "Somar likes das publicações utilizando Iteração",
             description = "Retorna a soma total de likes de todas as publicações da empresa especificada pelo ID.")
     @ApiResponses(value = {
@@ -190,6 +216,7 @@ public class PublicacaoController {
                     content = @Content(mediaType = "application/json",
                             examples = @ExampleObject(value = "{ \"message\": \"Nenhuma publicação encontrada.\" }")))
     })
+    @GetMapping("/somar-likes-publicacao-iterativo")
     public ResponseEntity<Integer> somarLikesIterativo() {
         ResponseEntity<List<GetPublicacaoDto>> responseEntity = buscarPosts();
         List<GetPublicacaoDto> posts = responseEntity.getBody();
@@ -203,9 +230,15 @@ public class PublicacaoController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{id}")
     @Operation(summary = "Deletar uma publicação",
             description = "Deleta uma publicação específica pelo ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Publicação deletada com sucesso."),
+            @ApiResponse(responseCode = "404", description = "Publicação não encontrada.",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = "{\"error\": \"Publicação não encontrada.\"}")))
+    })
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarPublicacao(@PathVariable UUID id) {
         Optional<Publicacao> publicacao = publicacaoRepository.findById(id);
         if (publicacao.isPresent()) {
@@ -216,16 +249,4 @@ public class PublicacaoController {
         }
     }
 
-    @PostMapping("/gerar-post")
-    public ResponseEntity<PublicacaoGeradaRetorno> gerarPublicacao(@RequestBody String userRequest) {
-        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
-        String emailUsuario = userDetails.getUsername();
-        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
-
-        PublicacaoGeradaRetorno retorno = empresaService.buscaCriativos(empresa, userRequest);
-
-        if (retorno == null) return ResponseEntity.status(500).build();
-
-        return ResponseEntity.status(201).body(retorno);
-    }
 }
