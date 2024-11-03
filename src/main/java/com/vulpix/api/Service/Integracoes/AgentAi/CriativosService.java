@@ -2,24 +2,42 @@ package com.vulpix.api.Service.Integracoes.AgentAi;
 
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Service.EmpresaService;
+import com.vulpix.api.dto.Agent.PublicacaoGeradaResponse;
 import com.vulpix.api.dto.Empresa.FormularioRequisicaoDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.*;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
+import java.util.Map;
+
+@Service
 public class CriativosService {
-    // Aqui vamos enviar uma requisição get para nossa aplicação VulpixAi Agent responsável por gerar os criativos
 
+    private String URL = "http://192.168.0.7:5000/generate-content";
     @Autowired
-    private EmpresaService empresaService;
-    public FormularioRequisicaoDto buscaForm(Empresa empresa) {
-        FormularioRequisicaoDto form = empresaService.buscaFormulario(empresa);
-        return form;
-    }
+    private RestTemplate restTemplate;
 
-    public String buscaCriativos(Empresa empresa) {
-        FormularioRequisicaoDto form = buscaForm(empresa);
+    public PublicacaoGeradaResponse buscaCriativos(String prompt, String userRequest) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-        String urlImages = "Requisicao get";
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("prompt", prompt);
+        requestBody.put("user_request", userRequest);
 
-        return urlImages;
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+
+        System.out.println("Requisição: " + requestBody);
+
+        ResponseEntity<PublicacaoGeradaResponse> responseEntity = restTemplate.exchange(
+                URL,
+                HttpMethod.POST,
+                requestEntity,
+                PublicacaoGeradaResponse.class
+        );
+
+        return responseEntity.getBody();
     }
 }

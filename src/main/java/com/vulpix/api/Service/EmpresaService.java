@@ -4,10 +4,12 @@ import com.vulpix.api.Entity.ConfigPrompt;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Repository.ConfigRepository;
 import com.vulpix.api.Repository.EmpresaRepository;
+import com.vulpix.api.Service.Integracoes.AgentAi.CriativosService;
 import com.vulpix.api.Service.Integracoes.AgentAi.PromptService;
 import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Service.Usuario.UsuarioService;
 import com.vulpix.api.Utils.JsonConverter;
+import com.vulpix.api.dto.Agent.PublicacaoGeradaResponse;
 import com.vulpix.api.dto.Empresa.FormularioRequisicaoDto;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,9 @@ public class EmpresaService {
     private ConfigRepository configRepository;
     @Autowired
     private PromptService promptService;
+
+    @Autowired
+    private CriativosService criativosService;
 
     public Empresa buscaPorId(UUID id){
         Optional<Empresa> empresaOpt = empresaRepository.findById(id);
@@ -132,5 +137,13 @@ public class EmpresaService {
 
         configPrompt.setPrompt(prompt);
         configRepository.save(configPrompt);
+    }
+
+    public PublicacaoGeradaResponse buscaCriativos(Empresa empresa, String userRequest){
+        ConfigPrompt configPrompt = configRepository.findByEmpresaId(empresa.getId())
+                .orElseThrow(() -> new RuntimeException("ConfigPrompt não encontrado"));
+
+        PublicacaoGeradaResponse retorno = criativosService.buscaCriativos(configPrompt.getPrompt(), userRequest);
+        return retorno;
     }
 }

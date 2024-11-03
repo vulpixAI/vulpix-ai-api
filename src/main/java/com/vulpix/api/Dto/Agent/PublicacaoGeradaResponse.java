@@ -11,5 +11,5 @@ public class PublicacaoGeradaResponse {
 
     private String caption;
 
-    private List<String> imageUrls;
+    private List<String> image_urls;
 }
