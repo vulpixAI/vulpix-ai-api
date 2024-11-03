@@ -21,6 +21,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -83,48 +85,9 @@ public class UsuarioController {
         return ResponseEntity.status(200).body(usuarioRetorno);
     }
 
-    @Operation(summary = "Listar usuários", description = "Retorna uma lista de todos os usuários cadastrados.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de usuários retornada com sucesso.",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = @ExampleObject(value = "[{ \"id\": \"123e4567-e89b-12d3-a456-426614174000\", \"nome\": \"João\" }, { \"id\": \"123e4567-e89b-12d3-a456-426614174001\", \"nome\": \"Maria\" }]"))
-            ),
-            @ApiResponse(responseCode = "204", description = "Nenhum usuário encontrado.")
-    })
-    @GetMapping
-    public ResponseEntity<List<Usuario>> listarUsuarios() {
-        List<Usuario> usuarios = usuarioService.listarUsuarios();
-        if (usuarios.isEmpty()) {
-            return ResponseEntity.status(204).build();
-        }
-        return ResponseEntity.ok(usuarios);
-    }
 
-    @Operation(summary = "Buscar usuário por ID", description = "Retorna um usuário específico com base no ID fornecido.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Usuário encontrado.",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = @ExampleObject(value = "{ \"id\": \"123e4567-e89b-12d3-a456-426614174000\", \"nome\": \"João\" }"))
-            ),
-            @ApiResponse(responseCode = "404", description = "Usuário não encontrado.",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = @ExampleObject(value = "{ \"message\": \"Erro: Usuário não encontrado.\" }"))
-            )
-    })
-    @GetMapping("/{id}")
-    public ResponseEntity<Usuario> buscarUsuarioPorId(@Parameter(description = "ID do usuário a ser buscado", required = true) @PathVariable UUID id) {
-        Optional<Usuario> usuarioOpt = usuarioService.buscarUsuarioPorId(id);
-        if (usuarioOpt.isPresent()) {
-            return ResponseEntity.ok(usuarioOpt.get());
-        } else {
-            return ResponseEntity.status(404).build();
-        }
-    }
-
-    @Operation(summary = "Buscar dados do usuário e da empresa associada", description = "Retorna os dados do usuário juntamente com os dados da empresa associada.")
+    @Operation(summary = "Buscar dados do usuário e da empresa associada",
+            description = "Retorna os dados do usuário juntamente com os dados da empresa associada.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Dados do usuário e empresa retornados com sucesso.",
                     content = @Content(
@@ -137,9 +100,13 @@ public class UsuarioController {
                             examples = @ExampleObject(value = "{ \"message\": \"Erro: Usuário ou empresa não encontrados.\" }"))
             )
     })
-    @GetMapping("/{id}/empresa")
-    public ResponseEntity<UsuarioEmpresaDto> buscarUsuarioComEmpresa(@Parameter(description = "ID do usuário", required = true) @PathVariable UUID id) {
-        Optional<Usuario> usuarioOpt = usuarioService.buscarUsuarioPorId(id);
+    @GetMapping()
+    public ResponseEntity<UsuarioEmpresaDto> buscarUsuarioComEmpresa() {
+
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String emailUsuario = userDetails.getUsername();
+
+        Optional<Usuario> usuarioOpt = usuarioService.buscarUsuarioPorEmail(emailUsuario);
 
         if (usuarioOpt.isEmpty()) {
             return ResponseEntity.status(404).build();

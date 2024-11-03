@@ -41,6 +41,11 @@ public class UsuarioService {
         return usuarioRepository.save(novoUsuario);
     }
 
+    public Optional<Usuario> buscarUsuarioPorEmail(String email) {
+        return usuarioRepository.findByEmail(email);
+    }
+
+
     public UsuarioTokenDto autenticarUsuario(UsuarioLoginDto usuarioLoginDto) {
         final UsernamePasswordAuthenticationToken credentials = new UsernamePasswordAuthenticationToken(
                 usuarioLoginDto.getEmail(), usuarioLoginDto.getSenha()
