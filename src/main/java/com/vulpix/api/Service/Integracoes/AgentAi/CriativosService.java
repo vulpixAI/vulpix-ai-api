@@ -1,10 +1,7 @@
 package com.vulpix.api.Service.Integracoes.AgentAi;
 
-import com.vulpix.api.Entity.Empresa;
-import com.vulpix.api.Service.EmpresaService;
-import com.vulpix.api.dto.Agent.PublicacaoGeradaResponse;
-import com.vulpix.api.dto.Agent.PublicacaoGeradaRetorno;
-import com.vulpix.api.dto.Empresa.FormularioRequisicaoDto;
+import com.vulpix.api.Dto.Agent.PublicacaoGeradaResponse;
+import com.vulpix.api.Dto.Agent.PublicacaoGeradaRetorno;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -13,7 +10,6 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.IntStream;
 
 @Service
 public class CriativosService {

@@ -1,6 +1,5 @@
-package com.vulpix.api.dto.Agent;
+package com.vulpix.api.Dto.Agent;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Data;
 

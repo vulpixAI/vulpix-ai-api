@@ -1,8 +1,19 @@
 package com.vulpix.api.Utils.Enum;
 
 public enum StatusUsuario {
-    AGUARDANDO_PAGAMENTO,
-    AGUARDANDO_FORMULARIO,
-    CADASTRO_FINALIZADO,
-    PAGAMENTO_EM_ATRASO
+    AGUARDANDO_PAGAMENTO(0),
+    AGUARDANDO_FORMULARIO(1),
+    CADASTRO_FINALIZADO(2),
+    PAGAMENTO_EM_ATRASO(3);
+
+    private final int code;
+
+    StatusUsuario(int code) {
+        this.code = code;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
 }

@@ -2,7 +2,7 @@ package com.vulpix.api.Utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vulpix.api.dto.Empresa.FormularioRequisicaoDto;
+import com.vulpix.api.Dto.Empresa.FormularioRequisicaoDto;
 
 public class JsonConverter {
     private static final ObjectMapper objectMapper = new ObjectMapper();

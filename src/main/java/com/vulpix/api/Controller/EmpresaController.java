@@ -3,7 +3,7 @@ package com.vulpix.api.Controller;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Service.EmpresaService;
 import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
-import com.vulpix.api.dto.Empresa.FormularioRequisicaoDto;
+import com.vulpix.api.Dto.Empresa.FormularioRequisicaoDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

@@ -1,4 +1,4 @@
-package com.vulpix.api.dto.Agent;
+package com.vulpix.api.Dto.Agent;
 
 import lombok.Builder;
 import lombok.Data;

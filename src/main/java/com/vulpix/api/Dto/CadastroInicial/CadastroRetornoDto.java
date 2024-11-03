@@ -14,7 +14,7 @@ public class CadastroRetornoDto {
     private String sobrenome;
     private String email;
     private String telefone;
-    private StatusUsuario status;
+    private String status;
     private EmpresaDto empresa;
 
     @Data
