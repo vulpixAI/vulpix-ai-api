@@ -8,6 +8,7 @@ import com.vulpix.api.Service.Integracoes.AgentAi.CriativosService;
 import com.vulpix.api.Service.Integracoes.AgentAi.PromptService;
 import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Service.Usuario.UsuarioService;
+import com.vulpix.api.Utils.Enum.StatusUsuario;
 import com.vulpix.api.Utils.JsonConverter;
 import com.vulpix.api.Dto.Agent.PublicacaoGeradaRetorno;
 import com.vulpix.api.Dto.Empresa.FormularioRequisicaoDto;
@@ -105,6 +106,7 @@ public class EmpresaService {
         configRepository.save(configPrompt);
 
         salvaPrompt(empresa);
+        usuarioService.atualizaStatus(empresa, StatusUsuario.CADASTRO_FINALIZADO);
 
         return formulario;
     }
