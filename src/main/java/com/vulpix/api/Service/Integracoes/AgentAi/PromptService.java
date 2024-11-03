@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -22,7 +23,6 @@ public class PromptService {
     private RestTemplate restTemplate;
 
     public String generatePrompt(FormularioRequisicaoDto formData) {
-
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -33,9 +33,14 @@ public class PromptService {
 
         System.out.println("Requisição: " + requestBody);
 
-        ResponseEntity<String> response = restTemplate.postForEntity(URL, requestEntity, String.class);
+        try {
+            ResponseEntity<String> response = restTemplate.postForEntity(URL, requestEntity, String.class);
+            return response.getBody();
 
-        return response.getBody();
+        } catch (HttpServerErrorException e) {
+            System.err.println("Erro no servidor Python ao gerar prompt: " + e.getMessage());
+            return null;
+        }
     }
 
     public String salvarPrompt(ConfigPrompt configPrompt) {
