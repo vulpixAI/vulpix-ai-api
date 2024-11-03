@@ -10,6 +10,7 @@ import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Service.Usuario.UsuarioService;
 import com.vulpix.api.Utils.JsonConverter;
 import com.vulpix.api.dto.Agent.PublicacaoGeradaResponse;
+import com.vulpix.api.dto.Agent.PublicacaoGeradaRetorno;
 import com.vulpix.api.dto.Empresa.FormularioRequisicaoDto;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -139,11 +140,11 @@ public class EmpresaService {
         configRepository.save(configPrompt);
     }
 
-    public PublicacaoGeradaResponse buscaCriativos(Empresa empresa, String userRequest){
+    public PublicacaoGeradaRetorno buscaCriativos(Empresa empresa, String userRequest){
         ConfigPrompt configPrompt = configRepository.findByEmpresaId(empresa.getId())
                 .orElseThrow(() -> new RuntimeException("ConfigPrompt não encontrado"));
 
-        PublicacaoGeradaResponse retorno = criativosService.buscaCriativos(configPrompt.getPrompt(), userRequest);
+        PublicacaoGeradaRetorno retorno = criativosService.buscaCriativos(configPrompt.getPrompt(), userRequest);
         return retorno;
     }
 }

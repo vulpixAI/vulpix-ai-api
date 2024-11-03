@@ -13,6 +13,7 @@ import com.vulpix.api.Repository.EmpresaRepository;
 import com.vulpix.api.Repository.PublicacaoRepository;
 import com.vulpix.api.Service.Integracoes.Graph.PublicacaoService;
 import com.vulpix.api.dto.Agent.PublicacaoGeradaResponse;
+import com.vulpix.api.dto.Agent.PublicacaoGeradaRetorno;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -216,12 +217,12 @@ public class PublicacaoController {
     }
 
     @PostMapping("/gerar-post")
-    public ResponseEntity<PublicacaoGeradaResponse> gerarPublicacao(@RequestBody String userRequest) {
+    public ResponseEntity<PublicacaoGeradaRetorno> gerarPublicacao(@RequestBody String userRequest) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
         Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
 
-        PublicacaoGeradaResponse retorno = empresaService.buscaCriativos(empresa, userRequest);
+        PublicacaoGeradaRetorno retorno = empresaService.buscaCriativos(empresa, userRequest);
 
         if (retorno == null) return ResponseEntity.status(500).build();
 
