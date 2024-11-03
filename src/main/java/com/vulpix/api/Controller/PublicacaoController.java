@@ -143,7 +143,11 @@ public class PublicacaoController {
 
     @PostMapping("/gerar-legenda")
     public ResponseEntity<Map<String, String>> gerarLegenda(@RequestBody String userRequest) {
-        String legenda = empresaService.buscaLegenda(userRequest);
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String emailUsuario = userDetails.getUsername();
+        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+
+        String legenda = empresaService.buscaLegenda(empresa, userRequest);
 
         if (legenda == null) return ResponseEntity.status(502).build();
 

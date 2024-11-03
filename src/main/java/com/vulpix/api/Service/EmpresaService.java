@@ -149,8 +149,11 @@ public class EmpresaService {
         return retorno;
     }
 
-    public String buscaLegenda(String userRequest) {
-        String legenda = criativosService.buscaLegenda(userRequest);
+    public String buscaLegenda(Empresa empresa, String userRequest) {
+        ConfigPrompt configPrompt = configRepository.findByEmpresaId(empresa.getId())
+                .orElseThrow(() -> new RuntimeException("ConfigPrompt não encontrado"));
+
+        String legenda = criativosService.buscaLegenda(configPrompt.getPrompt(), userRequest);
         return legenda;
     }
 }

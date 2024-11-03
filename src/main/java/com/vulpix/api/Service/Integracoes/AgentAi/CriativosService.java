@@ -69,13 +69,14 @@ public class CriativosService {
         }
     }
 
-    public String buscaLegenda(String userRequest) {
+    public String buscaLegenda(String prompt, String userRequest) {
         String URL = "http://127.0.0.1:5000/generate-caption";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("description", userRequest);
+        requestBody.put("prompt", prompt);
+        requestBody.put("user_request", userRequest);
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
 
