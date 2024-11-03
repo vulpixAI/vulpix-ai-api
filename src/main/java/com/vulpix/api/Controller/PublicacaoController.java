@@ -30,6 +30,8 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/posts")
@@ -140,12 +142,15 @@ public class PublicacaoController {
     }
 
     @PostMapping("/gerar-legenda")
-    public ResponseEntity<String> gerarLegenda(@RequestBody String userRequest) {
+    public ResponseEntity<Map<String, String>> gerarLegenda(@RequestBody String userRequest) {
         String legenda = empresaService.buscaLegenda(userRequest);
 
         if (legenda == null) return ResponseEntity.status(502).build();
 
-        return ResponseEntity.status(201).body(legenda);
+        Map<String, String> response = new HashMap<>();
+        response.put("legenda", legenda);
+
+        return ResponseEntity.status(201).body(response);
     }
 
     @Operation(summary = "Buscar posts por empresa",
