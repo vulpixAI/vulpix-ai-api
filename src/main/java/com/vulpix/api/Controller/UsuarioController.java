@@ -10,6 +10,7 @@ import com.vulpix.api.Entity.Usuario;
 import com.vulpix.api.Service.EmpresaService;
 import com.vulpix.api.Service.Usuario.Autenticacao.Dto.UsuarioLoginDto;
 import com.vulpix.api.Service.Usuario.Autenticacao.Dto.UsuarioTokenDto;
+import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Service.Usuario.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -39,6 +40,9 @@ public class UsuarioController {
 
     @Autowired
     private EmpresaService empresaService;
+
+    @Autowired
+    private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
 
     @Operation(summary = "Cadastrar um novo usuário", description = "Realiza o cadastro de um novo usuário e sua empresa associada.")
     @ApiResponses(value = {
@@ -136,11 +140,16 @@ public class UsuarioController {
                             examples = @ExampleObject(value = "{ \"message\": \"Erro: Usuário não encontrado.\" }"))
             )
     })
-    @PutMapping("/{id}")
-    public ResponseEntity<Usuario> atualizar(@Parameter(description = "ID do usuário a ser atualizado", required = true) @PathVariable UUID id, @RequestBody Usuario usuarioAtualizado) {
-        Optional<Usuario> usuarioOpt = usuarioService.atualizarUsuario(id, usuarioAtualizado);
-        if (usuarioOpt.isPresent()) {
-            return ResponseEntity.ok(usuarioOpt.get());
+    @PutMapping()
+    public ResponseEntity<Usuario> atualizar(@Parameter(description = "Usuário a ser atualizado", required = true) @PathVariable UUID id, @RequestBody Usuario usuarioAtualizado) {
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String emailUsuario = userDetails.getUsername();
+
+        Optional<Usuario> usuarioCriado = usuarioService.buscarUsuarioPorEmail(emailUsuario);
+
+        usuarioService.atualizarUsuario(usuarioCriado.get().getId(), usuarioAtualizado);
+        if (usuarioCriado.isPresent()) {
+            return ResponseEntity.ok(usuarioCriado.get());
         } else {
             return ResponseEntity.status(404).build();
         }
@@ -155,9 +164,14 @@ public class UsuarioController {
                             examples = @ExampleObject(value = "{ \"message\": \"Erro: Usuário não encontrado.\" }"))
             )
     })
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> remover(@Parameter(description = "ID do usuário a ser removido", required = true) @PathVariable UUID id) {
-        boolean removido = usuarioService.deletarUsuario(id);
+    @DeleteMapping()
+    public ResponseEntity<Void> remover(@Parameter(description = "Usuário a ser removido", required = true) @PathVariable UUID id) {
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String emailUsuario = userDetails.getUsername();
+
+        Optional<Usuario> usuarioCriado = usuarioService.buscarUsuarioPorEmail(emailUsuario);
+
+        boolean removido = usuarioService.deletarUsuario(usuarioCriado.get().getId());
         if (removido) {
             return ResponseEntity.noContent().build();
         } else {
