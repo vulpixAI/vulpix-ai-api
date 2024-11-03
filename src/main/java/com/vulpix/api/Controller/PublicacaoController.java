@@ -134,7 +134,7 @@ public class PublicacaoController {
 
         PublicacaoGeradaRetorno retorno = empresaService.buscaCriativos(empresa, userRequest);
 
-        if (retorno == null) return ResponseEntity.status(500).build();
+        if (retorno.getImagem1() == null) return ResponseEntity.status(502).build();
 
         return ResponseEntity.status(201).body(retorno);
     }
@@ -143,7 +143,7 @@ public class PublicacaoController {
     public ResponseEntity<String> gerarLegenda(@RequestBody String userRequest) {
         String legenda = empresaService.buscaLegenda(userRequest);
 
-        if (legenda == null) return ResponseEntity.status(500).build();
+        if (legenda == null) return ResponseEntity.status(502).build();
 
         return ResponseEntity.status(201).body(legenda);
     }
