@@ -19,7 +19,7 @@ public class CriativosService {
     private RestTemplate restTemplate;
 
     public PublicacaoGeradaRetorno buscaCriativos(String prompt, String userRequest) {
-        String URL = "http://192.168.0.7:5000/generate-content";
+        String URL = "http://127.0.0.1:5000/generate-content";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -57,12 +57,12 @@ public class CriativosService {
     }
 
     public String buscaLegenda(String userRequest) {
-        String URL = "http://192.168.0.7:5000/generate-caption";
+        String URL = "http://127.0.0.1:5000/generate-caption";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("user_request", userRequest);
+        requestBody.put("description", userRequest);
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
 

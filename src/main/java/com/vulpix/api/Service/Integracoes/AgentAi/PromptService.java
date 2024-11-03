@@ -16,7 +16,7 @@ import java.util.Map;
 
 @Service
 public class PromptService {
-    private String URL = "http://192.168.0.7:5000/generate-prompt";
+    private String URL = "http://127.0.0.1:5000/generate-prompt";
 
     @Autowired
     private RestTemplate restTemplate;
