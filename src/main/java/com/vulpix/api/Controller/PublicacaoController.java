@@ -139,6 +139,15 @@ public class PublicacaoController {
         return ResponseEntity.status(201).body(retorno);
     }
 
+    @PostMapping("/gerar-legenda")
+    public ResponseEntity<String> gerarLegenda(@RequestBody String userRequest) {
+        String legenda = empresaService.buscaLegenda(userRequest);
+
+        if (legenda == null) return ResponseEntity.status(500).build();
+
+        return ResponseEntity.status(201).body(legenda);
+    }
+
     @Operation(summary = "Buscar posts por empresa",
             description = "Retorna uma lista de publicações associadas a uma empresa especificada pelo ID.")
     @ApiResponses(value = {

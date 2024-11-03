@@ -14,11 +14,12 @@ import java.util.Map;
 @Service
 public class CriativosService {
 
-    private String URL = "http://192.168.0.7:5000/generate-content";
+
     @Autowired
     private RestTemplate restTemplate;
 
     public PublicacaoGeradaRetorno buscaCriativos(String prompt, String userRequest) {
+        String URL = "http://192.168.0.7:5000/generate-content";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -53,5 +54,28 @@ public class CriativosService {
         }
 
         return retorno;
+    }
+
+    public String buscaLegenda(String userRequest) {
+        String URL = "http://192.168.0.7:5000/generate-caption";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("user_request", userRequest);
+
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+
+        System.out.println("Requisição: " + requestBody);
+
+        ResponseEntity<String> responseEntity = restTemplate.exchange(
+                URL,
+                HttpMethod.POST,
+                requestEntity,
+                String.class
+        );
+
+        String response = responseEntity.getBody();
+        return response;
     }
 }

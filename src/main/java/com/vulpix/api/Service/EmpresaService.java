@@ -148,4 +148,9 @@ public class EmpresaService {
         PublicacaoGeradaRetorno retorno = criativosService.buscaCriativos(configPrompt.getPrompt(), userRequest);
         return retorno;
     }
+
+    public String buscaLegenda(String userRequest) {
+        String legenda = criativosService.buscaLegenda(userRequest);
+        return legenda;
+    }
 }
