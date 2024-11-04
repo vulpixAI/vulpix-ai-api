@@ -31,11 +31,7 @@ import java.io.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/posts")
@@ -217,11 +213,43 @@ public class PublicacaoController {
 
         return ResponseEntity.noContent().build();
     }
+
     private int somarLikesRecursivo(List<GetPublicacaoDto> posts, int index) {
         if (index >= posts.size()) {
             return 0;
         }
         return posts.get(index).getLikeCount() + somarLikesRecursivo(posts, index + 1);
+    }
+
+    @Operation(summary = "Buscar publicações por data",
+            description = "Retorna a publicação da empresa especificada pelo ID e pela data de publicação informada.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Publicação encontrada com sucesso.",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "204", description = "Nenhuma publicação encontrada para a data especificada.",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"message\": \"Nenhuma publicação encontrada.\" }"))),
+            @ApiResponse(responseCode = "400", description = "Solicitação inválida. O formato da data pode ser incorreto.",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"message\": \"Formato de data inválido.\" }")))
+    })
+    @GetMapping("/buscar-por-data/{empresaId}/{dataPublicacao}")
+    public ResponseEntity<GetPublicacaoDto> buscarPorData(
+            @PathVariable UUID empresaId,
+            @PathVariable String dataPublicacao) {
+        try {
+            OffsetDateTime dataBusca = OffsetDateTime.parse(dataPublicacao);
+            List<GetPublicacaoDto> posts = buscarPosts().getBody();
+            if (posts == null || posts.isEmpty()) return ResponseEntity.noContent().build();
+            posts.sort(Comparator.comparing(GetPublicacaoDto::getDataPublicacao));
+            return posts.stream()
+                    .filter(post -> post.getDataPublicacao().isEqual(dataBusca))
+                    .findFirst()
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @Operation(summary = "Exportar publicações para CSV",
