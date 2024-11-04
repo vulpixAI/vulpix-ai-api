@@ -209,11 +209,19 @@ public class PublicacaoController {
     public ResponseEntity<Integer> somarLikes() {
         ResponseEntity<List<GetPublicacaoDto>> responseEntity = buscarPosts();
         List<GetPublicacaoDto> posts = responseEntity.getBody();
+
         if (posts != null && !posts.isEmpty()) {
-            int somaLikes = posts.stream().mapToInt(GetPublicacaoDto::getLikeCount).sum();
+            int somaLikes = somarLikesRecursivo(posts, 0);
             return ResponseEntity.ok(somaLikes);
         }
+
         return ResponseEntity.noContent().build();
+    }
+    private int somarLikesRecursivo(List<GetPublicacaoDto> posts, int index) {
+        if (index >= posts.size()) {
+            return 0;
+        }
+        return posts.get(index).getLikeCount() + somarLikesRecursivo(posts, index + 1);
     }
 
     @Operation(summary = "Exportar publicações para CSV",
