@@ -20,10 +20,14 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -113,6 +117,7 @@ public class PublicacaoController {
         responseDto.setFkEmpresa(post.getEmpresa().getId());
         return responseDto;
     }
+
     @Operation(summary = "Gera uma publicação criativa com a AI",
             description = "Gera uma publicação baseada na solicitação do usuário autenticado.",
             responses = {
@@ -211,7 +216,57 @@ public class PublicacaoController {
         return ResponseEntity.noContent().build();
     }
 
-    
+    @Operation(summary = "Exportar publicações para CSV",
+            description = "Gera um arquivo CSV contendo todas as publicações da empresa associada ao usuário autenticado.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Arquivo CSV gerado e retornado com sucesso.",
+                    content = @Content(mediaType = "text/csv",
+                            examples = {
+                                    @ExampleObject(value = "ID,Legenda,Tipo Mídia,URL Mídia,Data Publicação,Likes\n" +
+                                            "1,Exemplo de Legenda,imagem,https://exemplo.com/imagem.jpg,2024-11-03,150\n" +
+                                            "2,Outra Legenda,video,https://exemplo.com/video.mp4,2024-11-02,200")
+                            })),
+            @ApiResponse(responseCode = "204", description = "Nenhuma publicação encontrada para exportar.",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"message\": \"Nenhuma publicação encontrada.\" }"))),
+            @ApiResponse(responseCode = "500", description = "Erro ao exportar os dados.",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"message\": \"Erro ao exportar os dados.\" }")))
+    })
+    @GetMapping("/exportar-csv")
+    public ResponseEntity<InputStreamResource> exportarPublicacoesCSV() {
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String emailUsuario = userDetails.getUsername();
+        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+        List<GetPublicacaoDto> posts = buscarPosts().getBody();
+        if (posts == null || posts.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        String arquivo = "publicacao.csv";
+        try (OutputStream file = new FileOutputStream(arquivo);
+             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(file))) {
+            writer.write("ID,Legenda,Tipo Mídia,URL Mídia,Data Publicação,Likes\n");
+            writer.newLine();
+            for (GetPublicacaoDto post : posts) {
+                writer.write(String.format("%s,%s,%s,%s,%s,%d\n",
+                        post.getId(),
+                        post.getLegenda(),
+                        post.getTipoMidia(),
+                        post.getUrlMidia(),
+                        post.getDataPublicacao() != null ? post.getDataPublicacao().toString() : "",
+                        post.getLikeCount() != null ? post.getLikeCount() : 0));
+            }
+            InputStreamResource resource = new InputStreamResource(new FileInputStream(arquivo));
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + arquivo)
+                    .contentType(MediaType.parseMediaType("text/csv"))
+                    .body(resource);
+        } catch (IOException e) {
+            System.err.println("Erro ao exportar os dados: " + e.getMessage());
+            return ResponseEntity.status(500).build();
+        }
+    }
+
     @Operation(summary = "Deletar uma publicação",
             description = "Deleta uma publicação específica pelo ID.")
     @ApiResponses(value = {
