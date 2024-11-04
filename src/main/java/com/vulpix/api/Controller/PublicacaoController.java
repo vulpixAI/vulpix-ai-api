@@ -246,17 +246,20 @@ public class PublicacaoController {
                     content = @Content(mediaType = "application/json",
                             examples = @ExampleObject(value = "{ \"message\": \"Formato de data inválido.\" }")))
     })
-    @GetMapping("/buscar-por-data/{empresaId}/{dataPublicacao}")
+    @GetMapping("/buscar-por-data")
     public ResponseEntity<GetPublicacaoDto> buscarPorData(
-            @PathVariable UUID empresaId,
-            @PathVariable String dataPublicacao) {
+            @RequestParam String dataPublicacao) {
         try {
-            OffsetDateTime dataBusca = OffsetDateTime.parse(dataPublicacao);
+            OffsetDateTime dataBusca = OffsetDateTime.parse(dataPublicacao + "T00:00:00Z");
             List<GetPublicacaoDto> posts = buscarPosts().getBody();
-            if (posts == null || posts.isEmpty()) return ResponseEntity.noContent().build();
+
+            if (posts == null || posts.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+
             posts.sort(Comparator.comparing(GetPublicacaoDto::getDataPublicacao));
             return posts.stream()
-                    .filter(post -> post.getDataPublicacao().isEqual(dataBusca))
+                    .filter(post -> post.getDataPublicacao().toLocalDate().isEqual(dataBusca.toLocalDate()))
                     .findFirst()
                     .map(ResponseEntity::ok)
                     .orElse(ResponseEntity.notFound().build());
