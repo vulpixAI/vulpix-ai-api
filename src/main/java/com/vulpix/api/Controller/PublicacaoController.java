@@ -143,6 +143,19 @@ public class PublicacaoController {
     }
 
     @PostMapping("/gerar-legenda")
+    @Operation(summary = "Gerar legenda para a publicação",
+            description = "Gera uma legenda com base na solicitação do usuário e na empresa associada ao usuário autenticado.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Legenda gerada com sucesso.",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"legenda\": \"Esta é a legenda gerada.\" }"))),
+            @ApiResponse(responseCode = "502", description = "Erro ao buscar a legenda, empresa ou solicitação inválida.",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"message\": \"Erro ao buscar a legenda.\" }"))),
+            @ApiResponse(responseCode = "400", description = "Solicitação inválida.",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"message\": \"Solicitação inválida.\" }")))
+    })
     public ResponseEntity<Map<String, String>> gerarLegenda(@RequestBody String userRequest) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
