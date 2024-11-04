@@ -211,37 +211,7 @@ public class PublicacaoController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Somar likes das publicações utilizando Iteração",
-            description = "Retorna a soma total de likes de todas as publicações da empresa especificada pelo ID.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Soma total de likes retornada com sucesso.",
-                    content = @Content(mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(value = "150"), // Exemplo de soma total
-                                    @ExampleObject(value = "200"), // Outro exemplo
-                                    @ExampleObject(value = "300"), // E mais exemplos
-                                    @ExampleObject(value = "50"),
-                                    @ExampleObject(value = "75"),
-                                    @ExampleObject(value = "100")
-                            })),
-            @ApiResponse(responseCode = "204", description = "Nenhuma publicação encontrada para somar os likes.",
-                    content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(value = "{ \"message\": \"Nenhuma publicação encontrada.\" }")))
-    })
-    @GetMapping("/somar-likes-publicacao-iterativo")
-    public ResponseEntity<Integer> somarLikesIterativo() {
-        ResponseEntity<List<GetPublicacaoDto>> responseEntity = buscarPosts();
-        List<GetPublicacaoDto> posts = responseEntity.getBody();
-        if (posts != null && !posts.isEmpty()) {
-            int somaLikes = 0;
-            for (GetPublicacaoDto post : posts) {
-                somaLikes += post.getLikeCount();
-            }
-            return ResponseEntity.ok(somaLikes);
-        }
-        return ResponseEntity.noContent().build();
-    }
-
+    
     @Operation(summary = "Deletar uma publicação",
             description = "Deleta uma publicação específica pelo ID.")
     @ApiResponses(value = {
