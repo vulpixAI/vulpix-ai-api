@@ -88,7 +88,7 @@ public class EmpresaController {
     @Operation(summary = "Cadastra um novo formulário para a empresa do usuário autenticado",
             description = "Adiciona um novo formulário associado à empresa do usuário autenticado.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Formulário cadastrado com sucesso.",
+            @ApiResponse(responseCode = "201", description = "Formulário cadastrado com sucesso.",
                     content = @Content(mediaType = "application/json", examples =
                     @ExampleObject(value = """
                             {
