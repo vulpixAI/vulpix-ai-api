@@ -7,6 +7,7 @@ on:
 
 jobs:
   link_trello:
+    environment: Trello cfg
     runs-on: ubuntu-latest
     steps:
       - name: Verificar ID do Card do Trello no PR
