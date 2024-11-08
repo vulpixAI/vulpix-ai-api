@@ -33,6 +33,9 @@ jobs:
           
           echo "Link para o Trello: $TRELLO_URL"
           echo "Link para o PR do GitHub: $GITHUB_PR_URL"
+
+          echo "TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}"
+          echo "TRELLO_TOKEN=${{ secrets.TRELLO_TOKEN }}"
           
           curl -X POST \
             -d "text=O PR do GitHub foi aberto/atualizado. Veja o PR aqui: $GITHUB_PR_URL" \
