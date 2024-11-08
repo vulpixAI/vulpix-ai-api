@@ -12,6 +12,8 @@ jobs:
         run: |
           PR_BODY="${{ github.event.pull_request.body }}"
           PR_TITLE="${{ github.event.pull_request.title }}"
+
+          echo "${{ github.event.pull_request.body }}"
           
           if [[ "$PR_BODY" =~ [Tt]rello\ ([A-Za-z0-9]{8}) ]]; then
             TRELLO_ID="${BASH_REMATCH[1]}"
