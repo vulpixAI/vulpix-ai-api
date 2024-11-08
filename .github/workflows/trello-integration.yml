@@ -3,6 +3,7 @@ name: Linkar PR com Trello e comentar no card
 on:
   pull_request:
     types: [opened, synchronize]
+  workflow_dispatch:
 
 jobs:
   link_trello:
