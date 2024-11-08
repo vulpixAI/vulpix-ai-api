@@ -39,4 +39,5 @@ jobs:
             -d "text=O PR do GitHub foi aberto/atualizado. Veja o PR aqui: $GITHUB_PR_URL" \
             -d "key=${{ secrets.TRELLO_API_KEY }}" \
             -d "token=${{ secrets.TRELLO_TOKEN }}" \
+            -v \
             "https://api.trello.com/1/cards/$TRELLO_ID/actions/comments"
