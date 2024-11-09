@@ -69,7 +69,7 @@ CREATE TABLE publicacao (
     fk_empresa UUID REFERENCES empresa(id_empresa) ON DELETE CASCADE
 );
 
-CREATE TABLE criativos (
+CREATE TABLE criativo (
     id_criativo UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     image_url VARCHAR(2048),
     prompt varchar(1500),
