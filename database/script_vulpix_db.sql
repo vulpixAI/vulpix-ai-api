@@ -69,6 +69,15 @@ CREATE TABLE publicacao (
     fk_empresa UUID REFERENCES empresa(id_empresa) ON DELETE CASCADE
 );
 
+CREATE TABLE criativos (
+    id_criativo UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    image_url VARCHAR(2048),
+    prompt varchar(1500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fk_empresa UUID REFERENCES empresa(id_empresa) ON DELETE CASCADE
+);
+
 -- Criação da tabela ConfigPrompt
 CREATE TABLE config_prompt (
     id_config_prompt UUID PRIMARY KEY DEFAULT gen_random_uuid(),
