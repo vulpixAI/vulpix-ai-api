@@ -9,6 +9,7 @@ import com.vulpix.api.Utils.Enum.TipoIntegracao;
 import com.vulpix.api.Service.EmpresaService;
 import com.vulpix.api.Service.IntegracaoService;
 import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
+import com.vulpix.api.Utils.Helpers.EmpresaHelper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -35,6 +36,8 @@ public class IntegracaoController {
 
     @Autowired
     private EmpresaService empresaService;
+    @Autowired
+    private EmpresaHelper empresaHelper;
 
     @Operation(summary = "Habilita uma nova integração",
             description = "Cria uma nova integração para a empresa do usuário autenticado.")
@@ -57,7 +60,7 @@ public class IntegracaoController {
 
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
-        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
         Integracao integracao = IntegracaoMapper.criaEntidadeIntegracao(novaIntegracao, empresa);
 
@@ -83,7 +86,7 @@ public class IntegracaoController {
     public ResponseEntity<Integracao> atualizar(@RequestBody IntegracaoUpdateDto integracaoAtualizada) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
-        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
         Optional<Integracao> integracaoExistente = integracaoService.findByEmpresaAndTipo(empresa, TipoIntegracao.INSTAGRAM);
 
@@ -107,7 +110,7 @@ public class IntegracaoController {
     public ResponseEntity<Void> deletar() {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
-        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
         Optional<Integracao> integracaoExistente = integracaoService.findByEmpresaAndTipo(empresa, TipoIntegracao.INSTAGRAM);
 
@@ -131,7 +134,7 @@ public class IntegracaoController {
     public boolean possuiIntegracao() {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
-        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
         Optional<Integracao> integracaoExistente = integracaoService.findByEmpresaAndTipo(empresa, TipoIntegracao.INSTAGRAM);
 
