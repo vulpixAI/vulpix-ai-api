@@ -12,6 +12,7 @@ import com.vulpix.api.Service.Usuario.Autenticacao.Dto.UsuarioLoginDto;
 import com.vulpix.api.Service.Usuario.Autenticacao.Dto.UsuarioTokenDto;
 import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Service.Usuario.UsuarioService;
+import com.vulpix.api.Utils.Helpers.EmpresaHelper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -43,6 +44,8 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
+    @Autowired
+    private EmpresaHelper empresaHelper;
 
     @Operation(summary = "Cadastrar um novo usuário", description = "Realiza o cadastro de um novo usuário e sua empresa associada.")
     @ApiResponses(value = {
@@ -117,7 +120,7 @@ public class UsuarioController {
         }
 
         Usuario usuario = usuarioOpt.get();
-        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(usuario.getEmail());
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(usuario.getEmail());
 
         if (empresa == null) {
             return ResponseEntity.status(404).build();

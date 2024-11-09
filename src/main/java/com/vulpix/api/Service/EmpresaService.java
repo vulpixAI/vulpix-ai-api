@@ -84,16 +84,6 @@ public class EmpresaService {
         }
     }
 
-    public Empresa buscarEmpresaPeloUsuario(String email) {
-        Optional<Empresa> empresaOpt = empresaRepository.findByUsuarioEmail(email);
-
-        if (empresaOpt.isPresent()) {
-            return empresaOpt.get();
-        }
-
-        throw new EntityNotFoundException("Empresa não encontrada para o usuário autenticado");
-    }
-
     public FormularioRequisicaoDto cadastrarFormulario(Empresa empresa, FormularioRequisicaoDto formulario) {
         ConfigPrompt configPrompt = new ConfigPrompt();
 
