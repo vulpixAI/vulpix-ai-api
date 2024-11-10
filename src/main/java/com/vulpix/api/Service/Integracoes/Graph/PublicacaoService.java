@@ -181,7 +181,7 @@ public class PublicacaoService {
         });
     }
     @Transactional
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedRate = 60000)
     public void processarPublicacoesAgendadas() {
         List<Publicacao> agendadas = publicacaoRepository.findByStatus(StatusPublicacao.AGENDADA);
         System.out.println(OffsetDateTime.now());
