@@ -6,11 +6,15 @@ import com.vulpix.api.Dto.Publicacao.GetPublicacaoDto;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Entity.Integracao;
 import com.vulpix.api.Entity.Publicacao;
+import com.vulpix.api.Utils.Enum.StatusPublicacao;
+import com.vulpix.api.Utils.Enum.TipoIntegracao;
 import com.vulpix.api.Utils.Integracao.Graph;
 import com.vulpix.api.Repository.EmpresaRepository;
 import com.vulpix.api.Repository.IntegracaoRepository;
 import com.vulpix.api.Repository.PublicacaoRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -27,6 +31,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.List;
@@ -175,4 +180,29 @@ public class PublicacaoService {
             }
         });
     }
+    @Transactional
+    @Scheduled(fixedRate = 5000)
+    public void processarPublicacoesAgendadas() {
+        List<Publicacao> agendadas = publicacaoRepository.findByStatus(StatusPublicacao.AGENDADA);
+        System.out.println(OffsetDateTime.now());
+        System.out.println(agendadas);
+
+        for (Publicacao publicacao : agendadas) {
+            if (publicacao.getDataPublicacao().isBefore(OffsetDateTime.now())) {
+                Integracao integracao = publicacao.getEmpresa().getIntegracoes().stream()
+                        .filter(i -> TipoIntegracao.INSTAGRAM.equals(i.getTipo()))
+                        .findFirst()
+                        .orElse(null);
+
+                if (integracao != null) {
+                    Long containerId = criarContainer(integracao, publicacao);
+                    String postIdReturned = criarPublicacao(integracao, containerId);
+                    publicacao.setIdReturned(postIdReturned);
+                    publicacao.setStatus(StatusPublicacao.PUBLICADA);
+                    publicacaoRepository.save(publicacao);
+                }
+            }
+        }
+    }
+
 }
