@@ -14,6 +14,7 @@ import com.vulpix.api.Repository.EmpresaRepository;
 import com.vulpix.api.Repository.PublicacaoRepository;
 import com.vulpix.api.Service.Integracoes.Graph.PublicacaoService;
 import com.vulpix.api.Dto.Agent.PublicacaoGeradaRetorno;
+import com.vulpix.api.Utils.Helpers.EmpresaHelper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -49,6 +50,8 @@ public class PublicacaoController {
     private EmpresaService empresaService;
     @Autowired
     private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
+    @Autowired
+    private EmpresaHelper empresaHelper;
 
     @Operation(summary = "Criar um novo post",
             description = "Cria um novo post para a empresa informada. O post deve incluir a legenda e a URL da mídia.")
@@ -71,7 +74,7 @@ public class PublicacaoController {
     public ResponseEntity<PostPublicacaoResponse> criarPost(@RequestBody PostPublicacaoDto post) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
-        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
         if (empresa == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
@@ -135,7 +138,7 @@ public class PublicacaoController {
     public ResponseEntity<PublicacaoGeradaRetorno> gerarPublicacao(@RequestBody String userRequest) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
-        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
         PublicacaoGeradaRetorno retorno = empresaService.buscaCriativos(empresa, userRequest);
 
@@ -161,7 +164,7 @@ public class PublicacaoController {
     public ResponseEntity<Map<String, String>> gerarLegenda(@RequestBody String userRequest) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
-        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
         String legenda = empresaService.buscaLegenda(empresa, userRequest);
 
@@ -194,7 +197,7 @@ public class PublicacaoController {
     public ResponseEntity<List<GetPublicacaoDto>> buscarPosts() {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
-        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
         return publicacaoService.buscarPosts(empresa.getId());
     }
@@ -291,7 +294,7 @@ public class PublicacaoController {
     public ResponseEntity<InputStreamResource> exportarPublicacoesCSV() {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
-        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
         List<GetPublicacaoDto> posts = buscarPosts().getBody();
         if (posts == null || posts.isEmpty()) {
             return ResponseEntity.noContent().build();
