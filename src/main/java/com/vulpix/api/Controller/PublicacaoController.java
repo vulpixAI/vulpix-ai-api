@@ -2,6 +2,7 @@ package com.vulpix.api.Controller;
 
 import com.vulpix.api.Service.EmpresaService;
 import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
+import com.vulpix.api.Utils.Enum.StatusPublicacao;
 import com.vulpix.api.Utils.Enum.TipoIntegracao;
 import com.vulpix.api.Dto.Publicacao.GetPublicacaoDto;
 import com.vulpix.api.Dto.Publicacao.PostPublicacaoDto;
@@ -22,6 +23,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -65,29 +67,27 @@ public class PublicacaoController {
                     content = @Content(mediaType = "application/json",
                             examples = @ExampleObject(value = "{ \"message\": \"Erro: Empresa não encontrada.\" }")))
     })
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<PostPublicacaoResponse> criarPost(@RequestBody PostPublicacaoDto post) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
         Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
 
-        if (empresa == null) {
-            return ResponseEntity.status(404).build();
-        }
+        if (empresa == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
         Publicacao novoPost = new Publicacao();
         novoPost.setLegenda(post.getCaption());
         novoPost.setUrlMidia(post.getImageUrl());
         novoPost.setEmpresa(empresa);
         novoPost.setCreated_at(LocalDateTime.now());
-        novoPost.setIdReturned(post.getIdReturned());
 
         OffsetDateTime dataAgendamento = post.getAgendamento();
-        if (dataAgendamento != null) {
-            Duration delay = Duration.between(LocalDateTime.now(), dataAgendamento.toLocalDateTime());
-            if (!delay.isNegative()) {
-                return ResponseEntity.status(201).body(createResponseDto(novoPost));
-            }
+
+        if (dataAgendamento != null && dataAgendamento.isAfter(OffsetDateTime.now())) {
+            novoPost.setDataPublicacao(dataAgendamento);
+            novoPost.setStatus(StatusPublicacao.AGENDADA);
+            Publicacao savedPost = publicacaoRepository.save(novoPost);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createResponseDto(savedPost));
         }
 
         Integracao integracao = empresa.getIntegracoes().stream()
@@ -96,14 +96,16 @@ public class PublicacaoController {
                 .orElse(null);
 
         if (integracao == null) {
-            return ResponseEntity.status(404).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+
         Long containerId = publicacaoService.criarContainer(integracao, novoPost);
         String postIdReturned = publicacaoService.criarPublicacao(integracao, containerId);
         novoPost.setIdReturned(postIdReturned);
-        Publicacao savedPost = publicacaoRepository.save(novoPost);
+        novoPost.setStatus(StatusPublicacao.PUBLICADA);
 
-        return ResponseEntity.status(201).body(createResponseDto(savedPost));
+        Publicacao postSalvo = publicacaoRepository.save(novoPost);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createResponseDto(postSalvo));
     }
 
     private PostPublicacaoResponse createResponseDto(Publicacao post) {

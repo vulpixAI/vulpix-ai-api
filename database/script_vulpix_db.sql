@@ -64,6 +64,7 @@ CREATE TABLE publicacao (
     data_agendamento TIMESTAMP,
     total_like INTEGER,
     plataforma VARCHAR(50),
+    status VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     id_returned VARCHAR(255),
     fk_empresa UUID REFERENCES empresa(id_empresa) ON DELETE CASCADE
