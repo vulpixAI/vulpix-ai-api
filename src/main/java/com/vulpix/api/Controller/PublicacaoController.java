@@ -2,6 +2,7 @@ package com.vulpix.api.Controller;
 
 import com.vulpix.api.Service.EmpresaService;
 import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
+import com.vulpix.api.Utils.Enum.StatusPublicacao;
 import com.vulpix.api.Utils.Enum.TipoIntegracao;
 import com.vulpix.api.Dto.Publicacao.GetPublicacaoDto;
 import com.vulpix.api.Dto.Publicacao.PostPublicacaoDto;
@@ -13,6 +14,7 @@ import com.vulpix.api.Repository.EmpresaRepository;
 import com.vulpix.api.Repository.PublicacaoRepository;
 import com.vulpix.api.Service.Integracoes.Graph.PublicacaoService;
 import com.vulpix.api.Dto.Agent.PublicacaoGeradaRetorno;
+import com.vulpix.api.Utils.Helpers.EmpresaHelper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -22,6 +24,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -47,6 +50,8 @@ public class PublicacaoController {
     private EmpresaService empresaService;
     @Autowired
     private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
+    @Autowired
+    private EmpresaHelper empresaHelper;
 
     @Operation(summary = "Criar um novo post",
             description = "Cria um novo post para a empresa informada. O post deve incluir a legenda e a URL da mídia.")
@@ -65,29 +70,27 @@ public class PublicacaoController {
                     content = @Content(mediaType = "application/json",
                             examples = @ExampleObject(value = "{ \"message\": \"Erro: Empresa não encontrada.\" }")))
     })
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<PostPublicacaoResponse> criarPost(@RequestBody PostPublicacaoDto post) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
-        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
-        if (empresa == null) {
-            return ResponseEntity.status(404).build();
-        }
+        if (empresa == null) return ResponseEntity.status(404).build();
 
         Publicacao novoPost = new Publicacao();
         novoPost.setLegenda(post.getCaption());
         novoPost.setUrlMidia(post.getImageUrl());
         novoPost.setEmpresa(empresa);
         novoPost.setCreated_at(LocalDateTime.now());
-        novoPost.setIdReturned(post.getIdReturned());
 
         OffsetDateTime dataAgendamento = post.getAgendamento();
-        if (dataAgendamento != null) {
-            Duration delay = Duration.between(LocalDateTime.now(), dataAgendamento.toLocalDateTime());
-            if (!delay.isNegative()) {
-                return ResponseEntity.status(201).body(createResponseDto(novoPost));
-            }
+
+        if (dataAgendamento != null && dataAgendamento.isAfter(OffsetDateTime.now())) {
+            novoPost.setDataPublicacao(dataAgendamento);
+            novoPost.setStatus(StatusPublicacao.AGENDADA);
+            Publicacao savedPost = publicacaoRepository.save(novoPost);
+            return ResponseEntity.status(201).body(createResponseDto(savedPost));
         }
 
         Integracao integracao = empresa.getIntegracoes().stream()
@@ -98,12 +101,14 @@ public class PublicacaoController {
         if (integracao == null) {
             return ResponseEntity.status(404).build();
         }
+
         Long containerId = publicacaoService.criarContainer(integracao, novoPost);
         String postIdReturned = publicacaoService.criarPublicacao(integracao, containerId);
         novoPost.setIdReturned(postIdReturned);
-        Publicacao savedPost = publicacaoRepository.save(novoPost);
+        novoPost.setStatus(StatusPublicacao.PUBLICADA);
 
-        return ResponseEntity.status(201).body(createResponseDto(savedPost));
+        Publicacao postSalvo = publicacaoRepository.save(novoPost);
+        return ResponseEntity.status(201).body(createResponseDto(postSalvo));
     }
 
     private PostPublicacaoResponse createResponseDto(Publicacao post) {
@@ -127,13 +132,13 @@ public class PublicacaoController {
                                             @ExampleObject(value = "[{\"id\":\"5\",\"legenda\":\"Post 5\",\"tipoMidia\":\"video\",\"urlMidia\":\"http://exemplo.com/post5\",\"dataPublicacao\":\"2024-11-05T10:00:00Z\",\"likeCount\":50}]"),
                                             @ExampleObject(value = "[{\"id\":\"6\",\"legenda\":\"Post 6\",\"tipoMidia\":\"image\",\"urlMidia\":\"http://exemplo.com/post6\",\"dataPublicacao\":\"2024-11-06T10:00:00Z\",\"likeCount\":60}]")
                                     })),
-                    @ApiResponse(responseCode = "500", description = "Erro ao gerar a publicação.")
+                    @ApiResponse(responseCode = "502", description = "Erro ao gerar a publicação.")
             })
     @PostMapping("/gerar-post")
     public ResponseEntity<PublicacaoGeradaRetorno> gerarPublicacao(@RequestBody String userRequest) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
-        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
         PublicacaoGeradaRetorno retorno = empresaService.buscaCriativos(empresa, userRequest);
 
@@ -159,7 +164,7 @@ public class PublicacaoController {
     public ResponseEntity<Map<String, String>> gerarLegenda(@RequestBody String userRequest) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
-        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
         String legenda = empresaService.buscaLegenda(empresa, userRequest);
 
@@ -192,7 +197,7 @@ public class PublicacaoController {
     public ResponseEntity<List<GetPublicacaoDto>> buscarPosts() {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
-        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
         return publicacaoService.buscarPosts(empresa.getId());
     }
@@ -221,10 +226,10 @@ public class PublicacaoController {
 
         if (posts != null && !posts.isEmpty()) {
             int somaLikes = somarLikesRecursivo(posts, 0);
-            return ResponseEntity.ok(somaLikes);
+            return ResponseEntity.status(200).body(somaLikes);
         }
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(204).build();
     }
 
     private int somarLikesRecursivo(List<GetPublicacaoDto> posts, int index) {
@@ -254,7 +259,7 @@ public class PublicacaoController {
             List<GetPublicacaoDto> posts = buscarPosts().getBody();
 
             if (posts == null || posts.isEmpty()) {
-                return ResponseEntity.noContent().build();
+                return ResponseEntity.status(204).build();
             }
 
             posts.sort(Comparator.comparing(GetPublicacaoDto::getDataPublicacao));
@@ -262,9 +267,9 @@ public class PublicacaoController {
                     .filter(post -> post.getDataPublicacao().toLocalDate().isEqual(dataBusca.toLocalDate()))
                     .findFirst()
                     .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
+                    .orElse(ResponseEntity.status(404).build());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(400).build();
         }
     }
 
@@ -289,10 +294,10 @@ public class PublicacaoController {
     public ResponseEntity<InputStreamResource> exportarPublicacoesCSV() {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
-        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
         List<GetPublicacaoDto> posts = buscarPosts().getBody();
         if (posts == null || posts.isEmpty()) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(204).build();
         }
         String arquivo = "publicacao.csv";
         try (OutputStream file = new FileOutputStream(arquivo);
@@ -309,7 +314,7 @@ public class PublicacaoController {
                         post.getLikeCount() != null ? post.getLikeCount() : 0));
             }
             InputStreamResource resource = new InputStreamResource(new FileInputStream(arquivo));
-            return ResponseEntity.ok()
+            return ResponseEntity.status(200)
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + arquivo)
                     .contentType(MediaType.parseMediaType("text/csv"))
                     .body(resource);
@@ -332,10 +337,9 @@ public class PublicacaoController {
         Optional<Publicacao> publicacao = publicacaoRepository.findById(id);
         if (publicacao.isPresent()) {
             publicacaoRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(204).build();
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(404).build();
         }
     }
-
 }

@@ -4,6 +4,7 @@ import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Service.EmpresaService;
 import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Dto.Empresa.FormularioRequisicaoDto;
+import com.vulpix.api.Utils.Helpers.EmpresaHelper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -24,6 +25,9 @@ public class EmpresaController {
     private EmpresaService empresaService;
     @Autowired
     private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
+
+    @Autowired
+    private EmpresaHelper empresaHelper;
 
     @Operation(summary = "Atualiza dados da empresa do usuário autenticado",
             description = "Atualiza os dados da empresa associada ao usuário atualmente autenticado.")
@@ -74,14 +78,14 @@ public class EmpresaController {
     public ResponseEntity<Empresa> atualizar(@RequestBody Empresa empresaAtualizada) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
-        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
         if (empresa == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(404).build();
         }
 
         Empresa empresaAtualizadaSalva = empresaService.atualizarEmpresa(empresa, empresaAtualizada);
-        return ResponseEntity.ok(empresaAtualizadaSalva);
+        return ResponseEntity.status(200).body(empresaAtualizadaSalva);
     }
 
 
@@ -129,15 +133,15 @@ public class EmpresaController {
     public ResponseEntity<FormularioRequisicaoDto> cadastrarFormulario(@RequestBody FormularioRequisicaoDto formulario) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
-        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
         if (empresa == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(404).build();
         }
 
         FormularioRequisicaoDto retorno = empresaService.cadastrarFormulario(empresa, formulario);
-        if (retorno == null) return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        return ResponseEntity.status(HttpStatus.CREATED).body(retorno);
+        if (retorno == null) return ResponseEntity.status(409).build();
+        return ResponseEntity.status(201).body(retorno);
     }
 
 
@@ -184,14 +188,14 @@ public class EmpresaController {
     public ResponseEntity<FormularioRequisicaoDto> buscaFormulario() {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
-        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
         FormularioRequisicaoDto formularioResponse = empresaService.buscaFormulario(empresa);
 
         if (formularioResponse == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(404).build();
         }
-        return ResponseEntity.ok(formularioResponse);
+        return ResponseEntity.status(200).body(formularioResponse);
     }
 
     @Operation(summary = "Atualiza o formulário da empresa do usuário autenticado",
@@ -237,13 +241,13 @@ public class EmpresaController {
     public ResponseEntity<FormularioRequisicaoDto> atualizaFormulario(@RequestBody FormularioRequisicaoDto formulario) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
-        Empresa empresa = empresaService.buscarEmpresaPeloUsuario(emailUsuario);
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
         if (empresa == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(404).build();
         }
 
         FormularioRequisicaoDto retorno = empresaService.atualizaFormulario(empresa, formulario);
-        return ResponseEntity.ok(retorno);
+        return ResponseEntity.status(200).body(retorno);
     }
 }

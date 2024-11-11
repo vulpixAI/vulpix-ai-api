@@ -1,6 +1,7 @@
 package com.vulpix.api.Entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.vulpix.api.Utils.Enum.StatusPublicacao;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -38,6 +39,9 @@ public class Publicacao {
     private Integer likeCount;
     @Column(name = "plataforma")
     private String plataforma;
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private StatusPublicacao status;
     @Column(name = "created_at")
     private LocalDateTime created_at;
     @Column(name = "id_returned")

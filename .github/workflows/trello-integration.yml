@@ -1,0 +1,43 @@
+name: Linkar PR com Trello e comentar no card
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  workflow_dispatch:
+
+jobs:
+  link_trello:
+    environment: Trello cfg
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verificar ID do Card do Trello no PR
+        run: |
+          PR_BODY="${{ github.event.pull_request.body }}"
+          PR_TITLE="${{ github.event.pull_request.title }}"
+
+          echo "${{ github.event.pull_request.body }}"
+          
+          if [[ "$PR_BODY" =~ [Tt]rello\ ([A-Za-z0-9]{8}) ]]; then
+            TRELLO_ID="${BASH_REMATCH[1]}"
+          elif [[ "$PR_TITLE" =~ [Tt]rello\ ([A-Za-z0-9]{8}) ]]; then
+            TRELLO_ID="${BASH_REMATCH[1]}"
+          else
+            echo "Nenhum ID do Trello encontrado no PR"
+            exit 1
+          fi
+          
+          echo "ID do Trello encontrado: $TRELLO_ID"
+          
+          GITHUB_PR_URL="https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }}"
+          
+          TRELLO_URL="https://trello.com/c/$TRELLO_ID"
+          
+          echo "Link para o Trello: $TRELLO_URL"
+          echo "Link para o PR do GitHub: $GITHUB_PR_URL"
+          
+          curl -X POST \
+            -d "text=O PR do GitHub foi aberto/atualizado. Veja o PR aqui: $GITHUB_PR_URL" \
+            -d "key=${{ secrets.TRELLO_API_KEY }}" \
+            -d "token=${{ secrets.TRELLO_TOKEN }}" \
+            -v \
+            "https://api.trello.com/1/cards/$TRELLO_ID/actions/comments"

@@ -2,8 +2,17 @@ package com.vulpix.api.Service.Integracoes.AgentAi;
 
 import com.vulpix.api.Dto.Agent.PublicacaoGeradaResponse;
 import com.vulpix.api.Dto.Agent.PublicacaoGeradaRetorno;
+import com.vulpix.api.Dto.Criativo.CriativoMapper;
+import com.vulpix.api.Dto.Criativo.CriativoRequisicaoDto;
+import com.vulpix.api.Entity.Criativo;
+import com.vulpix.api.Entity.Empresa;
+import com.vulpix.api.Repository.CriativoRepository;
+import com.vulpix.api.Service.EmpresaService;
+import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
+import com.vulpix.api.Utils.Helpers.EmpresaHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -15,9 +24,14 @@ import java.util.Map;
 @Service
 public class CriativosService {
 
-
+    @Autowired
+    private CriativoRepository criativoRepository;
     @Autowired
     private RestTemplate restTemplate;
+    @Autowired
+    private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
+    @Autowired
+    private EmpresaHelper empresaHelper;
 
     public PublicacaoGeradaRetorno buscaCriativos(String prompt, String userRequest) {
         String URL = "http://127.0.0.1:5000/generate-content";
@@ -52,6 +66,10 @@ public class CriativosService {
                 if (imageUrls.size() > 1) retorno.setImagem2(imageUrls.get(1));
                 if (imageUrls.size() > 2) retorno.setImagem3(imageUrls.get(2));
                 if (imageUrls.size() > 3) retorno.setImagem4(imageUrls.get(3));
+
+                for (String imageUrl : imageUrls) {
+                    salvaCriativos(imageUrl, userRequest);
+                }
             }
 
             return retorno;
@@ -97,5 +115,16 @@ public class CriativosService {
             System.err.println("Erro no servidor Python ao gerar legenda: " + e.getMessage());
             return null;
         }
+    }
+
+    public void salvaCriativos(String imageUrl, String prompt) {
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String emailUsuario = userDetails.getUsername();
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
+
+        CriativoRequisicaoDto dto = CriativoRequisicaoDto.builder().imageUrl(imageUrl).prompt(prompt).build();
+
+        Criativo criativo = CriativoMapper.criaEntidadeCriativo(dto, empresa);
+        criativoRepository.save(criativo);
     }
 }
