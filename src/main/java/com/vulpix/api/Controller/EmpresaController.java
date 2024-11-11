@@ -81,11 +81,11 @@ public class EmpresaController {
         Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
         if (empresa == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(404).build();
         }
 
         Empresa empresaAtualizadaSalva = empresaService.atualizarEmpresa(empresa, empresaAtualizada);
-        return ResponseEntity.ok(empresaAtualizadaSalva);
+        return ResponseEntity.status(200).body(empresaAtualizadaSalva);
     }
 
 
@@ -136,12 +136,12 @@ public class EmpresaController {
         Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
         if (empresa == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(404).build();
         }
 
         FormularioRequisicaoDto retorno = empresaService.cadastrarFormulario(empresa, formulario);
-        if (retorno == null) return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        return ResponseEntity.status(HttpStatus.CREATED).body(retorno);
+        if (retorno == null) return ResponseEntity.status(409).build();
+        return ResponseEntity.status(201).body(retorno);
     }
 
 
@@ -193,9 +193,9 @@ public class EmpresaController {
         FormularioRequisicaoDto formularioResponse = empresaService.buscaFormulario(empresa);
 
         if (formularioResponse == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(404).build();
         }
-        return ResponseEntity.ok(formularioResponse);
+        return ResponseEntity.status(200).body(formularioResponse);
     }
 
     @Operation(summary = "Atualiza o formulário da empresa do usuário autenticado",
@@ -244,10 +244,10 @@ public class EmpresaController {
         Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
         if (empresa == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(404).build();
         }
 
         FormularioRequisicaoDto retorno = empresaService.atualizaFormulario(empresa, formulario);
-        return ResponseEntity.ok(retorno);
+        return ResponseEntity.status(200).body(retorno);
     }
 }

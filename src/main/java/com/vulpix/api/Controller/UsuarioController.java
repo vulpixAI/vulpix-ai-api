@@ -19,7 +19,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -127,7 +126,7 @@ public class UsuarioController {
         }
 
         UsuarioEmpresaDto dto = UsuarioEmpresaMapper.toDto(usuario, empresa);
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.status(200).body(dto);
     }
 
     @Operation(summary = "Atualizar usuário", description = "Atualiza as informações de um usuário com base no ID fornecido.")
@@ -152,7 +151,7 @@ public class UsuarioController {
 
         usuarioService.atualizarUsuario(usuarioCriado.get().getId(), usuarioAtualizado);
         if (usuarioCriado.isPresent()) {
-            return ResponseEntity.ok(usuarioCriado.get());
+            return ResponseEntity.status(200).body(usuarioCriado.get());
         } else {
             return ResponseEntity.status(404).build();
         }
@@ -176,7 +175,7 @@ public class UsuarioController {
 
         boolean removido = usuarioService.deletarUsuario(usuarioCriado.get().getId());
         if (removido) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(204).build();
         } else {
             return ResponseEntity.status(404).build();
         }

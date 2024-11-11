@@ -76,7 +76,7 @@ public class PublicacaoController {
         String emailUsuario = userDetails.getUsername();
         Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
-        if (empresa == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        if (empresa == null) return ResponseEntity.status(404).build();
 
         Publicacao novoPost = new Publicacao();
         novoPost.setLegenda(post.getCaption());
@@ -90,7 +90,7 @@ public class PublicacaoController {
             novoPost.setDataPublicacao(dataAgendamento);
             novoPost.setStatus(StatusPublicacao.AGENDADA);
             Publicacao savedPost = publicacaoRepository.save(novoPost);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createResponseDto(savedPost));
+            return ResponseEntity.status(201).body(createResponseDto(savedPost));
         }
 
         Integracao integracao = empresa.getIntegracoes().stream()
@@ -99,7 +99,7 @@ public class PublicacaoController {
                 .orElse(null);
 
         if (integracao == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(404).build();
         }
 
         Long containerId = publicacaoService.criarContainer(integracao, novoPost);
@@ -108,7 +108,7 @@ public class PublicacaoController {
         novoPost.setStatus(StatusPublicacao.PUBLICADA);
 
         Publicacao postSalvo = publicacaoRepository.save(novoPost);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createResponseDto(postSalvo));
+        return ResponseEntity.status(201).body(createResponseDto(postSalvo));
     }
 
     private PostPublicacaoResponse createResponseDto(Publicacao post) {
@@ -132,7 +132,7 @@ public class PublicacaoController {
                                             @ExampleObject(value = "[{\"id\":\"5\",\"legenda\":\"Post 5\",\"tipoMidia\":\"video\",\"urlMidia\":\"http://exemplo.com/post5\",\"dataPublicacao\":\"2024-11-05T10:00:00Z\",\"likeCount\":50}]"),
                                             @ExampleObject(value = "[{\"id\":\"6\",\"legenda\":\"Post 6\",\"tipoMidia\":\"image\",\"urlMidia\":\"http://exemplo.com/post6\",\"dataPublicacao\":\"2024-11-06T10:00:00Z\",\"likeCount\":60}]")
                                     })),
-                    @ApiResponse(responseCode = "500", description = "Erro ao gerar a publicação.")
+                    @ApiResponse(responseCode = "502", description = "Erro ao gerar a publicação.")
             })
     @PostMapping("/gerar-post")
     public ResponseEntity<PublicacaoGeradaRetorno> gerarPublicacao(@RequestBody String userRequest) {
@@ -226,10 +226,10 @@ public class PublicacaoController {
 
         if (posts != null && !posts.isEmpty()) {
             int somaLikes = somarLikesRecursivo(posts, 0);
-            return ResponseEntity.ok(somaLikes);
+            return ResponseEntity.status(200).body(somaLikes);
         }
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(204).build();
     }
 
     private int somarLikesRecursivo(List<GetPublicacaoDto> posts, int index) {
@@ -259,7 +259,7 @@ public class PublicacaoController {
             List<GetPublicacaoDto> posts = buscarPosts().getBody();
 
             if (posts == null || posts.isEmpty()) {
-                return ResponseEntity.noContent().build();
+                return ResponseEntity.status(204).build();
             }
 
             posts.sort(Comparator.comparing(GetPublicacaoDto::getDataPublicacao));
@@ -267,9 +267,9 @@ public class PublicacaoController {
                     .filter(post -> post.getDataPublicacao().toLocalDate().isEqual(dataBusca.toLocalDate()))
                     .findFirst()
                     .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
+                    .orElse(ResponseEntity.status(404).build());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(400).build();
         }
     }
 
@@ -297,7 +297,7 @@ public class PublicacaoController {
         Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
         List<GetPublicacaoDto> posts = buscarPosts().getBody();
         if (posts == null || posts.isEmpty()) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(204).build();
         }
         String arquivo = "publicacao.csv";
         try (OutputStream file = new FileOutputStream(arquivo);
@@ -314,7 +314,7 @@ public class PublicacaoController {
                         post.getLikeCount() != null ? post.getLikeCount() : 0));
             }
             InputStreamResource resource = new InputStreamResource(new FileInputStream(arquivo));
-            return ResponseEntity.ok()
+            return ResponseEntity.status(200)
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + arquivo)
                     .contentType(MediaType.parseMediaType("text/csv"))
                     .body(resource);
@@ -337,10 +337,9 @@ public class PublicacaoController {
         Optional<Publicacao> publicacao = publicacaoRepository.findById(id);
         if (publicacao.isPresent()) {
             publicacaoRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(204).build();
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(404).build();
         }
     }
-
 }
