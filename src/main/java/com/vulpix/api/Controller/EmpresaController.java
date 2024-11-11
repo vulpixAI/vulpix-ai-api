@@ -140,7 +140,7 @@ public class EmpresaController {
         }
 
         FormularioRequisicaoDto retorno = empresaService.cadastrarFormulario(empresa, formulario);
-        if (retorno == null) return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        if (retorno == null) return ResponseEntity.status(409).build();
         return ResponseEntity.status(201).body(retorno);
     }
 
