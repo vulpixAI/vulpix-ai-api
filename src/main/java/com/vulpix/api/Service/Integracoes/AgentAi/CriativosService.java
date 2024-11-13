@@ -34,15 +34,57 @@ public class CriativosService {
     private EmpresaHelper empresaHelper;
 
     public PublicacaoGeradaRetorno buscaCriativos(String prompt, String userRequest) {
+        String URL = "http://127.0.0.1:5000/generate-content";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("prompt", prompt);
+        requestBody.put("user_request", userRequest);
+
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+
+        System.out.println("Requisição: " + requestBody);
+
+        try {
+            ResponseEntity<PublicacaoGeradaResponse> responseEntity = restTemplate.exchange(
+                    URL,
+                    HttpMethod.POST,
+                    requestEntity,
+                    PublicacaoGeradaResponse.class
+            );
+
+            PublicacaoGeradaResponse response = responseEntity.getBody();
             PublicacaoGeradaRetorno retorno = PublicacaoGeradaRetorno.builder()
-                    .legenda("Geração de post mockado afim de testes")
-                    .imagem1("https://scontent.cdninstagram.com/v/t51.2885-15/465951352_1059539495917616_1430117094878724406_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=18de74&_nc_ohc=S48gn8AeOHYQ7kNvgF9Hco1&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&oh=00_AYB47rC-kUhXb06kskfwXlmTH4hsJBOWkUGeeSx1xgB9Mg&oe=673AA1BB")
-                    .imagem2("https://scontent.cdninstagram.com/v/t51.2885-15/465802927_1628702564693653_5064327801977097765_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=18de74&_nc_ohc=2-gSja8DQ40Q7kNvgEgzQA1&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&oh=00_AYCzPiQUi2SaaD8nFg040XO4HdsUWhPrUWXGsC1rqLaVjQ&oe=673AA99D")
-                    .imagem3("https://scontent.cdninstagram.com/v/t51.2885-15/465581512_1624285551819587_6016394554618162900_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=18de74&_nc_ohc=suA41zCDFtsQ7kNvgF5zZCj&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&oh=00_AYDwzzLS53E1ksa_QG6qqGVVbtfYn9WtnyKFdVg3sYEFqg&oe=673AA4CC")
-                    .imagem4("https://scontent.cdninstagram.com/v/t51.2885-15/465612471_1832441967561171_5765861591217010485_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=18de74&_nc_ohc=0UotgaD99foQ7kNvgH834VS&_nc_zt=23&_nc_ht=scontent.cdninstagram.com&edm=AM6HXa8EAAAA&oh=00_AYAiwgFpHGZ5x8S0XHoTd7UZ8YgkzgAaHS1HWf9ZCRnr7w&oe=673A994B")
+                    .legenda(response != null ? response.getCaption() : null)
                     .build();
 
+            if (response != null && response.getImage_urls() != null) {
+                List<String> imageUrls = response.getImage_urls();
+
+                if (imageUrls.size() > 0) retorno.setImagem1(imageUrls.get(0));
+                if (imageUrls.size() > 1) retorno.setImagem2(imageUrls.get(1));
+                if (imageUrls.size() > 2) retorno.setImagem3(imageUrls.get(2));
+                if (imageUrls.size() > 3) retorno.setImagem4(imageUrls.get(3));
+
+                for (String imageUrl : imageUrls) {
+                    salvaCriativos(imageUrl, userRequest);
+                }
+            }
+
             return retorno;
+
+        } catch (HttpServerErrorException e) {
+            System.err.println("Erro ao enviar requisição de gerar post para Agent: " + e.getMessage());
+
+            return PublicacaoGeradaRetorno.builder()
+                    .legenda(null)
+                    .imagem1(null)
+                    .imagem2(null)
+                    .imagem3(null)
+                    .imagem4(null)
+                    .build();
+        }
     }
 
     public String buscaLegenda(String prompt, String userRequest) {
