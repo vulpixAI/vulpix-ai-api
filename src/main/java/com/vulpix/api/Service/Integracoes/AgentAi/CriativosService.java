@@ -4,6 +4,7 @@ import com.vulpix.api.Dto.Agent.PublicacaoGeradaResponse;
 import com.vulpix.api.Dto.Agent.PublicacaoGeradaRetorno;
 import com.vulpix.api.Dto.Criativo.CriativoMapper;
 import com.vulpix.api.Dto.Criativo.CriativoRequisicaoDto;
+import com.vulpix.api.Dto.Criativo.CriativoResponseDto;
 import com.vulpix.api.Entity.Criativo;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Repository.CriativoRepository;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -126,5 +128,26 @@ public class CriativosService {
 
         Criativo criativo = CriativoMapper.criaEntidadeCriativo(dto, empresa);
         criativoRepository.save(criativo);
+    }
+
+    public List<CriativoResponseDto> buscaCriativosGerados(Empresa empresa) {
+        List<Criativo> criativosEntity = criativoRepository.findAllByEmpresa(empresa);
+        List<CriativoResponseDto> response = new ArrayList<>();
+
+        for (int i = 0; i < criativosEntity.size(); i += 4) {
+            CriativoResponseDto dto = new CriativoResponseDto();
+            List<String> images = new ArrayList<>();
+
+            for (int j = 0; j < 4 && (i + j) < criativosEntity.size(); j++) {
+                images.add(criativosEntity.get(i + j).getImageUrl());
+            }
+
+            dto.setImages(images);
+            dto.setPrompt(criativosEntity.get(i).getPrompt());
+
+            response.add(dto);
+        }
+
+        return response;
     }
 }

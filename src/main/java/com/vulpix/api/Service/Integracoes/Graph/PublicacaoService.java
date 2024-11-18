@@ -101,7 +101,9 @@ public class PublicacaoService {
             ResponseEntity<String> response = restTemplate.exchange(uriBuilder.toUriString(), HttpMethod.POST, request, String.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
-                return response.getBody();
+                String responseBody = response.getBody();
+                String id = responseBody.replaceAll(".*\"id\":\"([^\"]+)\".*", "$1");
+                return id;
             } else {
                 throw new RuntimeException("Falha ao criar a publicação: " + response.getStatusCode());
             }
