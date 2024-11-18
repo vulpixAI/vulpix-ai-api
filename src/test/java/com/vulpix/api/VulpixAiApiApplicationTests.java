@@ -1,4 +1,4 @@
-package com.vulpix.api.vulpix_ai_api;
+package com.vulpix.api;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
