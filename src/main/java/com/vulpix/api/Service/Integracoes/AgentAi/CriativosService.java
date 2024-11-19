@@ -19,11 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class CriativosService {
@@ -155,5 +151,16 @@ public class CriativosService {
         }
 
         return response;
+    }
+
+    public CriativoRequisicaoDto buscaPorId(UUID id) {
+        Optional<Criativo> criativoEntity = criativoRepository.findById(id);
+
+        if (criativoEntity.isEmpty()) return null;
+        Criativo entity = criativoEntity.get();
+        return CriativoRequisicaoDto.builder()
+                .imageUrl(entity.getImageUrl())
+                .prompt(entity.getPrompt())
+                .build();
     }
 }
