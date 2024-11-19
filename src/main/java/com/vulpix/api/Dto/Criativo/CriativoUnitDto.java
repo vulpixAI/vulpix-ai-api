@@ -5,13 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.UUID;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class CriativoResponseDto {
-    private String prompt;
-    private List<CriativoUnitDto> images;
+@AllArgsConstructor
+public class CriativoUnitDto {
+    private UUID id;
+    private String image_url;
 }

@@ -5,6 +5,7 @@ import com.vulpix.api.Dto.Agent.PublicacaoGeradaRetorno;
 import com.vulpix.api.Dto.Criativo.CriativoMapper;
 import com.vulpix.api.Dto.Criativo.CriativoRequisicaoDto;
 import com.vulpix.api.Dto.Criativo.CriativoResponseDto;
+import com.vulpix.api.Dto.Criativo.CriativoUnitDto;
 import com.vulpix.api.Entity.Criativo;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Repository.CriativoRepository;
@@ -18,10 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class CriativosService {
@@ -136,10 +134,14 @@ public class CriativosService {
 
         for (int i = 0; i < criativosEntity.size(); i += 4) {
             CriativoResponseDto dto = new CriativoResponseDto();
-            List<String> images = new ArrayList<>();
+            List<CriativoUnitDto> images = new ArrayList<>();
 
             for (int j = 0; j < 4 && (i + j) < criativosEntity.size(); j++) {
-                images.add(criativosEntity.get(i + j).getImageUrl());
+                CriativoUnitDto criativo = CriativoUnitDto.builder()
+                        .id(criativosEntity.get(i + j).getId())
+                        .image_url(criativosEntity.get(i + j).getImageUrl())
+                        .build();
+                images.add(criativo);
             }
 
             dto.setImages(images);
@@ -149,5 +151,16 @@ public class CriativosService {
         }
 
         return response;
+    }
+
+    public CriativoRequisicaoDto buscaPorId(UUID id) {
+        Optional<Criativo> criativoEntity = criativoRepository.findById(id);
+
+        if (criativoEntity.isEmpty()) return null;
+        Criativo entity = criativoEntity.get();
+        return CriativoRequisicaoDto.builder()
+                .imageUrl(entity.getImageUrl())
+                .prompt(entity.getPrompt())
+                .build();
     }
 }
