@@ -1,4 +1,5 @@
 package com.vulpix.api.Service;
 
-public class PublicaoServiceTest {
+class PublicacaoServiceTest {
+
 }
