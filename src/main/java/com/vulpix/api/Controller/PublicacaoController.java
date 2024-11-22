@@ -196,12 +196,13 @@ public class PublicacaoController {
     @GetMapping()
     public ResponseEntity<Page<GetPublicacaoDto>> buscarPosts(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String data) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
         Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
-        Page<GetPublicacaoDto> posts = publicacaoService.buscarPosts(empresa.getId(), page, size);
+        Page<GetPublicacaoDto> posts = publicacaoService.buscarPosts(empresa.getId(), page, size, data);
         return ResponseEntity.ok(posts);
     }
 

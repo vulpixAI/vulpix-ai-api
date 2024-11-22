@@ -38,7 +38,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.List;
@@ -196,10 +198,26 @@ public class PublicacaoService {
         salvarPostNoBanco(todosOsPosts, empresa);
     }
 
-    public Page<GetPublicacaoDto> buscarPosts(UUID idEmpresa, int page, int size) {
+    public Page<GetPublicacaoDto> buscarPosts(UUID idEmpresa, int page, int size, String data) {
         sincronizarPosts(idEmpresa);
+
         Pageable pageable = PageRequest.of(page, size, Sort.by("dataPublicacao").descending());
-        Page<Publicacao> publicacoes = publicacaoRepository.findByEmpresaId(idEmpresa, pageable);
+
+        OffsetDateTime dataFiltro = null;
+        if (data != null && !data.isEmpty()) {
+            try {
+                dataFiltro = OffsetDateTime.parse(data + "T00:00:00Z");
+            } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException("Formato de data inválido.");
+            }
+        }
+
+        Page<Publicacao> publicacoes;
+        if (dataFiltro != null) {
+            publicacoes = publicacaoRepository.findByEmpresaIdAndDataPublicacaoAfter(idEmpresa, dataFiltro, pageable);
+        } else {
+            publicacoes = publicacaoRepository.findByEmpresaId(idEmpresa, pageable);
+        }
 
         return publicacoes.map(publicacao -> {
             GetPublicacaoDto dto = new GetPublicacaoDto();
