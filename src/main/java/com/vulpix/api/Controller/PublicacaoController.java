@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -194,12 +195,15 @@ public class PublicacaoController {
                             examples = @ExampleObject(value = "{ \"message\": \"Erro: Empresa não encontrada.\" }")))
     })
     @GetMapping()
-    public ResponseEntity<List<GetPublicacaoDto>> buscarPosts() {
+    public ResponseEntity<Page<GetPublicacaoDto>> buscarPosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
         Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
-        return publicacaoService.buscarPosts(empresa.getId());
+        Page<GetPublicacaoDto> posts = publicacaoService.buscarPosts(empresa.getId(), page, size);
+        return ResponseEntity.ok(posts);
     }
 
     @Operation(summary = "Somar likes das publicações utilizando Recursão",
@@ -221,8 +225,12 @@ public class PublicacaoController {
     })
     @GetMapping("/somar-likes-publicacao")
     public ResponseEntity<Integer> somarLikes() {
-        ResponseEntity<List<GetPublicacaoDto>> responseEntity = buscarPosts();
-        List<GetPublicacaoDto> posts = responseEntity.getBody();
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String emailUsuario = userDetails.getUsername();
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
+
+
+        List<GetPublicacaoDto> posts = publicacaoService.buscarPostsSemPaginacao(empresa.getId());
 
         if (posts != null && !posts.isEmpty()) {
             int somaLikes = somarLikesRecursivo(posts, 0);
@@ -256,7 +264,12 @@ public class PublicacaoController {
             @RequestParam String dataPublicacao) {
         try {
             OffsetDateTime dataBusca = OffsetDateTime.parse(dataPublicacao + "T00:00:00Z");
-            List<GetPublicacaoDto> posts = buscarPosts().getBody();
+            UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+            String emailUsuario = userDetails.getUsername();
+            Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
+
+
+            List<GetPublicacaoDto> posts = publicacaoService.buscarPostsSemPaginacao(empresa.getId());
 
             if (posts == null || posts.isEmpty()) {
                 return ResponseEntity.status(204).build();
@@ -295,10 +308,11 @@ public class PublicacaoController {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
         Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
-        List<GetPublicacaoDto> posts = buscarPosts().getBody();
-        if (posts == null || posts.isEmpty()) {
-            return ResponseEntity.status(204).build();
-        }
+
+        List<GetPublicacaoDto> posts = publicacaoService.buscarPostsSemPaginacao(empresa.getId());
+
+        if (posts == null || posts.isEmpty()) return ResponseEntity.status(204).build();
+
         String arquivo = "publicacao.csv";
         try (OutputStream file = new FileOutputStream(arquivo);
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(file))) {

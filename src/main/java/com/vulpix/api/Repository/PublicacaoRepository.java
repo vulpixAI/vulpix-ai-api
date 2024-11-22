@@ -2,6 +2,8 @@ package com.vulpix.api.Repository;
 
 import com.vulpix.api.Entity.Publicacao;
 import com.vulpix.api.Utils.Enum.StatusPublicacao;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,4 +17,6 @@ public interface PublicacaoRepository extends JpaRepository<Publicacao, UUID> {
 
     List<Publicacao> findByStatus(StatusPublicacao status);
 
+    Page<Publicacao> findByEmpresaId(UUID idEmpresa, Pageable pageable);
+    List<Publicacao> findByEmpresaId(UUID idEmpresa);
 }
