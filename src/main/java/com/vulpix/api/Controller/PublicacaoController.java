@@ -1,6 +1,6 @@
 package com.vulpix.api.Controller;
 
-import com.vulpix.api.Dto.Publicacao.PublicacaoInsightDto;
+import com.vulpix.api.Dto.Publicacao.Insights.PublicacaoInsightDto;
 import com.vulpix.api.Service.EmpresaService;
 import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Utils.Enum.StatusPublicacao;
@@ -25,14 +25,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.*;
