@@ -8,5 +8,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface CriativoRepository extends JpaRepository<Criativo, UUID> {
-    List<Criativo> findAllByEmpresa(Empresa empresa);
+    List<Criativo> findAllByEmpresaOrderByCreatedAtDesc(Empresa empresa);
 }

@@ -129,7 +129,7 @@ public class CriativosService {
     }
 
     public List<CriativoResponseDto> buscaCriativosGerados(Empresa empresa) {
-        List<Criativo> criativosEntity = criativoRepository.findAllByEmpresa(empresa);
+        List<Criativo> criativosEntity = criativoRepository.findAllByEmpresaOrderByCreatedAtDesc(empresa);
         List<CriativoResponseDto> response = new ArrayList<>();
 
         for (int i = 0; i < criativosEntity.size(); i += 4) {
