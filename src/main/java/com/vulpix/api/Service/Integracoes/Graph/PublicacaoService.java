@@ -3,6 +3,7 @@ package com.vulpix.api.Service.Integracoes.Graph;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.vulpix.api.Dto.Publicacao.GetPublicacaoDto;
+import com.vulpix.api.Dto.Publicacao.PublicacaoInsightDto;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Entity.Integracao;
 import com.vulpix.api.Entity.Publicacao;
@@ -207,4 +208,36 @@ public class PublicacaoService {
         }
     }
 
+    public PublicacaoInsightDto buscaInsightPost(String id, UUID idEmpresa) {
+        Optional<Publicacao> postEntity = publicacaoRepository.findByIdReturned(id);
+
+        if (postEntity.isEmpty()) return null;
+
+        String idNoInsta = postEntity.get().getIdReturned();
+
+        Optional<Integracao> integracaoOpt = integracaoRepository.findByEmpresaId(idEmpresa);
+
+        if (integracaoOpt.isEmpty()) return null;
+
+        Integracao integracao = integracaoOpt.get();
+
+        String url = UriComponentsBuilder.fromHttpUrl(Graph.BASE_URL)
+                .pathSegment(idNoInsta, "insights")
+                .queryParam("date_preset", "today")
+                .queryParam("metric", "impressions,reach,likes,comments")
+                .queryParam("access_token", integracao.getAccessToken())
+                .toUriString();
+
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            String apiResponse = restTemplate.getForObject(url, String.class);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.readValue(apiResponse, PublicacaoInsightDto.class);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
