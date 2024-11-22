@@ -1,5 +1,6 @@
 package com.vulpix.api.Controller;
 
+import com.vulpix.api.Dto.Publicacao.Insights.PublicacaoInsightDto;
 import com.vulpix.api.Service.EmpresaService;
 import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Utils.Enum.StatusPublicacao;
@@ -25,14 +26,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -338,22 +337,17 @@ public class PublicacaoController {
         }
     }
 
-    @Operation(summary = "Deletar uma publicação",
-            description = "Deleta uma publicação específica pelo ID.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Publicação deletada com sucesso."),
-            @ApiResponse(responseCode = "404", description = "Publicação não encontrada.",
-                    content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(value = "{\"error\": \"Publicação não encontrada.\"}")))
-    })
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarPublicacao(@PathVariable UUID id) {
-        Optional<Publicacao> publicacao = publicacaoRepository.findById(id);
-        if (publicacao.isPresent()) {
-            publicacaoRepository.deleteById(id);
-            return ResponseEntity.status(204).build();
-        } else {
-            return ResponseEntity.status(404).build();
-        }
+    @GetMapping("/{id}")
+    public ResponseEntity<PublicacaoInsightDto> buscaInsightPorId(@PathVariable String id) {
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String emailUsuario = userDetails.getUsername();
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
+
+        if (empresa == null) return ResponseEntity.status(404).build();
+
+        PublicacaoInsightDto response = publicacaoService.buscaInsightPost(id, empresa.getId());
+        if (response == null) return ResponseEntity.status(404).build();
+
+        return ResponseEntity.status(200).body(response);
     }
 }

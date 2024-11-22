@@ -3,6 +3,8 @@ package com.vulpix.api.Service.Integracoes.Graph;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.vulpix.api.Dto.Publicacao.GetPublicacaoDto;
+import com.vulpix.api.Dto.Publicacao.Insights.PublicacaoInsightDto;
+import com.vulpix.api.Dto.Publicacao.Insights.ValueDto;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Entity.Integracao;
 import com.vulpix.api.Entity.Publicacao;
@@ -262,4 +264,48 @@ public class PublicacaoService {
         }
     }
 
+    public PublicacaoInsightDto buscaInsightPost(String id, UUID idEmpresa) {
+        Optional<Publicacao> postEntity = publicacaoRepository.findByIdReturned(id);
+        if (postEntity.isEmpty()) return null;
+
+        String idNoInsta = postEntity.get().getIdReturned();
+
+        Optional<Integracao> integracaoOpt = integracaoRepository.findByEmpresaId(idEmpresa);
+        if (integracaoOpt.isEmpty()) return null;
+
+        Integracao integracao = integracaoOpt.get();
+
+        String url = UriComponentsBuilder.fromHttpUrl(Graph.BASE_URL)
+                .pathSegment(idNoInsta, "insights")
+                .queryParam("date_preset", "today")
+                .queryParam("metric", "impressions,reach,likes,comments,shares,saved,profile_visits")
+                .queryParam("access_token", integracao.getAccessToken())
+                .toUriString();
+
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            String apiResponse = restTemplate.getForObject(url, String.class);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(apiResponse);
+
+            Map<String, ValueDto> metrics = new HashMap<>();
+
+            JsonNode dataNode = rootNode.path("data");
+            if (dataNode.isArray()) {
+                for (JsonNode insight : dataNode) {
+                    String name = insight.path("name").asText();
+                    int value = insight.path("values").get(0).path("value").asInt();
+
+                    metrics.put(name, new ValueDto(value));
+                }
+            }
+
+            return new PublicacaoInsightDto(metrics);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
