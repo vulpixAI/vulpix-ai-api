@@ -12,8 +12,13 @@ import com.vulpix.api.Utils.Integracao.Graph;
 import com.vulpix.api.Repository.EmpresaRepository;
 import com.vulpix.api.Repository.IntegracaoRepository;
 import com.vulpix.api.Repository.PublicacaoRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -112,65 +117,115 @@ public class PublicacaoService {
         }
     }
 
-    public ResponseEntity<List<GetPublicacaoDto>> buscarPosts(UUID idEmpresa) {
+    public void sincronizarPosts(UUID idEmpresa) {
         Optional<Integracao> integracaoOpt = integracaoRepository.findByEmpresaId(idEmpresa);
 
         if (integracaoOpt.isEmpty()) {
-            return ResponseEntity.status(404).build();
+            throw new EntityNotFoundException("Integração não encontrada para a empresa.");
         }
 
         Integracao integracao = integracaoOpt.get();
-        Optional<Empresa> empresaOpt = empresaRepository.findById(idEmpresa);
 
+        String url = Graph.BASE_URL + integracao.getIgUserId() + "/media?fields=" + Graph.FIELDS +
+                "&access_token=" + integracao.getAccessToken();
+
+        Optional<Empresa> empresaOpt = empresaRepository.findById(idEmpresa);
         if (empresaOpt.isEmpty()) {
-            return ResponseEntity.status(404).build();
+            throw new EntityNotFoundException("Empresa não encontrada.");
         }
 
         Empresa empresa = empresaOpt.get();
-        String url = Graph.BASE_URL + integracao.getIgUserId() + "/media?fields=" + Graph.FIELDS + "&access_token=" + integracao.getAccessToken();
+        List<Publicacao> todosOsPosts = new ArrayList<>();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        while (url != null) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<String> rawResponseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 
-        if (rawResponseEntity.getBody() == null || rawResponseEntity.getBody().isEmpty()) {
-            return ResponseEntity.status(204).build();
-        }
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-
-        try {
-            JsonNode rootNode = objectMapper.readTree(rawResponseEntity.getBody());
-            JsonNode dataNode = rootNode.path("data");
-
-            if (!dataNode.isArray()) {
-                return ResponseEntity.noContent().build();
+            if (response.getBody() == null || response.getBody().isEmpty()) {
+                break;
             }
 
-            List<GetPublicacaoDto> posts = objectMapper.convertValue(dataNode,
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, GetPublicacaoDto.class));
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule());
+            objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 
-            List<Publicacao> resposta = posts.stream().map(item -> {
-                Publicacao postDto = new Publicacao();
-                postDto.setIdReturned(item.getId());
-                postDto.setLegenda(item.getLegenda());
-                postDto.setTipoMidia(item.getTipoMidia());
-                postDto.setUrlMidia(item.getUrlMidia());
-                postDto.setDataPublicacao(item.getDataPublicacao());
-                postDto.setLikeCount(item.getLikeCount());
-                return postDto;
-            }).collect(Collectors.toList());
+            try {
+                JsonNode rootNode = objectMapper.readTree(response.getBody());
+                JsonNode dataNode = rootNode.path("data");
 
-            salvarPostNoBanco(resposta, empresa);
-            return ResponseEntity.ok(posts);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).build();
+                if (dataNode.isArray()) {
+                    List<GetPublicacaoDto> postsReturn = objectMapper.convertValue(dataNode,
+                            objectMapper.getTypeFactory().constructCollectionType(List.class, GetPublicacaoDto.class));
+
+                    List<Publicacao> posts = postsReturn.stream().map(item -> {
+                        Publicacao postDto = new Publicacao();
+
+                        postDto.setIdReturned(item.getId());
+                        postDto.setLegenda(item.getLegenda());
+                        postDto.setTipoMidia(item.getTipoMidia());
+                        postDto.setUrlMidia(item.getUrlMidia());
+                        postDto.setDataPublicacao(item.getDataPublicacao());
+                        postDto.setLikeCount(item.getLikeCount());
+
+                        return postDto;
+                    }).collect(Collectors.toList());
+
+                    todosOsPosts.addAll(posts);
+                }
+
+                JsonNode pagingNode = rootNode.path("paging");
+                if (pagingNode.has("next")) {
+                    url = pagingNode.path("next").asText();
+                } else {
+                    url = null;
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            System.out.println("Sincronizando página da API: " + url);
+            System.out.println("Posts sincronizados até agora: " + todosOsPosts.size());
         }
+
+        salvarPostNoBanco(todosOsPosts, empresa);
+    }
+
+    public Page<GetPublicacaoDto> buscarPosts(UUID idEmpresa, int page, int size) {
+        sincronizarPosts(idEmpresa);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("dataPublicacao").descending());
+        Page<Publicacao> publicacoes = publicacaoRepository.findByEmpresaId(idEmpresa, pageable);
+
+        return publicacoes.map(publicacao -> {
+            GetPublicacaoDto dto = new GetPublicacaoDto();
+            dto.setId(publicacao.getIdReturned());
+            dto.setLegenda(publicacao.getLegenda());
+            dto.setTipoMidia(publicacao.getTipoMidia());
+            dto.setUrlMidia(publicacao.getUrlMidia());
+            dto.setDataPublicacao(publicacao.getDataPublicacao());
+            dto.setLikeCount(publicacao.getLikeCount());
+            return dto;
+        });
+    }
+
+    public List<GetPublicacaoDto> buscarPostsSemPaginacao(UUID idEmpresa) {
+        List<Publicacao> publicacoes = publicacaoRepository.findByEmpresaId(idEmpresa);
+
+        List<GetPublicacaoDto> postsReturn = publicacoes.stream()
+                .map(publicacao -> GetPublicacaoDto.builder()
+                        .id(publicacao.getIdReturned())
+                        .legenda(publicacao.getLegenda())
+                        .tipoMidia(publicacao.getTipoMidia())
+                        .urlMidia(publicacao.getUrlMidia())
+                        .dataPublicacao(publicacao.getDataPublicacao())
+                        .likeCount(publicacao.getLikeCount())
+                        .build())
+                .collect(Collectors.toList());
+
+        return postsReturn;
     }
 
     public void salvarPostNoBanco(List<Publicacao> posts, Empresa empresa) {
