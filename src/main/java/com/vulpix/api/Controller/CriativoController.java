@@ -8,6 +8,7 @@ import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Utils.Helpers.EmpresaHelper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -27,9 +28,13 @@ public class CriativoController {
     private CriativosService criativosService;
 
     @GetMapping
+
     public ResponseEntity<List<CriativoResponseDto>> buscarCriativos(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String dataInicio,
             @RequestParam(required = false) String dataFim
+
     ) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
@@ -37,7 +42,8 @@ public class CriativoController {
 
         if (empresa == null) return ResponseEntity.status(404).build();
 
-        List<CriativoResponseDto> criativos = criativosService.buscaCriativosGerados(empresa, dataInicio, dataFim);
+        Page<CriativoResponseDto> criativos = criativosService.buscaCriativosGerados(empresa, page, size, dataInicio, dataFim);
+
         if (criativos == null) return ResponseEntity.status(404).build();
         return ResponseEntity.status(200).body(criativos);
     }

@@ -14,6 +14,10 @@ import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Utils.Helpers.EmpresaHelper;
 import com.vulpix.api.Utils.Helpers.Exceptions.InvalidDateFilterException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -132,7 +136,10 @@ public class CriativosService {
         criativoRepository.save(criativo);
     }
 
-    public List<CriativoResponseDto> buscaCriativosGerados(Empresa empresa, String dataInicio, String dataFim) {
+
+    public Page<CriativoResponseDto> buscaCriativosGerados(Empresa empresa, int page, int size, String dataInicio, String dataFim) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+  
         OffsetDateTime dataFiltroInicioOffset = null;
         OffsetDateTime dataFiltroFimOffset = null;
         if (dataInicio != null && !dataInicio.isEmpty() &&
@@ -148,36 +155,35 @@ public class CriativosService {
         LocalDateTime dataFiltroInicio = dataFiltroInicioOffset.toLocalDateTime();
         LocalDateTime dataFiltroFim = dataFiltroFimOffset.toLocalDateTime();
 
-        List<Criativo> criativosEntity;
-        List<CriativoResponseDto> response = new ArrayList<>();
+        Page<Criativo> criativosEntity;
+        Page<CriativoResponseDto> response = new ArrayList<>();
 
         if (dataFiltroInicio != null && dataFiltroFim != null) {
             if (dataFiltroInicio.isAfter(dataFiltroFim)) throw new InvalidDateFilterException("Data de início não pode ser posterior à data de fim.");
 
-            criativosEntity = criativoRepository.findAllByEmpresaAndCreatedAtBetweenOrderByCreatedAtDesc(empresa, dataFiltroInicio, dataFiltroFim);
+            criativosEntity = criativoRepository.findAllByEmpresaAndCreatedAtBetweenOrderByCreatedAtDesc(empresa, dataFiltroInicio, dataFiltroFim, pageable);
         } else {
-            criativosEntity = criativoRepository.findAllByEmpresaOrderByCreatedAtDesc(empresa);
+            criativosEntity = criativoRepository.findAllByEmpresaOrderByCreatedAtDesc(empresa, pageable);
         }
 
         for (int i = 0; i < criativosEntity.size(); i += 4) {
-            CriativoResponseDto dto = new CriativoResponseDto();
-            List<CriativoUnitDto> images = new ArrayList<>();
 
-            for (int j = 0; j < 4 && (i + j) < criativosEntity.size(); j++) {
-                CriativoUnitDto criativo = CriativoUnitDto.builder()
-                        .id(criativosEntity.get(i + j).getId())
-                        .image_url(criativosEntity.get(i + j).getImageUrl())
-                        .build();
-                images.add(criativo);
-            }
+
+        return criativosEntity.map(criativo -> {
+
+            CriativoResponseDto dto = new CriativoResponseDto();
+
+            List<CriativoUnitDto> images = new ArrayList<>();
+            images.add(CriativoUnitDto.builder()
+                    .id(criativo.getId())
+                    .image_url(criativo.getImageUrl())
+                    .build());
 
             dto.setImages(images);
-            dto.setPrompt(criativosEntity.get(i).getPrompt());
+            dto.setPrompt(criativo.getPrompt());
 
-            response.add(dto);
-        }
-
-        return response;
+            return dto;
+        });
     }
 
     public CriativoRequisicaoDto buscaPorId(UUID id) {
