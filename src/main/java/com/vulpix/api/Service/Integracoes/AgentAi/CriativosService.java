@@ -144,7 +144,7 @@ public class CriativosService {
                 dataFim != null && !dataFim.isEmpty()) {
             try {
                 dataFiltroInicioOffset = OffsetDateTime.parse(dataInicio + "T00:00:00Z");
-                dataFiltroFimOffset = OffsetDateTime.parse(dataFim + "T00:00:00Z");
+                dataFiltroFimOffset = OffsetDateTime.parse(dataFim + "T23:59:59Z");
             } catch (DateTimeParseException e) {
                 throw new IllegalArgumentException("Formato de data inválido.");
             }

@@ -210,7 +210,7 @@ public class PublicacaoService {
             dataFim != null && !dataFim.isEmpty()) {
             try {
                 dataFiltroInicio = OffsetDateTime.parse(dataInicio + "T00:00:00Z");
-                dataFiltroFim = OffsetDateTime.parse(dataFim + "T00:00:00Z");
+                dataFiltroFim = OffsetDateTime.parse(dataFim + "T23:59:59Z");
             } catch (DateTimeParseException e) {
                 throw new IllegalArgumentException("Formato de data inválido.");
             }
