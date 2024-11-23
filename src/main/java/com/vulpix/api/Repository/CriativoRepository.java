@@ -14,8 +14,8 @@ import java.util.UUID;
 
 public interface CriativoRepository extends JpaRepository<Criativo, UUID> {
 
-    List<Criativo> findAllByEmpresaOrderByCreatedAtDesc(Empresa empresa, Pageable pageable);
+    Page<Criativo> findAllByEmpresaOrderByCreatedAtDesc(Empresa empresa, Pageable pageable);
 
-    List<Criativo> findAllByEmpresaAndCreatedAtBetweenOrderByCreatedAtDesc(Empresa empresa, LocalDateTime dataFiltroInicio, LocalDateTime dataFiltroFim, Pageable pageable);
+    Page<Criativo> findAllByEmpresaAndCreatedAtBetweenOrderByCreatedAtDesc(Empresa empresa, LocalDateTime dataFiltroInicio, LocalDateTime dataFiltroFim, Pageable pageable);
 
 }

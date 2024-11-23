@@ -139,7 +139,7 @@ public class CriativosService {
 
     public Page<CriativoResponseDto> buscaCriativosGerados(Empresa empresa, int page, int size, String dataInicio, String dataFim) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-  
+
         OffsetDateTime dataFiltroInicioOffset = null;
         OffsetDateTime dataFiltroFimOffset = null;
         if (dataInicio != null && !dataInicio.isEmpty() &&
@@ -152,25 +152,20 @@ public class CriativosService {
             }
         }
 
-        LocalDateTime dataFiltroInicio = dataFiltroInicioOffset.toLocalDateTime();
-        LocalDateTime dataFiltroFim = dataFiltroFimOffset.toLocalDateTime();
-
         Page<Criativo> criativosEntity;
-        Page<CriativoResponseDto> response = new ArrayList<>();
 
-        if (dataFiltroInicio != null && dataFiltroFim != null) {
-            if (dataFiltroInicio.isAfter(dataFiltroFim)) throw new InvalidDateFilterException("Data de início não pode ser posterior à data de fim.");
+        if (dataFiltroInicioOffset != null && dataFiltroFimOffset != null) {
+            LocalDateTime dataFiltroInicio = dataFiltroInicioOffset.toLocalDateTime();
+            LocalDateTime dataFiltroFim = dataFiltroFimOffset.toLocalDateTime();
+            if (dataFiltroInicio.isAfter(dataFiltroFim))
+                throw new InvalidDateFilterException("Data de início não pode ser posterior à data de fim.");
 
             criativosEntity = criativoRepository.findAllByEmpresaAndCreatedAtBetweenOrderByCreatedAtDesc(empresa, dataFiltroInicio, dataFiltroFim, pageable);
         } else {
             criativosEntity = criativoRepository.findAllByEmpresaOrderByCreatedAtDesc(empresa, pageable);
         }
 
-        for (int i = 0; i < criativosEntity.size(); i += 4) {
-
-
         return criativosEntity.map(criativo -> {
-
             CriativoResponseDto dto = new CriativoResponseDto();
 
             List<CriativoUnitDto> images = new ArrayList<>();
@@ -186,14 +181,15 @@ public class CriativosService {
         });
     }
 
-    public CriativoRequisicaoDto buscaPorId(UUID id) {
-        Optional<Criativo> criativoEntity = criativoRepository.findById(id);
+        public CriativoRequisicaoDto buscaPorId (UUID id){
+            Optional<Criativo> criativoEntity = criativoRepository.findById(id);
 
-        if (criativoEntity.isEmpty()) return null;
-        Criativo entity = criativoEntity.get();
-        return CriativoRequisicaoDto.builder()
-                .imageUrl(entity.getImageUrl())
-                .prompt(entity.getPrompt())
-                .build();
-    }
+            if (criativoEntity.isEmpty()) return null;
+            Criativo entity = criativoEntity.get();
+            return CriativoRequisicaoDto.builder()
+                    .imageUrl(entity.getImageUrl())
+                    .prompt(entity.getPrompt())
+                    .build();
+        }
+
 }

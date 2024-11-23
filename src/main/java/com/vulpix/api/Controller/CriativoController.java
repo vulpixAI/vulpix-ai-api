@@ -29,7 +29,7 @@ public class CriativoController {
 
     @GetMapping
 
-    public ResponseEntity<List<CriativoResponseDto>> buscarCriativos(
+    public ResponseEntity<Page<CriativoResponseDto>> buscarCriativos(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String dataInicio,
