@@ -8,12 +8,10 @@ import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Utils.Helpers.EmpresaHelper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,14 +28,17 @@ public class CriativoController {
     private CriativosService criativosService;
 
     @GetMapping
-    public ResponseEntity<List<CriativoResponseDto>> buscarCriativos() {
+    public ResponseEntity<Page<CriativoResponseDto>> buscarCriativos(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
         Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
         if (empresa == null) return ResponseEntity.status(404).build();
 
-        List<CriativoResponseDto> criativos = criativosService.buscaCriativosGerados(empresa);
+        Page<CriativoResponseDto> criativos = criativosService.buscaCriativosGerados(empresa, page, size);
         if (criativos == null) return ResponseEntity.status(404).build();
         return ResponseEntity.status(200).body(criativos);
     }
