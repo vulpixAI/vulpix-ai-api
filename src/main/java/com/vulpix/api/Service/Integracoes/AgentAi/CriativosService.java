@@ -143,8 +143,8 @@ public class CriativosService {
         if (dataInicio != null && !dataInicio.isEmpty() &&
                 dataFim != null && !dataFim.isEmpty()) {
             try {
-                dataFiltroInicioOffset = OffsetDateTime.parse(dataInicio);
-                dataFiltroFimOffset = OffsetDateTime.parse(dataFim);
+                dataFiltroInicioOffset = OffsetDateTime.parse(dataInicio + "T00:00:00Z");
+                dataFiltroFimOffset = OffsetDateTime.parse(dataFim + "T00:00:00Z");
             } catch (DateTimeParseException e) {
                 throw new IllegalArgumentException("Formato de data inválido.");
             }
