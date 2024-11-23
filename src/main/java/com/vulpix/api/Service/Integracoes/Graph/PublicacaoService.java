@@ -10,6 +10,7 @@ import com.vulpix.api.Entity.Integracao;
 import com.vulpix.api.Entity.Publicacao;
 import com.vulpix.api.Utils.Enum.StatusPublicacao;
 import com.vulpix.api.Utils.Enum.TipoIntegracao;
+import com.vulpix.api.Utils.Helpers.Exceptions.InvalidDateFilterException;
 import com.vulpix.api.Utils.Integracao.Graph;
 import com.vulpix.api.Repository.EmpresaRepository;
 import com.vulpix.api.Repository.IntegracaoRepository;
@@ -198,23 +199,29 @@ public class PublicacaoService {
         salvarPostNoBanco(todosOsPosts, empresa);
     }
 
-    public Page<GetPublicacaoDto> buscarPosts(UUID idEmpresa, int page, int size, String data) {
+    public Page<GetPublicacaoDto> buscarPosts(UUID idEmpresa, int page, int size, String dataInicio, String dataFim) {
         sincronizarPosts(idEmpresa);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("dataPublicacao").descending());
 
-        OffsetDateTime dataFiltro = null;
-        if (data != null && !data.isEmpty()) {
+        OffsetDateTime dataFiltroInicio = null;
+        OffsetDateTime dataFiltroFim = null;
+        if (dataInicio != null && !dataInicio.isEmpty() &&
+            dataFim != null && !dataFim.isEmpty()) {
             try {
-                dataFiltro = OffsetDateTime.parse(data + "T00:00:00Z");
+                dataFiltroInicio = OffsetDateTime.parse(dataInicio + "T00:00:00Z");
+                dataFiltroFim = OffsetDateTime.parse(dataFim + "T00:00:00Z");
             } catch (DateTimeParseException e) {
                 throw new IllegalArgumentException("Formato de data inválido.");
             }
         }
 
         Page<Publicacao> publicacoes;
-        if (dataFiltro != null) {
-            publicacoes = publicacaoRepository.findByEmpresaIdAndDataPublicacaoAfter(idEmpresa, dataFiltro, pageable);
+
+        if (dataFiltroInicio != null && dataFiltroFim != null) {
+            if (dataFiltroInicio.isAfter(dataFiltroFim)) throw new InvalidDateFilterException("Data de início não pode ser posterior à data de fim.");
+
+            publicacoes = publicacaoRepository.findByEmpresaIdAndDataPublicacaoBetween(idEmpresa, dataFiltroInicio, dataFiltroFim, pageable);
         } else {
             publicacoes = publicacaoRepository.findByEmpresaId(idEmpresa, pageable);
         }

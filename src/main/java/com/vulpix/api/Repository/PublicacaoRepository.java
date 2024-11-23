@@ -23,5 +23,5 @@ public interface PublicacaoRepository extends JpaRepository<Publicacao, UUID> {
     Page<Publicacao> findByEmpresaId(UUID idEmpresa, Pageable pageable);
     List<Publicacao> findByEmpresaId(UUID idEmpresa);
 
-    Page<Publicacao> findByEmpresaIdAndDataPublicacaoAfter(UUID idEmpresa, OffsetDateTime dataFiltro, Pageable pageable);
+    Page<Publicacao> findByEmpresaIdAndDataPublicacaoBetween(UUID idEmpresa, OffsetDateTime dataFiltroInicio, OffsetDateTime dataFiltroFim, Pageable pageable);
 }
