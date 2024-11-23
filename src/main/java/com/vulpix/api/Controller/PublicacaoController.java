@@ -308,11 +308,10 @@ public class PublicacaoController {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
         Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
-
         List<GetPublicacaoDto> posts = publicacaoService.buscarPostsSemPaginacao(empresa.getId());
 
         if (posts == null || posts.isEmpty()) return ResponseEntity.status(204).build();
-
+      
         String arquivo = "publicacao.csv";
         try (OutputStream file = new FileOutputStream(arquivo);
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(file))) {
