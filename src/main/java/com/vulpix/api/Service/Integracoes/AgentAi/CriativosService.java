@@ -12,6 +12,7 @@ import com.vulpix.api.Repository.CriativoRepository;
 import com.vulpix.api.Service.EmpresaService;
 import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Utils.Helpers.EmpresaHelper;
+import com.vulpix.api.Utils.Helpers.Exceptions.InvalidDateFilterException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +24,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 @Service
@@ -132,12 +136,41 @@ public class CriativosService {
         criativoRepository.save(criativo);
     }
 
-    public Page<CriativoResponseDto> buscaCriativosGerados(Empresa empresa, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
-        Page<Criativo> criativosEntity = criativoRepository.findAllByEmpresaOrderByCreatedAtDesc(empresa, pageable);
+    public Page<CriativoResponseDto> buscaCriativosGerados(Empresa empresa, int page, int size, String dataInicio, String dataFim) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+  
+        OffsetDateTime dataFiltroInicioOffset = null;
+        OffsetDateTime dataFiltroFimOffset = null;
+        if (dataInicio != null && !dataInicio.isEmpty() &&
+                dataFim != null && !dataFim.isEmpty()) {
+            try {
+                dataFiltroInicioOffset = OffsetDateTime.parse("2024-11-11T00:00Z");
+                dataFiltroFimOffset = OffsetDateTime.parse("2024-11-23T23:59Z");
+            } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException("Formato de data inválido.");
+            }
+        }
+
+        LocalDateTime dataFiltroInicio = dataFiltroInicioOffset.toLocalDateTime();
+        LocalDateTime dataFiltroFim = dataFiltroFimOffset.toLocalDateTime();
+
+        Page<Criativo> criativosEntity;
+        Page<CriativoResponseDto> response = new ArrayList<>();
+
+        if (dataFiltroInicio != null && dataFiltroFim != null) {
+            if (dataFiltroInicio.isAfter(dataFiltroFim)) throw new InvalidDateFilterException("Data de início não pode ser posterior à data de fim.");
+
+            criativosEntity = criativoRepository.findAllByEmpresaAndCreatedAtBetweenOrderByCreatedAtDesc(empresa, dataFiltroInicio, dataFiltroFim, pageable);
+        } else {
+            criativosEntity = criativoRepository.findAllByEmpresaOrderByCreatedAtDesc(empresa, pageable);
+        }
+
+        for (int i = 0; i < criativosEntity.size(); i += 4) {
+
 
         return criativosEntity.map(criativo -> {
+
             CriativoResponseDto dto = new CriativoResponseDto();
 
             List<CriativoUnitDto> images = new ArrayList<>();

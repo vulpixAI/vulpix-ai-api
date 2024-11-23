@@ -28,9 +28,13 @@ public class CriativoController {
     private CriativosService criativosService;
 
     @GetMapping
-    public ResponseEntity<Page<CriativoResponseDto>> buscarCriativos(
+
+    public ResponseEntity<List<CriativoResponseDto>> buscarCriativos(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String dataInicio,
+            @RequestParam(required = false) String dataFim
+
     ) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
@@ -38,7 +42,8 @@ public class CriativoController {
 
         if (empresa == null) return ResponseEntity.status(404).build();
 
-        Page<CriativoResponseDto> criativos = criativosService.buscaCriativosGerados(empresa, page, size);
+        Page<CriativoResponseDto> criativos = criativosService.buscaCriativosGerados(empresa, page, size, dataInicio, dataFim);
+
         if (criativos == null) return ResponseEntity.status(404).build();
         return ResponseEntity.status(200).body(criativos);
     }
