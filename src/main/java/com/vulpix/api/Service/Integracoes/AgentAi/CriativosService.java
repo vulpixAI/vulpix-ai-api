@@ -13,6 +13,10 @@ import com.vulpix.api.Service.EmpresaService;
 import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Utils.Helpers.EmpresaHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -128,29 +132,25 @@ public class CriativosService {
         criativoRepository.save(criativo);
     }
 
-    public List<CriativoResponseDto> buscaCriativosGerados(Empresa empresa) {
-        List<Criativo> criativosEntity = criativoRepository.findAllByEmpresaOrderByCreatedAtDesc(empresa);
-        List<CriativoResponseDto> response = new ArrayList<>();
+    public Page<CriativoResponseDto> buscaCriativosGerados(Empresa empresa, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
-        for (int i = 0; i < criativosEntity.size(); i += 4) {
+        Page<Criativo> criativosEntity = criativoRepository.findAllByEmpresaOrderByCreatedAtDesc(empresa, pageable);
+
+        return criativosEntity.map(criativo -> {
             CriativoResponseDto dto = new CriativoResponseDto();
-            List<CriativoUnitDto> images = new ArrayList<>();
 
-            for (int j = 0; j < 4 && (i + j) < criativosEntity.size(); j++) {
-                CriativoUnitDto criativo = CriativoUnitDto.builder()
-                        .id(criativosEntity.get(i + j).getId())
-                        .image_url(criativosEntity.get(i + j).getImageUrl())
-                        .build();
-                images.add(criativo);
-            }
+            List<CriativoUnitDto> images = new ArrayList<>();
+            images.add(CriativoUnitDto.builder()
+                    .id(criativo.getId())
+                    .image_url(criativo.getImageUrl())
+                    .build());
 
             dto.setImages(images);
-            dto.setPrompt(criativosEntity.get(i).getPrompt());
+            dto.setPrompt(criativo.getPrompt());
 
-            response.add(dto);
-        }
-
-        return response;
+            return dto;
+        });
     }
 
     public CriativoRequisicaoDto buscaPorId(UUID id) {
