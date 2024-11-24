@@ -105,6 +105,7 @@ public class PublicacaoController {
         Long containerId = publicacaoService.criarContainer(integracao, novoPost);
         String postIdReturned = publicacaoService.criarPublicacao(integracao, containerId);
         novoPost.setIdReturned(postIdReturned);
+        novoPost.setDataPublicacao(OffsetDateTime.now());
         novoPost.setStatus(StatusPublicacao.PUBLICADA);
 
         Publicacao postSalvo = publicacaoRepository.save(novoPost);
