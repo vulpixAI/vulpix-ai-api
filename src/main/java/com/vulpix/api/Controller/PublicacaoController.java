@@ -204,6 +204,7 @@ public class PublicacaoController {
         Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
         Page<GetPublicacaoDto> posts = publicacaoService.buscarPosts(empresa.getId(), page, size, dataInicio, dataFim);
+        if (posts.isEmpty()) return ResponseEntity.status(204).build();
         return ResponseEntity.ok(posts);
     }
 

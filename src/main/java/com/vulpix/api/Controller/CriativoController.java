@@ -45,6 +45,7 @@ public class CriativoController {
         Page<CriativoResponseDto> criativos = criativosService.buscaCriativosGerados(empresa, page, size, dataInicio, dataFim);
 
         if (criativos == null) return ResponseEntity.status(404).build();
+        if (criativos.isEmpty()) return ResponseEntity.status(204).build();
         return ResponseEntity.status(200).body(criativos);
     }
 
