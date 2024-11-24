@@ -9,6 +9,8 @@ import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -50,4 +52,7 @@ public class Publicacao {
     @ManyToOne
     @JoinColumn(name = "fk_empresa", nullable = false)
     private Empresa empresa;
+
+    @OneToMany(mappedBy = "publicacao", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostInsights> insights = new ArrayList<>();
 }
