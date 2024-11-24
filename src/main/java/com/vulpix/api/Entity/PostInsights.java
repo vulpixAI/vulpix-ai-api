@@ -15,21 +15,15 @@ import java.util.UUID;
 public class PostInsights {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id_post_insight")
+    @Column(name = "id_insight")
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "publicacao_id", nullable = false)
+    @JoinColumn(name = "fk_publicacao", nullable = false)
     private Publicacao publicacao;
-
-    @Column(name = "post_id", nullable = false)
-    private String postId;
 
     @Column(name = "likes", nullable = false)
     private Integer likes;
-
-    @Column(name = "views", nullable = false)
-    private Integer views;
 
     @Column(name = "comments", nullable = false)
     private Integer comments;
