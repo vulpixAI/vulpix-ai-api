@@ -86,3 +86,14 @@ CREATE TABLE config_prompt (
     prompt TEXT,
     fk_empresa UUID REFERENCES empresa(id_empresa) ON DELETE CASCADE
 );
+
+-- Criação da tabela PostInsights
+CREATE TABLE post_insights (
+    id_insight UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    likes INTEGER NOT NULL,
+    views INTEGER NOT NULL,
+    comments INTEGER NOT NULL,
+    shares INTEGER,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fk_publicacao UUID REFERENCES publicacao(id_publicacao) ON DELETE CASCADE
+);
