@@ -6,6 +6,7 @@ import com.vulpix.api.Entity.Integracao;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,4 +16,6 @@ public interface IntegracaoRepository extends JpaRepository<Integracao, UUID> {
 
     @Query("SELECT i FROM Integracao i WHERE i.empresa.id = :idEmpresa and i.tipo = 'INSTAGRAM'")
     Optional<Integracao> findIntegracaoByEmpresaId(UUID idEmpresa);
+
+    List<Integracao> findByStatusAndTipo(Boolean status, TipoIntegracao tipo);
 }

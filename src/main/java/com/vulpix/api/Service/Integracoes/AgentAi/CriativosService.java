@@ -4,22 +4,27 @@ import com.vulpix.api.Dto.Agent.PublicacaoGeradaResponse;
 import com.vulpix.api.Dto.Agent.PublicacaoGeradaRetorno;
 import com.vulpix.api.Dto.Criativo.CriativoMapper;
 import com.vulpix.api.Dto.Criativo.CriativoRequisicaoDto;
+import com.vulpix.api.Dto.Criativo.CriativoResponseDto;
+import com.vulpix.api.Dto.Criativo.CriativoUnitDto;
 import com.vulpix.api.Entity.Criativo;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Repository.CriativoRepository;
 import com.vulpix.api.Service.EmpresaService;
 import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Utils.Helpers.EmpresaHelper;
+import com.vulpix.api.Utils.Helpers.Exceptions.InvalidDateFilterException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
 import org.springframework.http.*;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.*;
 
 @Service
 public class CriativosService {
@@ -127,4 +132,72 @@ public class CriativosService {
         Criativo criativo = CriativoMapper.criaEntidadeCriativo(dto, empresa);
         criativoRepository.save(criativo);
     }
+
+
+    public Page<CriativoResponseDto> buscaCriativosGerados(Empresa empresa, int page, int size, String dataInicio, String dataFim) {
+        int sizeReal = size * 4;
+        Pageable pageable = PageRequest.of(page, sizeReal, Sort.by("createdAt").descending());
+
+        OffsetDateTime dataFiltroInicioOffset = null;
+        OffsetDateTime dataFiltroFimOffset = null;
+        if (dataInicio != null && !dataInicio.isEmpty() &&
+                dataFim != null && !dataFim.isEmpty()) {
+            try {
+                dataFiltroInicioOffset = OffsetDateTime.parse(dataInicio + "T00:00:00Z");
+                dataFiltroFimOffset = OffsetDateTime.parse(dataFim + "T23:59:59Z");
+            } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException("Formato de data inválido.");
+            }
+        }
+
+        Page<Criativo> criativosEntity;
+
+        if (dataFiltroInicioOffset != null && dataFiltroFimOffset != null) {
+            LocalDateTime dataFiltroInicio = dataFiltroInicioOffset.toLocalDateTime();
+            LocalDateTime dataFiltroFim = dataFiltroFimOffset.toLocalDateTime();
+            if (dataFiltroInicio.isAfter(dataFiltroFim)) throw new InvalidDateFilterException("Data de início não pode ser posterior à data de fim.");
+
+
+            criativosEntity = criativoRepository.findAllByEmpresaAndCreatedAtBetweenOrderByCreatedAtDesc(
+                    empresa, dataFiltroInicio, dataFiltroFim, pageable);
+        } else {
+            criativosEntity = criativoRepository.findAllByEmpresaOrderByCreatedAtDesc(empresa, pageable);
+        }
+
+        List<Criativo> criativosList = criativosEntity.getContent();
+        List<CriativoResponseDto> responseList = new ArrayList<>();
+
+        for (int i = 0; i < criativosList.size(); i += 4) {
+            CriativoResponseDto dto = new CriativoResponseDto();
+            List<CriativoUnitDto> images = new ArrayList<>();
+
+            for (int j = 0; j < 4 && (i + j) < criativosList.size(); j++) {
+                Criativo criativo = criativosList.get(i + j);
+                images.add(CriativoUnitDto.builder()
+                        .id(criativo.getId())
+                        .image_url(criativo.getImageUrl())
+                        .build());
+            }
+
+            dto.setImages(images);
+            dto.setPrompt(criativosList.get(i).getPrompt());
+            responseList.add(dto);
+        }
+
+        long totalConjuntos = (criativosEntity.getTotalElements() + 3) / 4;
+
+        return new PageImpl<>(responseList, PageRequest.of(page, size), totalConjuntos);
+    }
+
+        public CriativoRequisicaoDto buscaPorId (UUID id){
+            Optional<Criativo> criativoEntity = criativoRepository.findById(id);
+
+            if (criativoEntity.isEmpty()) return null;
+            Criativo entity = criativoEntity.get();
+            return CriativoRequisicaoDto.builder()
+                    .imageUrl(entity.getImageUrl())
+                    .prompt(entity.getPrompt())
+                    .build();
+        }
+
 }

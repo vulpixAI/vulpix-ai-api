@@ -1,9 +1,16 @@
 package com.vulpix.api.Dto.Publicacao;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 
 import java.time.OffsetDateTime;
 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class GetPublicacaoDto {
     @JsonProperty(value = "id")
     private String id;
