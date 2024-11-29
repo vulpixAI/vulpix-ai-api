@@ -311,6 +311,7 @@ public class PublicacaoController {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
         Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
+
         List<GetPublicacaoDto> posts = publicacaoService.buscarPostsSemPaginacao(empresa.getId());
 
         if (posts == null || posts.isEmpty()) return ResponseEntity.status(204).build();
@@ -339,7 +340,7 @@ public class PublicacaoController {
             return ResponseEntity.status(500).build();
         }
     }
-
+    
     @GetMapping("/{id}")
     public ResponseEntity<PublicacaoInsightDto> buscaInsightPorId(@PathVariable String id) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
