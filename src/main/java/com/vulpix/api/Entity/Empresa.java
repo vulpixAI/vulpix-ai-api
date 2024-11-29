@@ -49,6 +49,7 @@ public class Empresa {
 
     @OneToOne
     @JoinColumn(name = "responsavel", nullable = false)
+    @JsonManagedReference
     private Usuario usuario;
     @OneToMany(mappedBy = "empresa", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference

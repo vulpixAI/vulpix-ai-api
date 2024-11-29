@@ -6,15 +6,17 @@ import com.vulpix.api.Entity.Integracao;
 import com.vulpix.api.Entity.Usuario;
 import com.vulpix.api.Repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+@Component
 public class EmpresaMapper {
 
     @Autowired
-    private static UsuarioRepository usuarioRepository;
+    private UsuarioRepository usuarioRepository;
 
-    public static Empresa atualizaEmpresa(EmpresaEditDto dto, Empresa empresa) {
+    public Empresa atualizaEmpresa(EmpresaEditDto dto, Empresa empresa) {
         if (dto == null || empresa == null) return null;
 
         if (dto.getNomeFantasia() != null && !dto.getNomeFantasia().isEmpty()) {
