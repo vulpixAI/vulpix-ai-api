@@ -140,6 +140,7 @@ public class PublicacaoService {
         }
 
         Empresa empresa = empresaOpt.get();
+        List<String> idsPostsAtuais = new ArrayList<>();
         List<Publicacao> todosOsPosts = new ArrayList<>();
 
         while (url != null) {
@@ -167,14 +168,13 @@ public class PublicacaoService {
 
                     List<Publicacao> posts = postsReturn.stream().map(item -> {
                         Publicacao postDto = new Publicacao();
-
                         postDto.setIdReturned(item.getId());
                         postDto.setLegenda(item.getLegenda());
                         postDto.setTipoMidia(item.getTipoMidia());
                         postDto.setUrlMidia(item.getUrlMidia());
                         postDto.setDataPublicacao(item.getDataPublicacao());
                         postDto.setLikeCount(item.getLikeCount());
-
+                        idsPostsAtuais.add(item.getId());
                         return postDto;
                     }).collect(Collectors.toList());
 
@@ -197,6 +197,7 @@ public class PublicacaoService {
         }
 
         salvarPostNoBanco(todosOsPosts, empresa);
+        excluirPostsRemovidos(idsPostsAtuais, empresa);
     }
 
     public Page<GetPublicacaoDto> buscarPosts(UUID idEmpresa, int page, int size, String dataInicio, String dataFim) {
@@ -332,5 +333,15 @@ public class PublicacaoService {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private void excluirPostsRemovidos(List<String> idsPostsAtuais, Empresa empresa) {
+        List<Publicacao> postsBanco = publicacaoRepository.findByEmpresaId(empresa.getId());
+
+        List<Publicacao> postsParaExcluir = postsBanco.stream()
+                .filter(post -> !idsPostsAtuais.contains(post.getIdReturned()))
+                .collect(Collectors.toList());
+
+        publicacaoRepository.deleteAll(postsParaExcluir);
     }
 }

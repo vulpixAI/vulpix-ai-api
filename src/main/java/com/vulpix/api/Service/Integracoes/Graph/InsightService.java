@@ -99,36 +99,42 @@ public class InsightService {
         PostInsights postInsights = new PostInsights();
         System.out.println("Resposta recebida: " + insightsNode.toPrettyString());
 
-        insightsNode.get("data").forEach(metric -> {
-            String name = metric.path("name").asText();
-            int value = extrairMetricas(metric);
+        JsonNode dataNode = insightsNode.get("data");
+        if (dataNode != null && dataNode.isArray()) {
+            dataNode.forEach(metric -> {
+                String name = metric.path("name").asText();
+                int value = extrairMetricas(metric);
 
-            switch (name) {
-                case "impressions":
-                    postInsights.setImpressions(value);
-                    break;
-                case "saved":
-                    postInsights.setSaves(value);
-                    break;
-                case "likes":
-                    postInsights.setLikes(value);
-                    break;
-                case "comments":
-                    postInsights.setComments(value);
-                    break;
-                case "shares":
-                    postInsights.setShares(value);
-                    break;
-                case "profile_visits":
-                    postInsights.setProfileVisits(value);
-                    break;
-                case "follows":
-                    postInsights.setFollows(value);
-                    break;
-                default:
-                    System.out.println("Métrica desconhecida: " + name);
-            }
-        });
+                switch (name) {
+                    case "impressions":
+                        postInsights.setImpressions(value);
+                        break;
+                    case "saved":
+                        postInsights.setSaves(value);
+                        break;
+                    case "likes":
+                        postInsights.setLikes(value);
+                        break;
+                    case "comments":
+                        postInsights.setComments(value);
+                        break;
+                    case "shares":
+                        postInsights.setShares(value);
+                        break;
+                    case "profile_visits":
+                        postInsights.setProfileVisits(value);
+                        break;
+                    case "follows":
+                        postInsights.setFollows(value);
+                        break;
+                    default:
+                        System.out.println("Métrica desconhecida: " + name);
+                }
+            });
+        } else {
+            System.out.println("O nó 'data' está ausente ou não é um array para o postId: " + postId);
+            return;
+        }
 
         postInsights.setCreatedAt(OffsetDateTime.now());
 
