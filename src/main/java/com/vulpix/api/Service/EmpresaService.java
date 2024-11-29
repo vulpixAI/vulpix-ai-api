@@ -1,5 +1,7 @@
 package com.vulpix.api.Service;
 
+import com.vulpix.api.Dto.Empresa.EmpresaEditDto;
+import com.vulpix.api.Dto.Empresa.EmpresaMapper;
 import com.vulpix.api.Entity.ConfigPrompt;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Repository.ConfigRepository;
@@ -34,6 +36,8 @@ public class EmpresaService {
 
     @Autowired
     private CriativosService criativosService;
+    @Autowired
+    private EmpresaMapper empresaMapper;
 
     public Empresa buscaPorId(UUID id){
         Optional<Empresa> empresaOpt = empresaRepository.findById(id);
@@ -53,35 +57,12 @@ public class EmpresaService {
         return null;
     }
 
-    public Empresa atualizarEmpresa(Empresa empresa, Empresa empresaAtualizada) {
-        if (empresa == null) {
-            return null;
-        }
+    public Empresa atualizarEmpresa(Empresa empresa, EmpresaEditDto empresaAtualizada) {
+        if (empresa == null) return null;
 
-        atualizarDadosEmpresa(empresa, empresaAtualizada);
+        Empresa empresaAtualizadaEntity = empresaMapper.atualizaEmpresa(empresaAtualizada, empresa);
 
         return empresaRepository.save(empresa);
-    }
-
-    private void atualizarDadosEmpresa(Empresa empresaExistente, Empresa empresaAtualizada) {
-        if (empresaAtualizada.getCep() != null && !empresaAtualizada.getCep().isEmpty()) {
-            empresaExistente.setCep(empresaAtualizada.getCep());
-        }
-        if (empresaAtualizada.getLogradouro() != null && !empresaAtualizada.getLogradouro().isEmpty()) {
-            empresaExistente.setLogradouro(empresaAtualizada.getLogradouro());
-        }
-        if (empresaAtualizada.getNumero() != null && !empresaAtualizada.getNumero().isEmpty()) {
-            empresaExistente.setNumero(empresaAtualizada.getNumero());
-        }
-        if (empresaAtualizada.getBairro() != null && !empresaAtualizada.getBairro().isEmpty()) {
-            empresaExistente.setBairro(empresaAtualizada.getBairro());
-        }
-        if (empresaAtualizada.getEstado() != null && !empresaAtualizada.getEstado().isEmpty()) {
-            empresaExistente.setEstado(empresaAtualizada.getEstado());
-        }
-        if (empresaAtualizada.getCidade() != null && !empresaAtualizada.getCidade().isEmpty()) {
-            empresaExistente.setCidade(empresaAtualizada.getCidade());
-        }
     }
 
     public FormularioRequisicaoDto cadastrarFormulario(Empresa empresa, FormularioRequisicaoDto formulario) {
