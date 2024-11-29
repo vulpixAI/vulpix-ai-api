@@ -12,9 +12,9 @@ import java.util.Optional;
 public class EmpresaMapper {
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private static UsuarioRepository usuarioRepository;
 
-    public Empresa atualizaEmpresa(EmpresaEditDto dto, Empresa empresa) {
+    public static Empresa atualizaEmpresa(EmpresaEditDto dto, Empresa empresa) {
         if (dto == null || empresa == null) return null;
 
         if (dto.getNomeFantasia() != null && !dto.getNomeFantasia().isEmpty()) {

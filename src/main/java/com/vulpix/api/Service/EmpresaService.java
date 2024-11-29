@@ -36,8 +36,6 @@ public class EmpresaService {
 
     @Autowired
     private CriativosService criativosService;
-    @Autowired
-    private EmpresaMapper empresaMapper;
 
     public Empresa buscaPorId(UUID id){
         Optional<Empresa> empresaOpt = empresaRepository.findById(id);
@@ -60,7 +58,7 @@ public class EmpresaService {
     public Empresa atualizarEmpresa(Empresa empresa, EmpresaEditDto empresaAtualizada) {
         if (empresa == null) return null;
 
-        Empresa empresaAtualizadaEntity = empresaMapper.atualizaEmpresa(empresaAtualizada, empresa);
+        Empresa empresaAtualizadaEntity = EmpresaMapper.atualizaEmpresa(empresaAtualizada, empresa);
 
         return empresaRepository.save(empresa);
     }
