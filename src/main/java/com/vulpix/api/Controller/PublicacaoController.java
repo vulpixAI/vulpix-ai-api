@@ -312,10 +312,6 @@ public class PublicacaoController {
         String emailUsuario = userDetails.getUsername();
         Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
-        List<GetPublicacaoDto> posts = buscarPosts().getBody();
-        if (posts == null || posts.isEmpty()) {
-            return ResponseEntity.status(204).build();
-        }
         List<GetPublicacaoDto> posts = publicacaoService.buscarPostsSemPaginacao(empresa.getId());
 
         if (posts == null || posts.isEmpty()) return ResponseEntity.status(204).build();
@@ -344,25 +340,7 @@ public class PublicacaoController {
             return ResponseEntity.status(500).build();
         }
     }
-
-    @Operation(summary = "Deletar uma publicação",
-            description = "Deleta uma publicação específica pelo ID.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Publicação deletada com sucesso."),
-            @ApiResponse(responseCode = "404", description = "Publicação não encontrada.",
-                    content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(value = "{\"error\": \"Publicação não encontrada.\"}")))
-    })
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarPublicacao(@PathVariable UUID id) {
-        Optional<Publicacao> publicacao = publicacaoRepository.findById(id);
-        if (publicacao.isPresent()) {
-            publicacaoRepository.deleteById(id);
-            return ResponseEntity.status(204).build();
-        } else {
-            return ResponseEntity.status(404).build();
-        }
-
+    
     @GetMapping("/{id}")
     public ResponseEntity<PublicacaoInsightDto> buscaInsightPorId(@PathVariable String id) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
