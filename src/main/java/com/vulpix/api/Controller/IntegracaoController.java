@@ -140,4 +140,14 @@ public class IntegracaoController {
 
         return integracaoExistente.isPresent();
     }
+
+    @GetMapping("/validar/{access_token}")
+    public boolean validaIntegracao(@PathVariable String access_token) {
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String emailUsuario = userDetails.getUsername();
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
+
+        boolean integracaoValida = integracaoService.validarIntegracao(empresa, access_token);
+        return integracaoValida;
+    }
 }

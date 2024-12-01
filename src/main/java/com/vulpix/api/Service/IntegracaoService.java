@@ -8,11 +8,14 @@ import com.vulpix.api.Repository.IntegracaoRepository;
 import com.vulpix.api.Service.Integracoes.Graph.TokenService;
 import com.vulpix.api.Service.Usuario.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class IntegracaoService {
@@ -24,6 +27,13 @@ public class IntegracaoService {
     private TokenService tokenService;
     @Autowired
     private UsuarioService usuarioService;
+
+    private final RestTemplate restTemplate;
+
+    @Autowired
+    public IntegracaoService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     public Optional<Integracao> getIntegracaoById(UUID id) {
         return integracaoRepository.findById(id);
@@ -86,4 +96,15 @@ public class IntegracaoService {
     }
 
 
+    public boolean validarIntegracao(Empresa empresa, String accessToken) {
+        String url = "https://graph.facebook.com/v17.0/me?access_token=" + accessToken;
+
+        try {
+            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+            return response.getStatusCode() == HttpStatus.OK;
+        } catch (Exception e) {
+            System.out.println("Erro na validação do Access Token: " + e.getMessage());
+            return false;
+        }
+    }
 }
