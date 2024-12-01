@@ -1,5 +1,6 @@
 package com.vulpix.api.Controller;
 
+import com.vulpix.api.Dto.Empresa.EmpresaEditDto;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Service.EmpresaService;
 import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
@@ -75,7 +76,7 @@ public class EmpresaController {
                     @ExampleObject(value = "{ \"message\": \"Erro: Empresa não encontrada.\" }")))
     })
     @PatchMapping
-    public ResponseEntity<Empresa> atualizar(@RequestBody Empresa empresaAtualizada) {
+    public ResponseEntity<EmpresaEditDto> atualizar(@RequestBody EmpresaEditDto empresaAtualizada) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
         Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
@@ -84,7 +85,7 @@ public class EmpresaController {
             return ResponseEntity.status(404).build();
         }
 
-        Empresa empresaAtualizadaSalva = empresaService.atualizarEmpresa(empresa, empresaAtualizada);
+        EmpresaEditDto empresaAtualizadaSalva = empresaService.atualizarEmpresa(empresa, empresaAtualizada);
         return ResponseEntity.status(200).body(empresaAtualizadaSalva);
     }
 

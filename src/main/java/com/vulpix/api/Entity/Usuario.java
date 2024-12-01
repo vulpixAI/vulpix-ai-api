@@ -1,5 +1,6 @@
 package com.vulpix.api.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.vulpix.api.Utils.Enum.StatusUsuario;
 import jakarta.persistence.*;
 import lombok.*;
@@ -39,5 +40,6 @@ public class Usuario {
     private LocalDateTime updated_at;
 
     @OneToOne(mappedBy = "usuario")
+    @JsonBackReference
     private Empresa empresa;
 }
