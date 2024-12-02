@@ -106,4 +106,22 @@ public class UsuarioService {
         usuarioRepository.save(usuario);
         return true;
     }
+
+    public boolean verificarPagamento(UUID idUsuario) {
+        Optional<Usuario> usuarioOpt = usuarioRepository.findById(idUsuario);
+        if (!usuarioOpt.isPresent()) return false;
+        Usuario usuario = usuarioOpt.get();
+        usuario.isPagamentoConcluido();
+        return true;
+    }
+
+    public void atualizarStatusPagamento(UUID idUsuario, boolean statusPagamento) {
+        Optional<Usuario> usuarioOpt = usuarioRepository.findById(idUsuario);
+        if (!usuarioOpt.isPresent()) {
+            throw new ResponseStatusException(404, "Usuário não encontrado", null);
+        }
+        Usuario usuario = usuarioOpt.get();
+        usuario.setPagamentoConcluido(statusPagamento);
+        usuarioRepository.save(usuario);
+    }
 }

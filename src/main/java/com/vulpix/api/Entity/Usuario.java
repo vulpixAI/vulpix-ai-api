@@ -38,7 +38,8 @@ public class Usuario {
     private LocalDateTime created_at;
     @Column(name = "updated_at")
     private LocalDateTime updated_at;
-
+    @Column(name = "pagamento")
+    private boolean pagamentoConcluido;
     @OneToOne(mappedBy = "usuario")
     @JsonBackReference
     private Empresa empresa;
