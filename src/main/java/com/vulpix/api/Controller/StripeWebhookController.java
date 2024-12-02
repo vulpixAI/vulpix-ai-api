@@ -54,7 +54,7 @@ public class StripeWebhookController {
 //                System.out.println("Falha no pagamento");
 //            }
 //            UsuarioService usuarioService = new UsuarioService();
-//            usuarioService.atualizaStatus(empresa, StatusUsuario.CADASTRO_FINALIZADO);
+//            usuarioService.atualizaStatus(empresa, StatusUsuario.AGUARDANDO_FORMULARIO);
 //            return ResponseEntity.status(200).body("Webhook recebido com sucesso");
 //        } catch (SignatureVerificationException e) {
 //            System.out.println("Falha na verificação da assinatura: " + e.getMessage());
@@ -81,7 +81,7 @@ public class StripeWebhookController {
                 System.out.println("Pagamento bem-sucedido para o usuário: " + userId);
             }
 
-            return ResponseEntity.ok("Webhook recebido com sucesso");
+            return ResponseEntity.status(200).body("Webhook recebido com sucesso");
         } catch (Exception e) {
             System.out.println("Erro ao processar o webhook: " + e.getMessage());
             return ResponseEntity.status(500).body("Erro interno");
