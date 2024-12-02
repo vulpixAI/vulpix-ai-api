@@ -6,19 +6,38 @@ import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.net.Webhook;
 import com.stripe.model.Event;
+import com.vulpix.api.Entity.Empresa;
+import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
+import com.vulpix.api.Service.Usuario.UsuarioService;
+import com.vulpix.api.Utils.Enum.StatusUsuario;
+import com.vulpix.api.Utils.Helpers.EmpresaHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/pagamentos")
 public class StripeWebhookController {
     private static final String STRIPE_SECRET = System.getenv("STRIPE_SECRET");
+    @Autowired
+    private UsuarioService usuarioService;
+    @Autowired
+    private EmpresaHelper empresaHelper;
+
+    @Autowired
+    private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
 
 // Descomente o código abaixo para poder rodar em produção:
 
 //    @PostMapping()
 //    public ResponseEntity<String> handleStripeWebhook(@RequestBody String payload,
 //                                                      @RequestHeader("Stripe-Signature") String signature) {
+//
+//        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+//        String emailUsuario = userDetails.getUsername();
+//        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
+//
 //        try {
 //            Event event = Webhook.constructEvent(
 //                    payload, signature, STRIPE_SECRET
@@ -34,7 +53,8 @@ public class StripeWebhookController {
 //            } else if ("payment_intent.payment_failed".equals(event.getType())) {
 //                System.out.println("Falha no pagamento");
 //            }
-//
+//            UsuarioService usuarioService = new UsuarioService();
+//            usuarioService.atualizaStatus(empresa, StatusUsuario.CADASTRO_FINALIZADO);
 //            return ResponseEntity.status(200).body("Webhook recebido com sucesso");
 //        } catch (SignatureVerificationException e) {
 //            System.out.println("Falha na verificação da assinatura: " + e.getMessage());
@@ -47,6 +67,7 @@ public class StripeWebhookController {
 
 
 // Descomente o código abaixo para poder rodar em desenvolvimento:
+
     @PostMapping
     public ResponseEntity<String> handleStripeWebhook(@RequestBody String payload) {
         try {
