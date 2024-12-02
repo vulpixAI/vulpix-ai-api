@@ -1,5 +1,8 @@
 package com.vulpix.api.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,6 +23,7 @@ public class PostInsights {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_publicacao", nullable = false)
+    @JsonBackReference
     private Publicacao publicacao;
 
     @Column(name = "likes", nullable = false)
@@ -45,4 +49,9 @@ public class PostInsights {
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
+
+    @JsonProperty("fk_publicacao")
+    public UUID getFkPublicacao() {
+        return publicacao != null ? publicacao.getId() : null;
+    }
 }
