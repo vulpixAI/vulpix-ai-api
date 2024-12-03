@@ -107,6 +107,20 @@ public class UsuarioService {
         return true;
     }
 
+    public boolean verificarSenhaAtual(String senhaHash, String senhaAtual) {
+        return passwordEncoder.matches(senhaAtual, senhaHash);
+    }
+
+    public void atualizarSenha(UUID id, String novaSenha) {
+        Optional<Usuario> usuarioOpt = usuarioRepository.findById(id);
+        if (usuarioOpt.isPresent()) {
+            Usuario usuario = usuarioOpt.get();
+            usuario.setSenha(passwordEncoder.encode(novaSenha));
+            usuarioRepository.save(usuario);
+        }
+    }
+
+
     public boolean verificarPagamento(UUID idUsuario) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findById(idUsuario);
         if (!usuarioOpt.isPresent()) return false;
