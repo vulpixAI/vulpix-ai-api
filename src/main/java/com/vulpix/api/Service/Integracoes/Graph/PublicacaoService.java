@@ -66,7 +66,7 @@ public class PublicacaoService {
     public Long criarContainer(Integracao integracao, Publicacao post) {
         String url = Graph.BASE_URL + integracao.getIgUserId() + "/media";
 
-        tokenService.renovarAccessToken(integracao);
+
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
