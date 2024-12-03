@@ -26,7 +26,8 @@ public class DashboardController {
     private EmpresaHelper empresaHelper;
     @Autowired
     private DashboardService dashboardService;
-    @GetMapping
+    
+    @GetMapping("/grafico-linha")
     public ResponseEntity<List<PostInsights>> buscaUltimaMetricaPost() {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
