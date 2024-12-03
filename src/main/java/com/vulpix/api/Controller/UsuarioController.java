@@ -3,6 +3,7 @@ package com.vulpix.api.Controller;
 import com.vulpix.api.Dto.CadastroInicial.CadastroRequisicaoDto;
 import com.vulpix.api.Dto.CadastroInicial.CadastroRequisicaoMapper;
 import com.vulpix.api.Dto.CadastroInicial.CadastroRetornoDto;
+import com.vulpix.api.Dto.Usuario.AtualizarSenhaDto;
 import com.vulpix.api.Dto.Usuario.UsuarioEmpresaDto;
 import com.vulpix.api.Dto.Usuario.UsuarioEmpresaMapper;
 import com.vulpix.api.Entity.Empresa;
@@ -155,6 +156,50 @@ public class UsuarioController {
         } else {
             return ResponseEntity.status(404).build();
         }
+    }
+
+
+    @Operation(
+            summary = "Atualizar senha do usuário",
+            description = "Atualiza a senha de um usuário autenticado, verificando a senha atual antes de aplicar a nova."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Senha atualizada com sucesso."),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Senha atual fornecida está incorreta.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"message\": \"Erro: Senha atual incorreta.\" }"))),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Usuário não encontrado.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"message\": \"Erro: Usuário não encontrado.\" }")))
+    })
+    @PatchMapping("/senha")
+    public ResponseEntity<Void> atualizarSenha(@RequestBody AtualizarSenhaDto atualizarSenhaDto) {
+        String senhaAtual = atualizarSenhaDto.getSenhaAtual();
+        String novaSenha = atualizarSenhaDto.getNovaSenha();
+
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String emailUsuario = userDetails.getUsername();
+
+        Optional<Usuario> usuarioOpt = usuarioService.buscarUsuarioPorEmail(emailUsuario);
+
+        if (usuarioOpt.isPresent()) {
+            Usuario usuario = usuarioOpt.get();
+            boolean senhaCorreta = usuarioService.verificarSenhaAtual(usuario.getSenha(), senhaAtual);
+            if (!senhaCorreta) {
+                return ResponseEntity.status(401).build();
+            }
+            usuarioService.atualizarSenha(usuario.getId(), novaSenha);
+            return ResponseEntity.status(204).build();
+        }
+        return ResponseEntity.status(404).build();
     }
 
     @Operation(summary = "Remover usuário", description = "Remove um usuário com base no ID fornecido.")
