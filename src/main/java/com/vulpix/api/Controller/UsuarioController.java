@@ -201,7 +201,7 @@ public class UsuarioController {
         }
         return ResponseEntity.status(404).build();
     }
-    
+
     @Operation(summary = "Remover usuário", description = "Remove um usuário com base no ID fornecido.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Usuário removido com sucesso."),
