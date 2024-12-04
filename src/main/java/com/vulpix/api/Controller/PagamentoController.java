@@ -59,81 +59,52 @@ public class PagamentoController {
             Event event = Webhook.constructEvent(payload, sigHeader, endpointSecret);
             String status = null;
             String empresaNome = null;
+
             switch (event.getType()) {
-                case "checkout.session.completed":
-                    Session session = (Session) event.getData().getObject();
-                    System.out.println("Pagamento completado para o cliente " + session.getCustomer());
-
-                    Map<String, String> metadata = session.getMetadata();
-
-                    String empresaIdString = metadata.get("empresa_id");
-
-                    if (empresaIdString != null) {
-                        UUID empresaId = UUID.fromString(empresaIdString);
-                        Empresa empresa = empresaService.buscaPorId(empresaId);
-                        if (empresa != null) {
-                            System.out.println("Pagamento efetuado para a empresa: " + empresa.getNomeFantasia());
-                            usuarioService.atualizaStatus(empresa, StatusUsuario.AGUARDANDO_FORMULARIO);
-                            empresaNome = empresa.getNomeFantasia();
-                            status = "sucesso";
-                        } else {
-                            System.out.println("Empresa não encontrada com o ID: " + empresaId);
-                        }
-                    } else {
-                        System.out.println("Metadata 'empresa_id' não encontrado.");
-                    }
-
+                case "checkout.session.completed", "payment_intent.succeeded", "invoice.payment_succeeded":
+                    System.out.println("Evento: " + event.getType());
+                    status = processarEvento(event, StatusUsuario.AGUARDANDO_FORMULARIO);
                     break;
-                case "payment_intent.payment_failed":
-                    Session session_failed = (Session) event.getData().getObject();
-
-                    Map<String, String> metadata_fail = session_failed.getMetadata();
-
-                    String empresaIdStringFail = metadata_fail.get("empresa_id");
-
-                    if (empresaIdStringFail != null) {
-                        UUID empresaId = UUID.fromString(empresaIdStringFail);
-                        Empresa empresa = empresaService.buscaPorId(empresaId);
-                        if (empresa != null) {
-                            System.out.println("Pagamento falhou para a empresa: " + empresa.getNomeFantasia());
-                            empresaNome = empresa.getNomeFantasia();
-                            status = "falhou";
-                        } else {
-                            System.out.println("Empresa não encontrada com o ID: " + empresaId);
-                        }
-                    } else {
-                        System.out.println("Metadata 'empresa_id' não encontrado.");
-                    }
-                    break;
-                case "invoice.payment_failed":
-                    Session session_failed_invoice = (Session) event.getData().getObject();
-
-                    Map<String, String> metadata_fail_invoice = session_failed_invoice.getMetadata();
-
-                    String empresaIdStringFailInvoice = metadata_fail_invoice.get("empresa_id");
-
-                    if (empresaIdStringFailInvoice != null) {
-                        UUID empresaId = UUID.fromString(empresaIdStringFailInvoice);
-                        Empresa empresa = empresaService.buscaPorId(empresaId);
-                        if (empresa != null) {
-                            System.out.println("Pagamento falhou para a empresa: " + empresa.getNomeFantasia());
-                            empresaNome = empresa.getNomeFantasia();
-                            status = "falhou";
-                        } else {
-                            System.out.println("Empresa não encontrada com o ID: " + empresaId);
-                        }
-                    } else {
-                        System.out.println("Metadata 'empresa_id' não encontrado.");
-                    }
+                case "payment_intent.payment_failed", "invoice.payment_failed", "charge.failed":
+                    System.out.println("Evento: " + event.getType());
+                    status = processarEvento(event, null);
                     break;
                 default:
-                    System.out.println("Evento não tratado: " + event.getType());
                     break;
             }
-            messagingTemplate.convertAndSend("/topic/status-payment", PagamentoStatusDto.builder().status(status).empresaNome(empresaNome).build());
+
+            messagingTemplate.convertAndSend("/topic/status-payment",
+                    PagamentoStatusDto.builder().status(status).empresaNome(empresaNome).build());
+
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+    }
+    private String processarEvento(Event event, StatusUsuario novoStatus) {
+        Session session = (Session) event.getData().getObject();
+        Map<String, String> metadata = session.getMetadata();
+        String empresaIdString = metadata.get("empresa_id");
+        if (empresaIdString != null) {
+            UUID empresaId = UUID.fromString(empresaIdString);
+            Empresa empresa = empresaService.buscaPorId(empresaId);
+
+            if (empresa != null) {
+                String empresaNome = empresa.getNomeFantasia();
+                System.out.println("Evento processado para a empresa: " + empresaNome);
+
+                if (novoStatus != null) {
+                    usuarioService.atualizaStatus(empresa, novoStatus);
+                }
+
+                return event.getType().equals("checkout.session.completed") ? "sucesso" : "falhou";
+            } else {
+                System.out.println("Empresa não encontrada com o ID: " + empresaId);
+            }
+        } else {
+            System.out.println("Metadata 'empresa_id' não encontrado.");
+        }
+
+        return "falhou";
     }
 }
