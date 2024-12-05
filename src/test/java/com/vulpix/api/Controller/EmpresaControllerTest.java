@@ -1,10 +1,12 @@
 package com.vulpix.api.Controller;
 
+import com.vulpix.api.Dto.Empresa.EmpresaEditDto;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Service.EmpresaService;
 import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Dto.Empresa.FormularioRequisicaoDto;
 import com.vulpix.api.Utils.Helpers.EmpresaHelper;
+import org.hibernate.validator.constraints.ModCheck;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
 @DisplayName("Teste da Clase EmpresaController")
 class EmpresaControllerTest {
 
@@ -30,9 +33,12 @@ class EmpresaControllerTest {
 
     @Mock
     private EmpresaHelper empresaHelper;
-
+    @Mock
     private Empresa empresaMock;
+    @Mock
     private FormularioRequisicaoDto formularioMock;
+    @Mock
+    private EmpresaEditDto empresaEditDto;
 
     @BeforeEach
     void setUp() {
@@ -55,14 +61,13 @@ class EmpresaControllerTest {
 
         Empresa empresaAtualizada = new Empresa();
         empresaAtualizada.setRazaoSocial("Empresa Atualizada");
-        when(empresaService.atualizarEmpresa(empresaMock, empresaAtualizada)).thenReturn(empresaAtualizada);
+        when(empresaService.atualizarEmpresa(empresaMock,empresaEditDto)).thenReturn(empresaEditDto);
 
-        ResponseEntity<Empresa> response = empresaController.atualizar(empresaAtualizada);
+        ResponseEntity<EmpresaEditDto> response = empresaController.atualizar(empresaEditDto);
 
         assertEquals(200, response.getStatusCodeValue());
         assertNotNull(response.getBody());
-        assertEquals("Empresa Atualizada", response.getBody().getRazaoSocial());
-        verify(empresaService, times(1)).atualizarEmpresa(empresaMock, empresaAtualizada);
+        verify(empresaService, times(1)).atualizarEmpresa(empresaMock, empresaEditDto);
     }
 
     @Test
@@ -74,7 +79,7 @@ class EmpresaControllerTest {
 
         when(empresaHelper.buscarEmpresaPeloUsuario("usuario@mock.com")).thenReturn(null);
 
-        ResponseEntity<Empresa> response = empresaController.atualizar(empresaMock);
+        ResponseEntity<EmpresaEditDto> response = empresaController.atualizar(empresaEditDto);
 
         assertEquals(404, response.getStatusCodeValue());
         assertNull(response.getBody());

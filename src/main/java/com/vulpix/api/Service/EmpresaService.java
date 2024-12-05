@@ -1,5 +1,4 @@
 package com.vulpix.api.Service;
-
 import com.vulpix.api.Dto.Empresa.EmpresaEditDto;
 import com.vulpix.api.Dto.Empresa.EmpresaMapper;
 import com.vulpix.api.Entity.ConfigPrompt;
@@ -14,7 +13,6 @@ import com.vulpix.api.Utils.Enum.StatusUsuario;
 import com.vulpix.api.Utils.JsonConverter;
 import com.vulpix.api.Dto.Agent.PublicacaoGeradaRetorno;
 import com.vulpix.api.Dto.Empresa.FormularioRequisicaoDto;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +36,8 @@ public class EmpresaService {
     private CriativosService criativosService;
     @Autowired
     private EmpresaMapper empresaMapper;
+    @Autowired
+    private EmpresaEditDto empresaEditDto;
 
     public Empresa buscaPorId(UUID id){
         Optional<Empresa> empresaOpt = empresaRepository.findById(id);
