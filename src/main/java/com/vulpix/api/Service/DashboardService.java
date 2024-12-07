@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,19 +28,43 @@ public class DashboardService {
     public List<PostInsightsDto> buscaMetricasPorDia(Empresa empresaId, LocalDate startDate, LocalDate endDate) {
         List<Object[]> results = dashboardRepository.findLatestPostInsightsByEmpresaAndDate(empresaId.getId(), startDate, endDate);
 
+        String[] diasDaSemana = {"Seg", "Ter", "Quar", "Qui", "Sex", "Sab", "Dom"};
+
         List<PostInsightsDto> insightsDTOs = new ArrayList<>();
         for (Object[] result : results) {
+            int weekDay = ((BigDecimal) result[1]).intValue();
+
+            if (weekDay < 1 || weekDay > 7) {
+                System.err.println("Valor inesperado de weekDay: " + weekDay);
+                continue;
+            }
+
+            if (weekDay == 7) {
+                weekDay = 0;
+            } else {
+                weekDay -= 1;
+            }
+
             PostInsightsDto dto = PostInsightsDto.builder()
-                    .day(((java.sql.Timestamp) result[0]).toLocalDateTime().toLocalDate())
-                    .weekDay(((BigDecimal) result[1]).intValue())
-                    .totalLikes(result[2] instanceof Integer ? ((Integer) result[2]).longValue() : ((BigDecimal) result[2]).longValue())
-                    .totalViews(result[3] instanceof Integer ? ((Integer) result[3]).longValue() : ((BigDecimal) result[3]).longValue())
-                    .totalShares(result[4] instanceof Integer ? ((Integer) result[4]).longValue() : ((BigDecimal) result[4]).longValue())
-                    .totalSaves(result[5] instanceof Integer ? ((Integer) result[5]).longValue() : ((BigDecimal) result[5]).longValue())
-                    .totalComments(result[6] instanceof Integer ? ((Integer) result[6]).longValue() : ((BigDecimal) result[6]).longValue())  
+                    .day(((Timestamp) result[0]).toLocalDateTime().toLocalDate())
+                    .name(diasDaSemana[weekDay])
+                    .Likes(convertToLong(result[2]))
+                    .Views(convertToLong(result[3]))
+                    .Shares(convertToLong(result[4]))
+                    .Saves(convertToLong(result[5]))
+                    .Comments(convertToLong(result[6]))
                     .build();
             insightsDTOs.add(dto);
         }
         return insightsDTOs;
+    }
+
+    private Long convertToLong(Object value) {
+        if (value instanceof Integer) {
+            return ((Integer) value).longValue();
+        } else if (value instanceof BigDecimal) {
+            return ((BigDecimal) value).longValue();
+        }
+        return 0L;
     }
 }

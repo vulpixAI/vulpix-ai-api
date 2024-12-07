@@ -13,10 +13,10 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class PostInsightsDto {
     private LocalDate day;
-    private Integer weekDay;
-    private Long totalLikes;
-    private Long totalViews;
-    private Long totalShares;
-    private Long totalSaves;
-    private Long totalComments;
+    private String name;
+    private Long Likes;
+    private Long Views;
+    private Long Shares;
+    private Long Saves;
+    private Long Comments;
 }
