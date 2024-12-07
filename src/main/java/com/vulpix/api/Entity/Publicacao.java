@@ -1,5 +1,6 @@
 package com.vulpix.api.Entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vulpix.api.Utils.Enum.StatusPublicacao;
 import jakarta.persistence.*;
@@ -54,5 +55,6 @@ public class Publicacao {
     private Empresa empresa;
 
     @OneToMany(mappedBy = "publicacao", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<PostInsights> insights = new ArrayList<>();
 }
