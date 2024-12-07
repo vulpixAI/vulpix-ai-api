@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -62,4 +63,71 @@ public interface DashboardRepository extends JpaRepository<PostInsights, UUID> {
             @Param("start_date") LocalDate startDate,
             @Param("end_date") LocalDate endDate
     );
+
+    @Query(value = """
+        SELECT
+            SUM(pi.impressions) AS total_visualizacoes_perfil
+        FROM
+            post_insights pi
+        JOIN
+            publicacao p ON pi.fk_publicacao = p.id_publicacao
+        WHERE
+            pi.created_at = (
+                SELECT MAX(created_at)
+                FROM post_insights
+                WHERE fk_publicacao = p.id_publicacao
+            )
+        AND
+            p.fk_empresa = :empresa_id
+        """, nativeQuery = true)
+    Integer findImpressoesTotais(
+            @Param("empresa_id") UUID empresaId
+    );
+
+    @Query(value = """
+        SELECT
+            pi.impressions AS alcance_ultima_postagem
+        FROM
+            post_insights pi
+        JOIN
+            publicacao p ON pi.fk_publicacao = p.id_publicacao
+        WHERE
+            p.id_publicacao = (
+                SELECT p2.id_publicacao
+                FROM publicacao p2
+                WHERE p2.fk_empresa = :empresa_id
+                ORDER BY p2.created_at DESC
+                LIMIT 1
+            )
+            AND pi.created_at = (
+                SELECT MAX(created_at)
+                FROM post_insights
+                WHERE fk_publicacao = p.id_publicacao
+            )
+            AND p.fk_empresa = :empresa_id
+        """, nativeQuery = true)
+    Integer findAlcanceTotalUltimoPost(
+            @Param("empresa_id") UUID empresaId
+    );
+
+    @Query(value = """
+            SELECT
+                p.fk_empresa,
+                ROUND(SUM(COALESCE(pi.shares, 0)) * 100.0 / NULLIF(SUM(pi.impressions), 0), 2) AS taxa_compartilhamento,
+                ROUND(SUM(COALESCE(pi.saves, 0)) * 100.0 / NULLIF(SUM(pi.impressions), 0), 2) AS taxa_salvamento
+            FROM
+                post_insights pi
+            JOIN
+                publicacao p ON pi.fk_publicacao = p.id_publicacao
+            WHERE
+                p.fk_empresa = :empresa_id
+                AND pi.created_at = (
+                    SELECT MAX(created_at)
+                    FROM post_insights
+                    WHERE fk_publicacao = p.id_publicacao
+                )
+            GROUP BY
+                p.fk_empresa
+                """, nativeQuery = true)
+    List<Object[]> findTaxas(@Param("empresa_id") UUID empresaId);
 }

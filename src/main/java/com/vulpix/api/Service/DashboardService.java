@@ -1,5 +1,6 @@
 package com.vulpix.api.Service;
 
+import com.vulpix.api.Dto.Dashboard.DashKpiDto;
 import com.vulpix.api.Dto.Dashboard.PostInsightsDto;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Entity.PostInsights;
@@ -12,6 +13,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class DashboardService {
@@ -66,5 +68,28 @@ public class DashboardService {
             return ((BigDecimal) value).longValue();
         }
         return 0L;
+    }
+
+    public DashKpiDto buscaKpisPorPeriodo(Empresa empresa) {
+        UUID empresaId = empresa.getId();
+
+        // Execute the combined query
+        List<Object[]> results = dashboardRepository.findTaxas(empresaId);
+
+        BigDecimal taxaSalvo = null;
+        BigDecimal taxaShares = null;
+
+        if (!results.isEmpty()) {
+            Object[] row = results.get(0);
+            taxaShares = (BigDecimal) row[1];
+            taxaSalvo = (BigDecimal) row[2];
+        }
+
+        return DashKpiDto.builder()
+                .taxaSaves(taxaSalvo)
+                .taxaCompartilhamento(taxaShares)
+                .visualizacoesTotais(dashboardRepository.findImpressoesTotais(empresaId))
+                .alcanceUltimoPost(dashboardRepository.findAlcanceTotalUltimoPost(empresaId))
+                .build();
     }
 }

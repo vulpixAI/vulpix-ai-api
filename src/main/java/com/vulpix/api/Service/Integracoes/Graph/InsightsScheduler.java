@@ -28,7 +28,7 @@ public class InsightsScheduler {
     @Autowired
     private EmpresaHelper empresaHelper;
 
-    @Scheduled(cron = "0 */5 * * * *")
+    @Scheduled(cron = "0 0 * * * *")
     public void buscarInsights() {
         List<Integracao> integracoes = integracaoRepository.findByStatusAndTipo(true, TipoIntegracao.INSTAGRAM);
 

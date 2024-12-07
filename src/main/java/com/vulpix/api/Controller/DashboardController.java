@@ -1,6 +1,7 @@
 package com.vulpix.api.Controller;
 
 import com.vulpix.api.Dto.Criativo.CriativoRequisicaoDto;
+import com.vulpix.api.Dto.Dashboard.DashKpiDto;
 import com.vulpix.api.Dto.Dashboard.PostInsightsDto;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Entity.PostInsights;
@@ -48,6 +49,19 @@ public class DashboardController {
         if (empresa == null) return ResponseEntity.status(404).build();
 
         List<PostInsightsDto> response = dashboardService.buscaMetricasPorDia(empresa, data_inicio, data_fim);
+        if (response == null) return ResponseEntity.status(204).build();
+        return ResponseEntity.status(200).body(response);
+    }
+
+    @GetMapping("/kpís")
+    public ResponseEntity<DashKpiDto> buscaDadosKpi() {
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String emailUsuario = userDetails.getUsername();
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
+
+        if (empresa == null) return ResponseEntity.status(404).build();
+
+        DashKpiDto response = dashboardService.buscaKpisPorPeriodo(empresa);
         if (response == null) return ResponseEntity.status(204).build();
         return ResponseEntity.status(200).body(response);
     }
