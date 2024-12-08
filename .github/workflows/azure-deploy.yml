@@ -25,6 +25,6 @@ jobs:
     - name: Fazer deploy no Azure App Service
       uses: azure/webapps-deploy@v2
       with:
-        app-name: <NOME_DO_SEU_APP>
+        app-name: <vulpixai>
         slot-name: 'production'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
