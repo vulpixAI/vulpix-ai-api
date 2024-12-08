@@ -3,6 +3,8 @@ package com.vulpix.api.Service;
 
 import com.vulpix.api.Entity.Integracao;
 import com.vulpix.api.Repository.IntegracaoRepository;
+import com.vulpix.api.Service.Integracoes.Graph.PublicacaoService;
+import com.vulpix.api.Service.Integracoes.Graph.TokenService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +28,8 @@ class IntegracaoServiceTest {
 
     @InjectMocks
     private IntegracaoService integracaoService;
+    @Mock
+    private TokenService tokenService;
 
     @Test
     @DisplayName("Dado que exista uma integracao com o id informado, quando buscar a integracao pelo id, então deve retornar a integracao")
@@ -127,24 +131,57 @@ class IntegracaoServiceTest {
 
     @Test
     @DisplayName("Dado que exista uma integracao com o id informado, quando atualizar a integracao, então deve retornar a integracao atualizada")
-    void atualizaIntegracao_deveAtualizarComSucesso() {
+    void testAtualizaIntegracao() {
         UUID id = UUID.randomUUID();
-        Integracao integracaoExistente = new Integracao();
-        integracaoExistente.setId(id);
-        integracaoExistente.setAccessToken("oldToken");
+        Integracao existente = new Integracao();
+        existente.setAccessToken("oldAccessToken");
+        existente.setClientId("oldClientId");
+        existente.setClientSecret("oldClientSecret");
+        existente.setIgUserId("oldIgUserId");
 
-        Integracao integracaoAtualizada = new Integracao();
-        integracaoAtualizada.setAccessToken("newToken");
+        Integracao atualizada = new Integracao();
+        atualizada.setAccessToken("newAccessToken");
+        atualizada.setClientId("newClientId");
+        atualizada.setClientSecret("newClientSecret");
+        atualizada.setIgUserId("newIgUserId");
 
-        when(integracaoRepository.findById(id)).thenReturn(Optional.of(integracaoExistente));
-        when(integracaoRepository.save(any(Integracao.class))).thenReturn(integracaoExistente);
+        Integracao renovada = new Integracao();
+        renovada.setAccessToken("renewedAccessToken");
+        renovada.setClientId("newClientId");
+        renovada.setClientSecret("newClientSecret");
+        renovada.setIgUserId("newIgUserId");
 
-        Integracao resultado = integracaoService.atualizaIntegracao(id, integracaoAtualizada);
+        when(integracaoRepository.findById(id)).thenReturn(Optional.of(existente));
+        when(tokenService.renovarAccessToken(any(Integracao.class))).thenReturn(renovada);
+        when(integracaoRepository.save(any(Integracao.class))).thenReturn(renovada);
 
-        assertNotNull(resultado);
-        assertEquals("newToken", resultado.getAccessToken());
+        Integracao result = integracaoService.atualizaIntegracao(id, atualizada);
+
+        assertNotNull(result);
+        assertEquals("renewedAccessToken", result.getAccessToken());
+        assertEquals("newClientId", result.getClientId());
+        assertEquals("newClientSecret", result.getClientSecret());
+        assertEquals("newIgUserId", result.getIgUserId());
+
         verify(integracaoRepository, times(1)).findById(id);
-        verify(integracaoRepository, times(1)).save(integracaoExistente);
+        verify(tokenService, times(1)).renovarAccessToken(any(Integracao.class));
+        verify(integracaoRepository, times(1)).save(renovada);
+    }
+
+    @Test
+    @DisplayName("Dado que não exista uma integracao com o id informado, quando atualizar a integracao, então deve retornar nulo")
+    void testAtualizaIntegracao_NotFound() {
+        UUID id = UUID.randomUUID();
+        Integracao atualizada = new Integracao();
+
+        when(integracaoRepository.findById(id)).thenReturn(Optional.empty());
+
+        Integracao result = integracaoService.atualizaIntegracao(id, atualizada);
+        assertNull(result);
+
+        verify(integracaoRepository, times(1)).findById(id);
+        verifyNoInteractions(tokenService);
+        verify(integracaoRepository, times(0)).save(any());
     }
 
     @Test
