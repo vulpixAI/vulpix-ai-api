@@ -314,6 +314,7 @@ public class PublicacaoController {
 
         List<GetPublicacaoDto> posts = publicacaoService.buscarPostsSemPaginacao(empresa.getId());
 
+
         if (posts == null || posts.isEmpty()) {
             return ResponseEntity.status(204).build();
         }
@@ -354,6 +355,33 @@ public class PublicacaoController {
             return ResponseEntity.status(500).build();
         }
     }
+
+    @Operation(
+            summary = "Busca um insight por ID",
+            description = "Retorna as informações detalhadas de um insight específico associado à empresa autenticada.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Insight encontrado com sucesso.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(
+                                            name = "Exemplo de resposta",
+                                            value = """
+                                                        {
+                                                            "id": "123456",
+                                                            "titulo": "Título do Insight",
+                                                            "descricao": "Descrição detalhada do insight.",
+                                                            "dataCriacao": "2024-11-01T10:00:00",
+                                                            "empresaId": "e6a8b7c9-4d2f-4f1a-9cde-123456789abc"
+                                                        }
+                                                    """
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Empresa ou insight não encontrado.")
+            }
+    )
 
     @GetMapping("/{id}")
     public ResponseEntity<PublicacaoInsightDto> buscaInsightPorId(@PathVariable String id) {
