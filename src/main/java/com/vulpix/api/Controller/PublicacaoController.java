@@ -314,33 +314,47 @@ public class PublicacaoController {
 
         List<GetPublicacaoDto> posts = publicacaoService.buscarPostsSemPaginacao(empresa.getId());
 
-        if (posts == null || posts.isEmpty()) return ResponseEntity.status(204).build();
-      
+        if (posts == null || posts.isEmpty()) {
+            return ResponseEntity.status(204).build();
+        }
+
+        Queue<GetPublicacaoDto> filaPosts = new LinkedList<>(posts);
+
+        Stack<String> pilhaLinhas = new Stack<>();
+        pilhaLinhas.push("ID,Legenda,Tipo Mídia,URL Mídia,Data Publicação,Likes\n");
+
+        while (!filaPosts.isEmpty()) {
+            GetPublicacaoDto post = filaPosts.poll();
+            String linha = String.format("%s,%s,%s,%s,%s,%d\n",
+                    post.getId(),
+                    post.getLegenda(),
+                    post.getTipoMidia(),
+                    post.getUrlMidia(),
+                    post.getDataPublicacao() != null ? post.getDataPublicacao().toString() : "",
+                    post.getLikeCount() != null ? post.getLikeCount() : 0);
+            pilhaLinhas.push(linha);
+        }
+
         String arquivo = "publicacao.csv";
         try (OutputStream file = new FileOutputStream(arquivo);
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(file))) {
-            writer.write("ID,Legenda,Tipo Mídia,URL Mídia,Data Publicação,Likes\n");
-            writer.newLine();
-            for (GetPublicacaoDto post : posts) {
-                writer.write(String.format("%s,%s,%s,%s,%s,%d\n",
-                        post.getId(),
-                        post.getLegenda(),
-                        post.getTipoMidia(),
-                        post.getUrlMidia(),
-                        post.getDataPublicacao() != null ? post.getDataPublicacao().toString() : "",
-                        post.getLikeCount() != null ? post.getLikeCount() : 0));
+
+            while (!pilhaLinhas.isEmpty()) {
+                writer.write(pilhaLinhas.pop());
             }
+
             InputStreamResource resource = new InputStreamResource(new FileInputStream(arquivo));
             return ResponseEntity.status(200)
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + arquivo)
                     .contentType(MediaType.parseMediaType("text/csv"))
                     .body(resource);
+
         } catch (IOException e) {
             System.err.println("Erro ao exportar os dados: " + e.getMessage());
             return ResponseEntity.status(500).build();
         }
     }
-    
+
     @GetMapping("/{id}")
     public ResponseEntity<PublicacaoInsightDto> buscaInsightPorId(@PathVariable String id) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
