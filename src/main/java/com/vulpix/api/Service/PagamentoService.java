@@ -17,7 +17,7 @@ public class PagamentoService {
         PaymentLinkCreateParams params = PaymentLinkCreateParams.builder()
                 .addLineItem(
                         PaymentLinkCreateParams.LineItem.builder()
-                                .setPrice("price_1QTlGxCv4ZKfs9w7Csk0eHJt")
+                                .setPrice("price_1QTxq9Cv4ZKfs9w7yrImNc8J")
                                 .setQuantity(1L)
                                 .build())
                 .putMetadata("empresa_id", empresa.getId().toString())
