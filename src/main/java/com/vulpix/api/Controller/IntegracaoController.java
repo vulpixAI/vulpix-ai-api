@@ -140,4 +140,16 @@ public class IntegracaoController {
 
         return integracaoExistente.isPresent();
     }
+
+    @GetMapping()
+    public ResponseEntity<Integracao> retornaIntegracao() {
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String emailUsuario = userDetails.getUsername();
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
+
+        Integracao retorno = integracaoService.retornaIntegracao(empresa);
+
+        if (retorno != null) return ResponseEntity.status(200).body(retorno);
+        return ResponseEntity.status(404).build();
+    }
 }
