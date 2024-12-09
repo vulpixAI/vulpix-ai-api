@@ -5,14 +5,17 @@ import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
 import com.vulpix.api.Dto.Pagamento.PagamentoStatusDto;
 import com.vulpix.api.Entity.Empresa;
-import com.vulpix.api.Repository.EmpresaRepository;
 import com.vulpix.api.Service.EmpresaService;
 import com.vulpix.api.Service.PagamentoService;
 import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Service.Usuario.UsuarioService;
 import com.vulpix.api.Utils.Enum.StatusUsuario;
 import com.vulpix.api.Utils.Helpers.EmpresaHelper;
-import org.apache.coyote.Response;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -22,11 +25,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/pagamentos")
+@Tag(name = "Pagamento", description = " Controller para gerenciamento e processamento de pagamentos.")
 public class PagamentoController {
     @Autowired
     UsuarioAutenticadoUtil usuarioAutenticadoUtil;
@@ -40,6 +43,29 @@ public class PagamentoController {
     UsuarioService usuarioService;
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
+
+    @Operation(
+            summary = "Cria um link de pagamento",
+            description = "Gera um link de pagamento para a empresa autenticada. Retorna a URL do pagamento.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Link de pagamento gerado com sucesso.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(
+                                            name = "Exemplo de resposta",
+                                            value = """
+                                                        {
+                                                            "url": "https://checkout.stripe.com/pay/cs_test_ABC123XYZ"
+                                                        }
+                                                    """
+                                    )
+                            )
+                    ),
+                    @ApiResponse(responseCode = "204", description = "Empresa não encontrada.")
+            }
+    )
     @PostMapping
     public ResponseEntity<String> pagamento() throws Exception {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
@@ -51,8 +77,18 @@ public class PagamentoController {
         String url = pagamentoService.criarPaymentLink(empresa);
         return ResponseEntity.status(200).body(url);
     }
+
     @Value("${stripe.chave-webhook}")
     private String endpointSecret;
+
+    @Operation(
+            summary = "Processa eventos do webhook Stripe",
+            description = "Recebe eventos do webhook Stripe e atualiza o status dos pagamentos com base no evento recebido.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Evento processado com sucesso."),
+                    @ApiResponse(responseCode = "400", description = "Erro ao processar o evento.")
+            }
+    )
     @PostMapping("/webhook")
     public ResponseEntity<String> handleWebhook(@RequestBody String payload, @RequestHeader("Stripe-Signature") String sigHeader) {
         try {
@@ -81,6 +117,12 @@ public class PagamentoController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
+
+    @Operation(
+            summary = "Processa evento de pagamento",
+            description = "Lógica interna para processar eventos recebidos do webhook Stripe. Atualiza o status da empresa conforme o evento.",
+            hidden = true
+    )
     private String processarEvento(Event event, StatusUsuario novoStatus) {
         Session session = (Session) event.getData().getObject();
         Map<String, String> metadata = session.getMetadata();
