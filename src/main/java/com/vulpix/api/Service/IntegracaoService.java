@@ -80,5 +80,10 @@ public class IntegracaoService {
         return integracaoRepository.save(integracaoRenovada);
     }
 
+    public Integracao retornaIntegracao(Empresa empresa) {
+        Optional<Integracao> integracaoExistente = integracaoRepository.findIntegracaoByEmpresaId(empresa.getId());
+
+        return integracaoExistente.orElse(null);
+    }
 
 }
