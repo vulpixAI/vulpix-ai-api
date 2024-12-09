@@ -215,9 +215,9 @@ public class PublicacaoController {
             @ApiResponse(responseCode = "200", description = "Soma total de likes retornada com sucesso.",
                     content = @Content(mediaType = "application/json",
                             examples = {
-                                    @ExampleObject(value = "150"), // Exemplo de soma total
-                                    @ExampleObject(value = "200"), // Outro exemplo
-                                    @ExampleObject(value = "300"), // E mais exemplos
+                                    @ExampleObject(value = "150"),
+                                    @ExampleObject(value = "200"),
+                                    @ExampleObject(value = "300"),
                                     @ExampleObject(value = "50"),
                                     @ExampleObject(value = "75"),
                                     @ExampleObject(value = "100")

@@ -17,4 +17,3 @@ public class Plano {
     private String nome;
     private Double preco;
 }
-
