@@ -10,6 +10,7 @@ import com.vulpix.api.Service.Usuario.Autenticacao.Dto.UsuarioTokenDto;
 import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Utils.Enum.StatusUsuario;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -85,7 +86,10 @@ public class UsuarioService {
     }
 
     public boolean verificarSenhaAtual(String senhaHash, String senhaAtual) {
-        return passwordEncoder.matches(senhaAtual, senhaHash);
+        Boolean isValidPassword = passwordEncoder.matches(senhaAtual, senhaHash);
+        if (!isValidPassword)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "A senha informada está incorreta.");
+        return true;
     }
 
     public void atualizarSenha(UUID id, String novaSenha) {
@@ -102,7 +106,7 @@ public class UsuarioService {
             usuarioRepository.deleteById(id);
             return true;
         }
-        return false;
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado.");
     }
 
     public UUID retornaIdUsuarioLogado() {
