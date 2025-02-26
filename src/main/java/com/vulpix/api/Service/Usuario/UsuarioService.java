@@ -9,6 +9,7 @@ import com.vulpix.api.Service.Usuario.Autenticacao.Dto.UsuarioMapper;
 import com.vulpix.api.Service.Usuario.Autenticacao.Dto.UsuarioTokenDto;
 import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Utils.Enum.StatusUsuario;
+import com.vulpix.api.Utils.Helpers.EmpresaHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,24 +31,35 @@ public class UsuarioService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
     @Autowired
     private GerenciadorTokenJwt gerenciadorTokenJwt;
+
     @Autowired
     private AuthenticationManager authenticationManager;
 
     @Autowired
     private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
 
-    public Usuario cadastrarUsuario(Usuario novoUsuario) {
-        String senhaCriptografada = passwordEncoder.encode(novoUsuario.getSenha());
-        novoUsuario.setSenha(senhaCriptografada);
+    @Autowired
+    private EmpresaHelper empresaHelper;
+
+    public Usuario cadastrarUsuario(Usuario novoUsuario, String cnpj) {
+        if (empresaHelper.isCnpjCadastrado(cnpj)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Esse CNPJ já foi cadastrado.");
+        }
+
+        if (usuarioRepository.existsByEmail(novoUsuario.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Esse e-mail já foi cadastrado.");
+        }
+
+        novoUsuario.setSenha(passwordEncoder.encode(novoUsuario.getSenha()));
         return usuarioRepository.save(novoUsuario);
     }
 
     public Optional<Usuario> buscarUsuarioPorEmail(String email) {
         return usuarioRepository.findByEmail(email);
     }
-
 
     public UsuarioTokenDto autenticarUsuario(UsuarioLoginDto usuarioLoginDto) {
         final UsernamePasswordAuthenticationToken credentials = new UsernamePasswordAuthenticationToken(
@@ -73,7 +85,6 @@ public class UsuarioService {
     public Optional<Usuario> buscarUsuarioPorId(UUID id) {
         return usuarioRepository.findById(id);
     }
-
 
     public Optional<Usuario> atualizarUsuario(
             UUID id, Usuario usuarioAtualizado) {

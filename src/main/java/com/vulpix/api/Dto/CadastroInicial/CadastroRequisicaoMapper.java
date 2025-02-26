@@ -26,24 +26,6 @@ public class CadastroRequisicaoMapper {
         return usuario;
     }
 
-    public static Usuario converteOptionalParaEntidadeUsuario(Usuario dto) {
-        if (dto == null) return null;
-
-        Usuario usuario = Usuario.builder()
-                .id(dto.getId())
-                .nome(dto.getNome())
-                .sobrenome(dto.getSobrenome())
-                .email(dto.getEmail())
-                .senha(dto.getSenha())
-                .telefone(dto.getTelefone())
-                .status(StatusUsuario.AGUARDANDO_PAGAMENTO)
-                .created_at(LocalDateTime.now())
-                .updated_at(LocalDateTime.now())
-                .build();
-
-        return usuario;
-    }
-
     public static Empresa criaEntidadeEmpresa(com.vulpix.api.Dto.CadastroInicial.CadastroRequisicaoDto dto, Usuario responsavel) {
         if (dto == null || responsavel == null) return null;
 

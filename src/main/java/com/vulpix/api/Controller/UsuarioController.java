@@ -60,20 +60,11 @@ public class UsuarioController {
             )
     })
     @PostMapping
-    public ResponseEntity<CadastroRetornoDto> cadastrar(@RequestBody CadastroRequisicaoDto cadastroInicial) {
-        Optional<Usuario> usuarioOpt = usuarioService.buscarUsuarioPorEmail(cadastroInicial.getEmail());
+    public ResponseEntity<CadastroRetornoDto> cadastrar(@RequestBody CadastroRequisicaoDto cadastroRequisicaoDto) {
+        Usuario usuarioEntidade = CadastroRequisicaoMapper.criaEntidadeUsuario(cadastroRequisicaoDto);
+        Usuario usuarioSalvo = usuarioService.cadastrarUsuario(usuarioEntidade, cadastroRequisicaoDto.getCnpj());
 
-        if (usuarioOpt.isPresent() && usuarioOpt.get().getEmpresa() == null) {
-            Usuario usuario = CadastroRequisicaoMapper.converteOptionalParaEntidadeUsuario(usuarioOpt.get());
-            Empresa empresaEntidade = CadastroRequisicaoMapper.criaEntidadeEmpresa(cadastroInicial, usuario);
-            Empresa empresaSalva = empresaService.salvarEmpresa(empresaEntidade);
-            CadastroRetornoDto retorno = CadastroRequisicaoMapper.retornoCadastro(usuario, empresaSalva);
-            return ResponseEntity.status(201).body(retorno);
-        }
-
-        Usuario usuarioEntidade = CadastroRequisicaoMapper.criaEntidadeUsuario(cadastroInicial);
-        Usuario usuarioSalvo = usuarioService.cadastrarUsuario(usuarioEntidade);
-        Empresa empresaEntidade = CadastroRequisicaoMapper.criaEntidadeEmpresa(cadastroInicial, usuarioSalvo);
+        Empresa empresaEntidade = CadastroRequisicaoMapper.criaEntidadeEmpresa(cadastroRequisicaoDto, usuarioSalvo);
         Empresa empresaSalva = empresaService.salvarEmpresa(empresaEntidade);
 
         CadastroRetornoDto retorno = CadastroRequisicaoMapper.retornoCadastro(usuarioSalvo, empresaSalva);
