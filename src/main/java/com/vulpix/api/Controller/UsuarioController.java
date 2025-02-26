@@ -34,7 +34,6 @@ import java.util.UUID;
 @RequestMapping("/usuarios")
 @Tag(name = "Controller de Usuário")
 public class UsuarioController {
-
     @Autowired
     private UsuarioService usuarioService;
 
@@ -43,6 +42,7 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
+
     @Autowired
     private EmpresaHelper empresaHelper;
 
@@ -60,13 +60,12 @@ public class UsuarioController {
             )
     })
     @PostMapping
-    public ResponseEntity<CadastroRetornoDto> cadastrar(@RequestBody CadastroRequisicaoDto cadastroInicial) {
-        Usuario usuarioEntidade = CadastroRequisicaoMapper.criaEntidadeUsuario(cadastroInicial);
-        Usuario usuarioSalvo = usuarioService.cadastrarUsuario(usuarioEntidade);
-        Empresa empresaEntidade = CadastroRequisicaoMapper.criaEntidadeEmpresa(cadastroInicial, usuarioSalvo);
-        Empresa empresaSalva = empresaService.salvarEmpresa(empresaEntidade);
+    public ResponseEntity<CadastroRetornoDto> cadastrar(@RequestBody CadastroRequisicaoDto cadastroRequisicaoDto) {
+        Usuario usuarioEntidade = CadastroRequisicaoMapper.criaEntidadeUsuario(cadastroRequisicaoDto);
+        Usuario usuarioSalvo = usuarioService.cadastrarUsuario(usuarioEntidade, cadastroRequisicaoDto.getCnpj());
 
-        if (empresaSalva == null) return ResponseEntity.status(409).build();
+        Empresa empresaEntidade = CadastroRequisicaoMapper.criaEntidadeEmpresa(cadastroRequisicaoDto, usuarioSalvo);
+        Empresa empresaSalva = empresaService.salvarEmpresa(empresaEntidade);
 
         CadastroRetornoDto retorno = CadastroRequisicaoMapper.retornoCadastro(usuarioSalvo, empresaSalva);
         return ResponseEntity.status(201).body(retorno);
@@ -91,7 +90,6 @@ public class UsuarioController {
         return ResponseEntity.status(200).body(usuarioRetorno);
     }
 
-
     @Operation(summary = "Buscar dados do usuário e da empresa associada",
             description = "Retorna os dados do usuário juntamente com os dados da empresa associada.")
     @ApiResponses(value = {
@@ -108,24 +106,15 @@ public class UsuarioController {
     })
     @GetMapping()
     public ResponseEntity<UsuarioEmpresaDto> buscarUsuarioComEmpresa() {
-
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String emailUsuario = userDetails.getUsername();
 
         Optional<Usuario> usuarioOpt = usuarioService.buscarUsuarioPorEmail(emailUsuario);
+        if (usuarioOpt.isEmpty()) return ResponseEntity.status(404).build();
 
-        if (usuarioOpt.isEmpty()) {
-            return ResponseEntity.status(404).build();
-        }
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(usuarioOpt.get().getEmail());
 
-        Usuario usuario = usuarioOpt.get();
-        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(usuario.getEmail());
-
-        if (empresa == null) {
-            return ResponseEntity.status(404).build();
-        }
-
-        UsuarioEmpresaDto dto = UsuarioEmpresaMapper.toDto(usuario, empresa);
+        UsuarioEmpresaDto dto = UsuarioEmpresaMapper.toDto(usuarioOpt.get(), empresa);
         return ResponseEntity.status(200).body(dto);
     }
 
@@ -147,14 +136,11 @@ public class UsuarioController {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
 
-        Optional<Usuario> usuarioCriado = usuarioService.buscarUsuarioPorEmail(emailUsuario);
+        Optional<Usuario> usuarioOpt = usuarioService.buscarUsuarioPorEmail(emailUsuario);
+        if (usuarioOpt.isEmpty()) return ResponseEntity.status(404).build();
 
-        usuarioService.atualizarUsuario(usuarioCriado.get().getId(), usuarioAtualizado);
-        if (usuarioCriado.isPresent()) {
-            return ResponseEntity.status(200).body(usuarioCriado.get());
-        } else {
-            return ResponseEntity.status(404).build();
-        }
+        usuarioService.atualizarUsuario(usuarioOpt.get().getId(), usuarioAtualizado);
+        return ResponseEntity.status(200).body(usuarioOpt.get());
     }
 
 
@@ -188,17 +174,11 @@ public class UsuarioController {
         String emailUsuario = userDetails.getUsername();
 
         Optional<Usuario> usuarioOpt = usuarioService.buscarUsuarioPorEmail(emailUsuario);
+        if (usuarioOpt.isEmpty()) return ResponseEntity.status(404).build();
 
-        if (usuarioOpt.isPresent()) {
-            Usuario usuario = usuarioOpt.get();
-            boolean senhaCorreta = usuarioService.verificarSenhaAtual(usuario.getSenha(), senhaAtual);
-            if (!senhaCorreta) {
-                return ResponseEntity.status(401).build();
-            }
-            usuarioService.atualizarSenha(usuario.getId(), novaSenha);
-            return ResponseEntity.status(204).build();
-        }
-        return ResponseEntity.status(404).build();
+        usuarioService.verificarSenhaAtual(usuarioOpt.get().getSenha(), senhaAtual);
+        usuarioService.atualizarSenha(usuarioOpt.get().getId(), novaSenha);
+        return ResponseEntity.status(204).build();
     }
 
     @Operation(summary = "Remover usuário", description = "Remove um usuário com base no ID fornecido.")
@@ -215,13 +195,10 @@ public class UsuarioController {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
 
-        Optional<Usuario> usuarioCriado = usuarioService.buscarUsuarioPorEmail(emailUsuario);
+        Optional<Usuario> usuarioOpt = usuarioService.buscarUsuarioPorEmail(emailUsuario);
+        if (usuarioOpt.isEmpty()) return ResponseEntity.status(404).build();
 
-        boolean removido = usuarioService.deletarUsuario(usuarioCriado.get().getId());
-        if (removido) {
-            return ResponseEntity.status(204).build();
-        } else {
-            return ResponseEntity.status(404).build();
-        }
+        usuarioService.deletarUsuario(usuarioOpt.get().getId());
+        return ResponseEntity.status(204).build();
     }
 }

@@ -8,9 +8,7 @@ import java.util.UUID;
 
 public interface EmpresaRepository extends JpaRepository<Empresa, UUID> {
     Optional<Empresa> findByRazaoSocialAndCnpj(String razaoSocial, String cnpj);
-
     Optional<Empresa> findByUsuarioId(UUID usuarioId);
-
     Optional<Empresa> findByUsuarioEmail(String email);
-
+    Boolean existsByCnpj(String cnpj);
 }

@@ -3,13 +3,16 @@ package com.vulpix.api.Service.Usuario;
 import com.vulpix.api.Config.Security.Jwt.GerenciadorTokenJwt;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Entity.Usuario;
+import com.vulpix.api.Exception.Exceptions.ConflictException;
 import com.vulpix.api.Repository.UsuarioRepository;
 import com.vulpix.api.Service.Usuario.Autenticacao.Dto.UsuarioLoginDto;
 import com.vulpix.api.Service.Usuario.Autenticacao.Dto.UsuarioMapper;
 import com.vulpix.api.Service.Usuario.Autenticacao.Dto.UsuarioTokenDto;
 import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Utils.Enum.StatusUsuario;
+import com.vulpix.api.Utils.Helpers.EmpresaHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,24 +32,35 @@ public class UsuarioService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
     @Autowired
     private GerenciadorTokenJwt gerenciadorTokenJwt;
+
     @Autowired
     private AuthenticationManager authenticationManager;
 
     @Autowired
     private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
 
-    public Usuario cadastrarUsuario(Usuario novoUsuario) {
-        String senhaCriptografada = passwordEncoder.encode(novoUsuario.getSenha());
-        novoUsuario.setSenha(senhaCriptografada);
+    @Autowired
+    private EmpresaHelper empresaHelper;
+
+    public Usuario cadastrarUsuario(Usuario novoUsuario, String cnpj) {
+        if (empresaHelper.isCnpjCadastrado(cnpj)) {
+            throw new ConflictException("Esse CNPJ já foi cadastrado.");
+        }
+
+        if (usuarioRepository.existsByEmail(novoUsuario.getEmail())) {
+            throw new ConflictException("Esse e-mail já foi cadastrado.");
+        }
+
+        novoUsuario.setSenha(passwordEncoder.encode(novoUsuario.getSenha()));
         return usuarioRepository.save(novoUsuario);
     }
 
     public Optional<Usuario> buscarUsuarioPorEmail(String email) {
         return usuarioRepository.findByEmail(email);
     }
-
 
     public UsuarioTokenDto autenticarUsuario(UsuarioLoginDto usuarioLoginDto) {
         final UsernamePasswordAuthenticationToken credentials = new UsernamePasswordAuthenticationToken(
@@ -73,7 +87,6 @@ public class UsuarioService {
         return usuarioRepository.findById(id);
     }
 
-
     public Optional<Usuario> atualizarUsuario(
             UUID id, Usuario usuarioAtualizado) {
         if (usuarioRepository.existsById(id)) {
@@ -85,7 +98,10 @@ public class UsuarioService {
     }
 
     public boolean verificarSenhaAtual(String senhaHash, String senhaAtual) {
-        return passwordEncoder.matches(senhaAtual, senhaHash);
+        Boolean isValidPassword = passwordEncoder.matches(senhaAtual, senhaHash);
+        if (!isValidPassword)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "A senha informada está incorreta.");
+        return true;
     }
 
     public void atualizarSenha(UUID id, String novaSenha) {
@@ -102,7 +118,7 @@ public class UsuarioService {
             usuarioRepository.deleteById(id);
             return true;
         }
-        return false;
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado.");
     }
 
     public UUID retornaIdUsuarioLogado() {

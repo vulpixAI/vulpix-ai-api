@@ -14,7 +14,9 @@ import com.vulpix.api.Utils.JsonConverter;
 import com.vulpix.api.Dto.Agent.PublicacaoGeradaRetorno;
 import com.vulpix.api.Dto.Empresa.FormularioRequisicaoDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -54,7 +56,7 @@ public class EmpresaService {
     public Empresa salvarEmpresa(Empresa novaEmpresa) {
         if (!empresaExistePorRazaoSocialECnpj(novaEmpresa.getRazaoSocial(), novaEmpresa.getCnpj()))
             return empresaRepository.save(novaEmpresa);
-        return null;
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "O CNPJ informado já está cadastrado no sistema.");
     }
 
     public EmpresaEditDto atualizarEmpresa(Empresa empresa, EmpresaEditDto empresaAtualizada) {
