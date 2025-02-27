@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-public class ErrorResponse {
+public class ExcecaoResponse {
     private Integer status;
     private String detail;
     private LocalDateTime timestamp;

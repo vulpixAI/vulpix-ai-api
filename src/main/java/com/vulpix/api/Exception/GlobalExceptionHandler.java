@@ -10,33 +10,33 @@ import java.time.LocalDateTime;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ErrorResponse> handleBadRequestException(BadRequestException ex) {
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    @ExceptionHandler(RequisicaoInvalidaException.class)
+    public ResponseEntity<ExcecaoResponse> trataRequisicaoInvalidaException(RequisicaoInvalidaException ex) {
+        return criaExcecaoResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
-    @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException ex) {
-        return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    @ExceptionHandler(NaoAutorizadoException.class)
+    public ResponseEntity<ExcecaoResponse> trataNaoAutorizadoException(NaoAutorizadoException ex) {
+        return criaExcecaoResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException ex) {
-        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    @ExceptionHandler(NaoEncontradoException.class)
+    public ResponseEntity<ExcecaoResponse> trataNaoEncontradoException(NaoEncontradoException ex) {
+        return criaExcecaoResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
-    @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<ErrorResponse> handleConflictException(ConflictException ex) {
-        return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage());
+    @ExceptionHandler(ConflitoException.class)
+    public ResponseEntity<ExcecaoResponse> trataConflitoException(ConflitoException ex) {
+        return criaExcecaoResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
-    @ExceptionHandler(UnprocessableEntityException.class)
-    public ResponseEntity<ErrorResponse> handleUnprocessableEntityException(UnprocessableEntityException ex) {
-        return buildErrorResponse(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+    @ExceptionHandler(EntidadeNaoProcessavelException.class)
+    public ResponseEntity<ExcecaoResponse> trataEntidadeNaoProcessavelException(EntidadeNaoProcessavelException ex) {
+        return criaExcecaoResponse(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
     }
 
-    private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, String detail) {
-        ErrorResponse errorResponse = new ErrorResponse(status.value(), detail, LocalDateTime.now());
-        return new ResponseEntity<>(errorResponse, status);
+    private ResponseEntity<ExcecaoResponse> criaExcecaoResponse(HttpStatus status, String detail) {
+        ExcecaoResponse excecaoResponse = new ExcecaoResponse(status.value(), detail, LocalDateTime.now());
+        return new ResponseEntity<>(excecaoResponse, status);
     }
 }

@@ -3,7 +3,7 @@ package com.vulpix.api.Service.Usuario;
 import com.vulpix.api.Config.Security.Jwt.GerenciadorTokenJwt;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Entity.Usuario;
-import com.vulpix.api.Exception.Exceptions.ConflictException;
+import com.vulpix.api.Exception.Exceptions.ConflitoException;
 import com.vulpix.api.Repository.UsuarioRepository;
 import com.vulpix.api.Service.Usuario.Autenticacao.Dto.UsuarioLoginDto;
 import com.vulpix.api.Service.Usuario.Autenticacao.Dto.UsuarioMapper;
@@ -47,11 +47,11 @@ public class UsuarioService {
 
     public Usuario cadastrarUsuario(Usuario novoUsuario, String cnpj) {
         if (empresaHelper.isCnpjCadastrado(cnpj)) {
-            throw new ConflictException("Esse CNPJ já foi cadastrado.");
+            throw new ConflitoException("Esse CNPJ já foi cadastrado.");
         }
 
         if (usuarioRepository.existsByEmail(novoUsuario.getEmail())) {
-            throw new ConflictException("Esse e-mail já foi cadastrado.");
+            throw new ConflitoException("Esse e-mail já foi cadastrado.");
         }
 
         novoUsuario.setSenha(passwordEncoder.encode(novoUsuario.getSenha()));
