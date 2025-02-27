@@ -8,7 +8,7 @@ import com.vulpix.api.Dto.Publicacao.Insights.ValueDto;
 import com.vulpix.api.Entity.Empresa;
 import com.vulpix.api.Entity.Integracao;
 import com.vulpix.api.Entity.Publicacao;
-import com.vulpix.api.Exception.Exceptions.BadRequestException;
+import com.vulpix.api.Exception.Exceptions.RequisicaoInvalidaException;
 import com.vulpix.api.Utils.Enum.StatusPublicacao;
 import com.vulpix.api.Utils.Enum.TipoIntegracao;
 import com.vulpix.api.Utils.Integracao.Graph;
@@ -217,7 +217,7 @@ public class PublicacaoService {
         Page<Publicacao> publicacoes;
 
         if (dataFiltroInicio != null && dataFiltroFim != null) {
-            if (dataFiltroInicio.isAfter(dataFiltroFim)) throw new BadRequestException("Data de início não pode ser posterior à data de fim.");
+            if (dataFiltroInicio.isAfter(dataFiltroFim)) throw new RequisicaoInvalidaException("Data de início não pode ser posterior à data de fim.");
 
             publicacoes = publicacaoRepository.findByEmpresaIdAndDataPublicacaoBetween(idEmpresa, dataFiltroInicio, dataFiltroFim, pageable);
         } else {
