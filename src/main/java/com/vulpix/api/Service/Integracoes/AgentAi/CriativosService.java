@@ -8,7 +8,7 @@ import com.vulpix.api.Dto.Criativo.CriativoResponseDto;
 import com.vulpix.api.Dto.Criativo.CriativoUnitDto;
 import com.vulpix.api.Entity.Criativo;
 import com.vulpix.api.Entity.Empresa;
-import com.vulpix.api.Exception.Exceptions.BadRequestException;
+import com.vulpix.api.Exception.Exceptions.RequisicaoInvalidaException;
 import com.vulpix.api.Repository.CriativoRepository;
 import com.vulpix.api.Service.Usuario.Autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.Utils.Helpers.EmpresaHelper;
@@ -154,7 +154,7 @@ public class CriativosService {
         if (dataFiltroInicioOffset != null && dataFiltroFimOffset != null) {
             LocalDateTime dataFiltroInicio = dataFiltroInicioOffset.toLocalDateTime();
             LocalDateTime dataFiltroFim = dataFiltroFimOffset.toLocalDateTime();
-            if (dataFiltroInicio.isAfter(dataFiltroFim)) throw new BadRequestException("Data de início não pode ser posterior à data de fim.");
+            if (dataFiltroInicio.isAfter(dataFiltroFim)) throw new RequisicaoInvalidaException("Data de início não pode ser posterior à data de fim.");
 
 
             criativosEntity = criativoRepository.findAllByEmpresaAndCreatedAtBetweenOrderByCreatedAtDesc(
