@@ -12,8 +12,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DashKpiDto {
-    private BigDecimal  taxaCompartilhamento;
-    private BigDecimal  taxaSaves;
+    private BigDecimal taxaCompartilhamento;
+    private BigDecimal taxaSaves;
     private Integer visualizacoesTotais;
     private Integer alcanceUltimoPost;
 }

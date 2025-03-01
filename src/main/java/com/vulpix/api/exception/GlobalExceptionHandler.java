@@ -35,6 +35,11 @@ public class GlobalExceptionHandler {
         return criaExcecaoResponse(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
     }
 
+    @ExceptionHandler(ErroInternoException.class)
+    public ResponseEntity<ExcecaoResponse> trataErroInternoException(ErroInternoException ex) {
+        return criaExcecaoResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+    }
+
     private ResponseEntity<ExcecaoResponse> criaExcecaoResponse(HttpStatus status, String detail) {
         ExcecaoResponse excecaoResponse = new ExcecaoResponse(status.value(), detail, LocalDateTime.now());
         return new ResponseEntity<>(excecaoResponse, status);

@@ -1,5 +1,6 @@
 package com.vulpix.api.service.usuario.autenticacao;
 
+import com.vulpix.api.exception.exceptions.NaoAutorizadoException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,7 +16,7 @@ public class UsuarioAutenticadoUtil {
             return userDetails.getUsername();
         }
 
-        throw new IllegalStateException("Usuário não autenticado");
+        throw new NaoAutorizadoException("Usuário não autenticado.");
     }
 
     public UserDetails getUsuarioDetalhes() {
@@ -25,6 +26,6 @@ public class UsuarioAutenticadoUtil {
             return (UserDetails) authentication.getPrincipal();
         }
 
-        throw new IllegalStateException("Usuário não autenticado");
+        throw new NaoAutorizadoException("Usuário não autenticado.");
     }
 }
