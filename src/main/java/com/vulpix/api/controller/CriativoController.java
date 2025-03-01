@@ -25,8 +25,10 @@ import java.util.UUID;
 public class CriativoController {
     @Autowired
     private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
+
     @Autowired
     private EmpresaHelper empresaHelper;
+
     @Autowired
     private CriativosService criativosService;
 
@@ -76,12 +78,12 @@ public class CriativoController {
         String emailUsuario = userDetails.getUsername();
         Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
-        if (empresa == null) return ResponseEntity.status(404).build();
-
         Page<CriativoResponseDto> criativos = criativosService.buscaCriativosGerados(empresa, page, size, dataInicio, dataFim);
 
-        if (criativos == null) return ResponseEntity.status(404).build();
-        if (criativos.isEmpty()) return ResponseEntity.status(204).build();
+        if (criativos.isEmpty()) {
+            return ResponseEntity.status(204).build();
+        }
+
         return ResponseEntity.status(200).body(criativos);
     }
 
@@ -112,14 +114,7 @@ public class CriativoController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<CriativoRequisicaoDto> buscaCriativoPorId(@PathVariable UUID id) {
-        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
-        String emailUsuario = userDetails.getUsername();
-        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
-
-        if (empresa == null) return ResponseEntity.status(404).build();
-
         CriativoRequisicaoDto response = criativosService.buscaPorId(id);
-        if (response == null) return ResponseEntity.status(404).build();
         return ResponseEntity.status(200).body(response);
     }
 }

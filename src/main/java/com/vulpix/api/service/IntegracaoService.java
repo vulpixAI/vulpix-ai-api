@@ -1,5 +1,7 @@
 package com.vulpix.api.service;
 
+import com.vulpix.api.exception.exceptions.ConflitoException;
+import com.vulpix.api.exception.exceptions.NaoEncontradoException;
 import com.vulpix.api.utils.enums.TipoIntegracao;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.Integracao;
@@ -18,60 +20,63 @@ import java.util.UUID;
 public class IntegracaoService {
     @Autowired
     private IntegracaoRepository integracaoRepository;
+
     @Autowired
     EmpresaRepository empresaRepository;
+
     @Autowired
     private TokenService tokenService;
+
     @Autowired
     private UsuarioService usuarioService;
 
-    public Optional<Integracao> getIntegracaoById(UUID id) {
+    public Optional<Integracao> buscaIntegracaoPorId(UUID id) {
         return integracaoRepository.findById(id);
     }
 
     public Optional<LocalDateTime> verificarAccessToken(UUID integracaoId) {
-        return getIntegracaoById(integracaoId)
+        return buscaIntegracaoPorId(integracaoId)
                 .map(Integracao::getAccessTokenExpireDate);
     }
 
-    public Optional<Integracao> findByEmpresaAndTipo(Empresa empresa, TipoIntegracao tipo) {
-        return integracaoRepository.findByEmpresaAndTipo(empresa, tipo);
+    public Integracao buscaIntegracaoPorTipo(Empresa empresa, TipoIntegracao tipo) {
+        return integracaoRepository.findByEmpresaAndTipo(empresa, tipo).orElseThrow(() -> new NaoEncontradoException("Integração não encontrada."));
     }
 
-    public Integracao save(Integracao integracao) {
+    public boolean verificaExistenciaIntegracaoPorTipo(Empresa empresa, TipoIntegracao tipo) {
+        return integracaoRepository.existsByEmpresaAndTipo(empresa, tipo);
+    }
+
+    public Integracao cadastrarIntegracao(Integracao integracao, Empresa empresa) {
+        if (verificaExistenciaIntegracaoPorTipo(empresa, integracao.getTipo())) {
+            throw new ConflitoException("Já existe uma integração ativa.");
+        }
+
         return integracaoRepository.save(integracao);
     }
 
-    public void deleteById(UUID id) {
+    public void excluirIntegracao(UUID id) {
         if (!integracaoRepository.existsById(id)) {
-            throw new RuntimeException("Integração não encontrada");
+            throw new NaoEncontradoException("Integração não encontrada.");
         }
         integracaoRepository.deleteById(id);
     }
 
-    public Empresa identificaEmpresa(UUID idEmpresa) {
-        Optional<Empresa> empresa = empresaRepository.findById(idEmpresa);
-        if(empresa.isPresent()) return empresa.get();
-
-        return null;
-    }
-
     public Integracao atualizaIntegracao(UUID id, Integracao integracaoAtualizada) {
-        Optional<Integracao> integracaoExiste = integracaoRepository.findById(id);
-
-        if (integracaoExiste.isEmpty()) return null;
-
-        Integracao integracao = integracaoExiste.get();
+        Integracao integracao = integracaoRepository.findById(id).orElseThrow(() -> new NaoEncontradoException("Integração não encontrada."));
 
         if (integracaoAtualizada.getAccessToken() != null) {
             integracao.setAccessToken(integracaoAtualizada.getAccessToken());
         }
+
         if (integracaoAtualizada.getClientId() != null) {
             integracao.setClientId(integracaoAtualizada.getClientId());
         }
+
         if (integracaoAtualizada.getClientSecret() != null) {
             integracao.setClientSecret(integracaoAtualizada.getClientSecret());
         }
+
         if (integracaoAtualizada.getIgUserId() != null) {
             integracao.setIgUserId(integracaoAtualizada.getIgUserId());
         }
@@ -81,9 +86,6 @@ public class IntegracaoService {
     }
 
     public Integracao retornaIntegracao(Empresa empresa) {
-        Optional<Integracao> integracaoExistente = integracaoRepository.findIntegracaoByEmpresaId(empresa.getId());
-
-        return integracaoExistente.orElse(null);
+        return integracaoRepository.findIntegracaoByEmpresaId(empresa.getId()).orElseThrow(() -> new NaoEncontradoException("Integração não encontrada."));
     }
-
 }

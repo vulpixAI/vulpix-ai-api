@@ -104,17 +104,15 @@ public class UsuarioController {
                             examples = @ExampleObject(value = "{ \"message\": \"Erro: Usuário ou empresa não encontrados.\" }"))
             )
     })
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<UsuarioEmpresaDto> buscarUsuarioComEmpresa() {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String emailUsuario = userDetails.getUsername();
 
-        Optional<Usuario> usuarioOpt = usuarioService.buscarUsuarioPorEmail(emailUsuario);
-        if (usuarioOpt.isEmpty()) return ResponseEntity.status(404).build();
+        Usuario usuario = usuarioService.buscarUsuarioPorEmail(emailUsuario);
+        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(usuario.getEmail());
+        UsuarioEmpresaDto dto = UsuarioEmpresaMapper.toDto(usuario, empresa);
 
-        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(usuarioOpt.get().getEmail());
-
-        UsuarioEmpresaDto dto = UsuarioEmpresaMapper.toDto(usuarioOpt.get(), empresa);
         return ResponseEntity.status(200).body(dto);
     }
 
@@ -131,18 +129,16 @@ public class UsuarioController {
                             examples = @ExampleObject(value = "{ \"message\": \"Erro: Usuário não encontrado.\" }"))
             )
     })
-    @PutMapping()
-    public ResponseEntity<Usuario> atualizar(@Parameter(description = "Usuário a ser atualizado", required = true) @PathVariable UUID id, @RequestBody Usuario usuarioAtualizado) {
+    @PutMapping
+    public ResponseEntity<Usuario> atualizar(@Parameter(description = "Usuário a ser atualizado", required = true) @RequestBody Usuario usuarioAtualizado) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
 
-        Optional<Usuario> usuarioOpt = usuarioService.buscarUsuarioPorEmail(emailUsuario);
-        if (usuarioOpt.isEmpty()) return ResponseEntity.status(404).build();
+        Usuario usuario = usuarioService.buscarUsuarioPorEmail(emailUsuario);
+        usuarioService.atualizarUsuario(usuario.getId(), usuarioAtualizado);
 
-        usuarioService.atualizarUsuario(usuarioOpt.get().getId(), usuarioAtualizado);
-        return ResponseEntity.status(200).body(usuarioOpt.get());
+        return ResponseEntity.status(200).body(usuario);
     }
-
 
     @Operation(
             summary = "Atualizar senha do usuário",
@@ -173,11 +169,10 @@ public class UsuarioController {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
 
-        Optional<Usuario> usuarioOpt = usuarioService.buscarUsuarioPorEmail(emailUsuario);
-        if (usuarioOpt.isEmpty()) return ResponseEntity.status(404).build();
+        Usuario usuario = usuarioService.buscarUsuarioPorEmail(emailUsuario);
+        usuarioService.verificarSenhaAtual(usuario.getSenha(), senhaAtual);
+        usuarioService.atualizarSenha(usuario.getId(), novaSenha);
 
-        usuarioService.verificarSenhaAtual(usuarioOpt.get().getSenha(), senhaAtual);
-        usuarioService.atualizarSenha(usuarioOpt.get().getId(), novaSenha);
         return ResponseEntity.status(204).build();
     }
 
@@ -190,15 +185,14 @@ public class UsuarioController {
                             examples = @ExampleObject(value = "{ \"message\": \"Erro: Usuário não encontrado.\" }"))
             )
     })
-    @DeleteMapping()
+    @DeleteMapping
     public ResponseEntity<Void> remover(@Parameter(description = "Usuário a ser removido", required = true) @PathVariable UUID id) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
 
-        Optional<Usuario> usuarioOpt = usuarioService.buscarUsuarioPorEmail(emailUsuario);
-        if (usuarioOpt.isEmpty()) return ResponseEntity.status(404).build();
+        Usuario usuario = usuarioService.buscarUsuarioPorEmail(emailUsuario);
+        usuarioService.deletarUsuario(usuario.getId());
 
-        usuarioService.deletarUsuario(usuarioOpt.get().getId());
         return ResponseEntity.status(204).build();
     }
 }

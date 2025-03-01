@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 public class EmpresaController {
     @Autowired
     private EmpresaService empresaService;
+
     @Autowired
     private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
 
@@ -35,41 +36,41 @@ public class EmpresaController {
             @ApiResponse(responseCode = "200", description = "Empresa atualizada com sucesso.",
                     content = @Content(mediaType = "application/json", examples =
                     @ExampleObject(value = """
-                {
-                    "id": "a7e9b0de-71a7-4f1e-b8c9-60e16d047d7b",
-                    "razaoSocial": "Empresa Exemplo LTDA",
-                    "nomeFantasia": "Empresa Exemplo",
-                    "cnpj": "12.345.678/0001-99",
-                    "cep": "12345-678",
-                    "logradouro": "Rua Exemplo",
-                    "numero": "100",
-                    "bairro": "Centro",
-                    "complemento": "Sala 101",
-                    "cidade": "São Paulo",
-                    "estado": "SP",
-                    "created_at": "2023-01-01T10:00:00",
-                    "updated_at": "2024-11-03T15:30:00",
-                    "usuario": {
-                        "id": "98765432-aaaa-bbbb-cccc-1234567890ab",
-                        "nome": "João da Silva",
-                        "email": "joao@example.com"
-                    },
-                    "integracoes": [
-                        {
-                            "id": "12345678-aaaa-bbbb-cccc-1234567890ab",
-                            "nome": "Integração 1",
-                            "tipo": "Tipo A",
-                            "dataCriacao": "2023-05-10T08:45:00"
-                        },
-                        {
-                            "id": "87654321-bbbb-cccc-dddd-0987654321ba",
-                            "nome": "Integração 2",
-                            "tipo": "Tipo B",
-                            "dataCriacao": "2023-06-15T11:20:00"
-                        }
-                    ]
-                }
-                """))),
+                            {
+                                "id": "a7e9b0de-71a7-4f1e-b8c9-60e16d047d7b",
+                                "razaoSocial": "Empresa Exemplo LTDA",
+                                "nomeFantasia": "Empresa Exemplo",
+                                "cnpj": "12.345.678/0001-99",
+                                "cep": "12345-678",
+                                "logradouro": "Rua Exemplo",
+                                "numero": "100",
+                                "bairro": "Centro",
+                                "complemento": "Sala 101",
+                                "cidade": "São Paulo",
+                                "estado": "SP",
+                                "created_at": "2023-01-01T10:00:00",
+                                "updated_at": "2024-11-03T15:30:00",
+                                "usuario": {
+                                    "id": "98765432-aaaa-bbbb-cccc-1234567890ab",
+                                    "nome": "João da Silva",
+                                    "email": "joao@example.com"
+                                },
+                                "integracoes": [
+                                    {
+                                        "id": "12345678-aaaa-bbbb-cccc-1234567890ab",
+                                        "nome": "Integração 1",
+                                        "tipo": "Tipo A",
+                                        "dataCriacao": "2023-05-10T08:45:00"
+                                    },
+                                    {
+                                        "id": "87654321-bbbb-cccc-dddd-0987654321ba",
+                                        "nome": "Integração 2",
+                                        "tipo": "Tipo B",
+                                        "dataCriacao": "2023-06-15T11:20:00"
+                                    }
+                                ]
+                            }
+                            """))),
             @ApiResponse(responseCode = "404", description = "Empresa não encontrada.",
                     content = @Content(mediaType = "application/json", examples =
                     @ExampleObject(value = "{ \"message\": \"Erro: Empresa não encontrada.\" }")))
@@ -80,14 +81,9 @@ public class EmpresaController {
         String emailUsuario = userDetails.getUsername();
         Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
-        if (empresa == null) {
-            return ResponseEntity.status(404).build();
-        }
-
         EmpresaEditDto empresaAtualizadaSalva = empresaService.atualizarEmpresa(empresa, empresaAtualizada);
         return ResponseEntity.status(200).body(empresaAtualizadaSalva);
     }
-
 
     @Operation(summary = "Cadastra um novo formulário para a empresa do usuário autenticado",
             description = "Adiciona um novo formulário associado à empresa do usuário autenticado.")
@@ -135,15 +131,10 @@ public class EmpresaController {
         String emailUsuario = userDetails.getUsername();
         Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
-        if (empresa == null) {
-            return ResponseEntity.status(404).build();
-        }
-
         FormularioRequisicaoDto retorno = empresaService.cadastrarFormulario(empresa, formulario);
-        if (retorno == null) return ResponseEntity.status(409).build();
+
         return ResponseEntity.status(201).body(retorno);
     }
-
 
     @Operation(summary = "Busca o formulário da empresa do usuário autenticado",
             description = "Retorna o formulário associado à empresa do usuário autenticado.")
@@ -192,9 +183,6 @@ public class EmpresaController {
 
         FormularioRequisicaoDto formularioResponse = empresaService.buscaFormulario(empresa);
 
-        if (formularioResponse == null) {
-            return ResponseEntity.status(404).build();
-        }
         return ResponseEntity.status(200).body(formularioResponse);
     }
 
@@ -242,10 +230,6 @@ public class EmpresaController {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
         Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
-
-        if (empresa == null) {
-            return ResponseEntity.status(404).build();
-        }
 
         FormularioRequisicaoDto retorno = empresaService.atualizaFormulario(empresa, formulario);
         return ResponseEntity.status(200).body(retorno);

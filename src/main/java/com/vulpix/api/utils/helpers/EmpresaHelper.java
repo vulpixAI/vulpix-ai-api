@@ -1,6 +1,7 @@
 package com.vulpix.api.utils.helpers;
 
 import com.vulpix.api.entity.Empresa;
+import com.vulpix.api.exception.exceptions.NaoEncontradoException;
 import com.vulpix.api.repository.EmpresaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,7 +14,7 @@ public class EmpresaHelper {
     EmpresaRepository empresaRepository;
 
     public Empresa buscarEmpresaPeloUsuario(String email) {
-        return empresaRepository.findByUsuarioEmail(email).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Empresa não encontrada para o usuário autenticado."));
+        return empresaRepository.findByUsuarioEmail(email).orElseThrow(() -> new NaoEncontradoException("Empresa não encontrada para o usuário autenticado."));
     }
 
     public Boolean isCnpjCadastrado(String cnpj) {

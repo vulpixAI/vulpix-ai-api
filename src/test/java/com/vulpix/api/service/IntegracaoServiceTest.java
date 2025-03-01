@@ -1,6 +1,7 @@
 package com.vulpix.api.service;
 
 
+import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.Integracao;
 import com.vulpix.api.repository.IntegracaoRepository;
 import com.vulpix.api.service.integracoes.graph.TokenService;
@@ -93,9 +94,10 @@ class IntegracaoServiceTest {
     @DisplayName("Dado que exista uma integracao com a empresa e tipo informados, quando buscar a integracao, então deve retornar a integracao")
     void save_deveSalvarIntegracao() {
         Integracao integracao = new Integracao();
+        Empresa empresa = new Empresa();
         when(integracaoRepository.save(integracao)).thenReturn(integracao);
 
-        Integracao resultado = integracaoService.save(integracao);
+        Integracao resultado = integracaoService.cadastrarIntegracao(integracao, empresa);
 
         assertNotNull(resultado);
         verify(integracaoRepository, times(1)).save(integracao);

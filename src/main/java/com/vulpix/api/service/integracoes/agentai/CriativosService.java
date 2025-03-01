@@ -8,6 +8,7 @@ import com.vulpix.api.dto.Criativo.CriativoResponseDto;
 import com.vulpix.api.dto.Criativo.CriativoUnitDto;
 import com.vulpix.api.entity.Criativo;
 import com.vulpix.api.entity.Empresa;
+import com.vulpix.api.exception.exceptions.NaoEncontradoException;
 import com.vulpix.api.exception.exceptions.RequisicaoInvalidaException;
 import com.vulpix.api.repository.CriativoRepository;
 import com.vulpix.api.service.usuario.autenticacao.UsuarioAutenticadoUtil;
@@ -27,13 +28,15 @@ import java.util.*;
 
 @Service
 public class CriativosService {
-
     @Autowired
     private CriativoRepository criativoRepository;
+
     @Autowired
     private RestTemplate restTemplate;
+
     @Autowired
     private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
+
     @Autowired
     private EmpresaHelper empresaHelper;
 
@@ -132,20 +135,19 @@ public class CriativosService {
         criativoRepository.save(criativo);
     }
 
-
     public Page<CriativoResponseDto> buscaCriativosGerados(Empresa empresa, int page, int size, String dataInicio, String dataFim) {
         int sizeReal = size * 4;
         Pageable pageable = PageRequest.of(page, sizeReal, Sort.by("createdAt").descending());
 
         OffsetDateTime dataFiltroInicioOffset = null;
         OffsetDateTime dataFiltroFimOffset = null;
-        if (dataInicio != null && !dataInicio.isEmpty() &&
-                dataFim != null && !dataFim.isEmpty()) {
+
+        if (dataInicio != null && !dataInicio.isEmpty() && dataFim != null && !dataFim.isEmpty()) {
             try {
                 dataFiltroInicioOffset = OffsetDateTime.parse(dataInicio + "T00:00:00Z");
                 dataFiltroFimOffset = OffsetDateTime.parse(dataFim + "T23:59:59Z");
             } catch (DateTimeParseException e) {
-                throw new IllegalArgumentException("Formato de data inválido.");
+                throw new RequisicaoInvalidaException("Formato de data inválido.");
             }
         }
 
@@ -154,11 +156,12 @@ public class CriativosService {
         if (dataFiltroInicioOffset != null && dataFiltroFimOffset != null) {
             LocalDateTime dataFiltroInicio = dataFiltroInicioOffset.toLocalDateTime();
             LocalDateTime dataFiltroFim = dataFiltroFimOffset.toLocalDateTime();
-            if (dataFiltroInicio.isAfter(dataFiltroFim)) throw new RequisicaoInvalidaException("Data de início não pode ser posterior à data de fim.");
 
+            if (dataFiltroInicio.isAfter(dataFiltroFim)) {
+                throw new RequisicaoInvalidaException("Data de início não pode ser posterior à data de fim.");
+            }
 
-            criativosEntity = criativoRepository.findAllByEmpresaAndCreatedAtBetweenOrderByCreatedAtDesc(
-                    empresa, dataFiltroInicio, dataFiltroFim, pageable);
+            criativosEntity = criativoRepository.findAllByEmpresaAndCreatedAtBetweenOrderByCreatedAtDesc(empresa, dataFiltroInicio, dataFiltroFim, pageable);
         } else {
             criativosEntity = criativoRepository.findAllByEmpresaOrderByCreatedAtDesc(empresa, pageable);
         }
@@ -188,15 +191,12 @@ public class CriativosService {
         return new PageImpl<>(responseList, PageRequest.of(page, size), totalConjuntos);
     }
 
-        public CriativoRequisicaoDto buscaPorId (UUID id){
-            Optional<Criativo> criativoEntity = criativoRepository.findById(id);
+    public CriativoRequisicaoDto buscaPorId(UUID id) {
+        Criativo criativo = criativoRepository.findById(id).orElseThrow(() -> new NaoEncontradoException("Criativo não encontrado."));
 
-            if (criativoEntity.isEmpty()) return null;
-            Criativo entity = criativoEntity.get();
-            return CriativoRequisicaoDto.builder()
-                    .imageUrl(entity.getImageUrl())
-                    .prompt(entity.getPrompt())
-                    .build();
-        }
-
+        return CriativoRequisicaoDto.builder()
+                .imageUrl(criativo.getImageUrl())
+                .prompt(criativo.getPrompt())
+                .build();
+    }
 }
