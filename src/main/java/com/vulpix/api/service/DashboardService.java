@@ -21,10 +21,7 @@ public class DashboardService {
     DashboardRepository dashboardRepository;
 
     public List<PostInsights> buscaMetricaUltimoPost(Empresa empresa) {
-        List<PostInsights> metricasPorPost = dashboardRepository.findLatestInsightsForEachPostByEmpresa(empresa.getId());
-
-        if (metricasPorPost.isEmpty()) return null;
-        return metricasPorPost;
+        return dashboardRepository.findLatestInsightsForEachPostByEmpresa(empresa.getId());
     }
 
     public List<PostInsightsDto> buscaMetricasPorDia(Empresa empresaId, LocalDate startDate, LocalDate endDate) {
@@ -58,6 +55,7 @@ public class DashboardService {
                     .build();
             insightsDTOs.add(dto);
         }
+
         return insightsDTOs;
     }
 
@@ -73,7 +71,6 @@ public class DashboardService {
     public DashKpiDto buscaKpisPorPeriodo(Empresa empresa) {
         UUID empresaId = empresa.getId();
 
-        // Execute the combined query
         List<Object[]> results = dashboardRepository.findTaxas(empresaId);
 
         BigDecimal taxaSalvo = null;

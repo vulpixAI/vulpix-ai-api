@@ -27,7 +27,6 @@ import java.util.Optional;
 @RequestMapping("/integracoes")
 @Tag(name = "Controller de Integração")
 public class IntegracaoController {
-
     @Autowired
     private IntegracaoService integracaoService;
 
@@ -36,6 +35,7 @@ public class IntegracaoController {
 
     @Autowired
     private EmpresaService empresaService;
+
     @Autowired
     private EmpresaHelper empresaHelper;
 
@@ -56,20 +56,14 @@ public class IntegracaoController {
     })
     @PostMapping
     public ResponseEntity<Integracao> habilitar(@RequestBody IntegracaoDto novaIntegracao) {
-        if (novaIntegracao == null) return ResponseEntity.badRequest().build();
-
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
         Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
         Integracao integracao = IntegracaoMapper.criaEntidadeIntegracao(novaIntegracao, empresa);
+        Integracao integracaoSalva = integracaoService.cadastrarIntegracao(integracao, empresa);
 
-        Optional<Integracao> integracaoAtiva = integracaoService.findByEmpresaAndTipo(empresa, integracao.getTipo());
-        if (integracaoAtiva.isPresent()) {
-            return ResponseEntity.status(409).build();
-        }
-
-        return ResponseEntity.status(201).body(integracaoService.save(integracao));
+        return ResponseEntity.status(201).body(integracaoSalva);
     }
 
     @Operation(summary = "Atualiza uma integração existente",
@@ -82,19 +76,17 @@ public class IntegracaoController {
                     content = @Content(mediaType = "application/json",
                             examples = @ExampleObject(value = "{ \"message\": \"Erro: Integração não encontrada.\" }")))
     })
+
     @PatchMapping
     public ResponseEntity<Integracao> atualizar(@RequestBody IntegracaoUpdateDto integracaoAtualizada) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
         Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
-        Optional<Integracao> integracaoExistente = integracaoService.findByEmpresaAndTipo(empresa, TipoIntegracao.INSTAGRAM);
-
-        if (integracaoExistente.isEmpty()) return ResponseEntity.status(404).build();
-
+        Integracao integracaoExistente = integracaoService.buscaIntegracaoPorTipo(empresa, TipoIntegracao.INSTAGRAM);
         Integracao integracao = IntegracaoMapper.criaEntidadeAtualizada(empresa, integracaoAtualizada);
 
-        Integracao integracaoAtualizadaSalva = integracaoService.atualizaIntegracao(integracaoExistente.get().getId(), integracao);
+        Integracao integracaoAtualizadaSalva = integracaoService.atualizaIntegracao(integracaoExistente.getId(), integracao);
         return ResponseEntity.status(200).body(integracaoAtualizadaSalva);
     }
 
@@ -112,11 +104,9 @@ public class IntegracaoController {
         String emailUsuario = userDetails.getUsername();
         Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
-        Optional<Integracao> integracaoExistente = integracaoService.findByEmpresaAndTipo(empresa, TipoIntegracao.INSTAGRAM);
+        Integracao integracaoExistente = integracaoService.buscaIntegracaoPorTipo(empresa, TipoIntegracao.INSTAGRAM);
 
-        if (integracaoExistente.isEmpty()) return ResponseEntity.status(404).build();
-
-        integracaoService.deleteById(integracaoExistente.get().getId());
+        integracaoService.excluirIntegracao(integracaoExistente.getId());
         return ResponseEntity.status(204).build();
     }
 
@@ -136,12 +126,10 @@ public class IntegracaoController {
         String emailUsuario = userDetails.getUsername();
         Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
-        Optional<Integracao> integracaoExistente = integracaoService.findByEmpresaAndTipo(empresa, TipoIntegracao.INSTAGRAM);
-
-        return integracaoExistente.isPresent();
+        return integracaoService.verificaExistenciaIntegracaoPorTipo(empresa, TipoIntegracao.INSTAGRAM);
     }
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<Integracao> retornaIntegracao() {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
@@ -149,7 +137,6 @@ public class IntegracaoController {
 
         Integracao retorno = integracaoService.retornaIntegracao(empresa);
 
-        if (retorno != null) return ResponseEntity.status(200).body(retorno);
-        return ResponseEntity.status(404).build();
+        return ResponseEntity.status(200).body(retorno);
     }
 }

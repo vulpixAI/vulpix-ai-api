@@ -4,6 +4,8 @@ import com.vulpix.api.config.security.jwt.GerenciadorTokenJwt;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.Usuario;
 import com.vulpix.api.exception.exceptions.ConflitoException;
+import com.vulpix.api.exception.exceptions.NaoAutorizadoException;
+import com.vulpix.api.exception.exceptions.NaoEncontradoException;
 import com.vulpix.api.repository.UsuarioRepository;
 import com.vulpix.api.service.usuario.autenticacao.dto.UsuarioLoginDto;
 import com.vulpix.api.service.usuario.autenticacao.dto.UsuarioMapper;
@@ -12,14 +14,12 @@ import com.vulpix.api.service.usuario.autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.utils.enums.StatusUsuario;
 import com.vulpix.api.utils.helpers.EmpresaHelper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -58,8 +58,8 @@ public class UsuarioService {
         return usuarioRepository.save(novoUsuario);
     }
 
-    public Optional<Usuario> buscarUsuarioPorEmail(String email) {
-        return usuarioRepository.findByEmail(email);
+    public Usuario buscarUsuarioPorEmail(String email) {
+        return usuarioRepository.findByEmail(email).orElseThrow(() -> new NaoEncontradoException("Usuário não encontrado pelo e-mail."));
     }
 
     public UsuarioTokenDto autenticarUsuario(UsuarioLoginDto usuarioLoginDto) {
@@ -68,10 +68,7 @@ public class UsuarioService {
         );
         final Authentication authentication = this.authenticationManager.authenticate(credentials);
 
-        Usuario usuarioAutenticado = usuarioRepository.findByEmail(usuarioLoginDto.getEmail())
-                .orElseThrow(
-                        () -> new ResponseStatusException(404, "Email do usuário não encontrado", null)
-                );
+        Usuario usuarioAutenticado = buscarUsuarioPorEmail(usuarioLoginDto.getEmail());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         final String token = gerenciadorTokenJwt.generateToken(authentication);
@@ -83,34 +80,28 @@ public class UsuarioService {
         return usuarioRepository.findAll();
     }
 
-    public Optional<Usuario> buscarUsuarioPorId(UUID id) {
-        return usuarioRepository.findById(id);
+    public Usuario buscarUsuarioPorId(UUID id) {
+        return usuarioRepository.findById(id).orElseThrow(() -> new NaoEncontradoException("Usuário não encontrado pelo id."));
     }
 
-    public Optional<Usuario> atualizarUsuario(
-            UUID id, Usuario usuarioAtualizado) {
-        if (usuarioRepository.existsById(id)) {
-            usuarioAtualizado.setId(id);
-            Usuario usuarioSalvo = usuarioRepository.save(usuarioAtualizado);
-            return Optional.of(usuarioSalvo);
-        }
-        return Optional.empty();
+    public Usuario atualizarUsuario(UUID id, Usuario usuarioAtualizado) {
+        Usuario usuario = buscarUsuarioPorId(id);
+        usuarioAtualizado.setId(usuario.getId());
+        return usuarioRepository.save(usuarioAtualizado);
     }
 
     public boolean verificarSenhaAtual(String senhaHash, String senhaAtual) {
         Boolean isValidPassword = passwordEncoder.matches(senhaAtual, senhaHash);
-        if (!isValidPassword)
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "A senha informada está incorreta.");
+        if (!isValidPassword) {
+            throw new NaoAutorizadoException("A senha informada está incorreta.");
+        }
         return true;
     }
 
     public void atualizarSenha(UUID id, String novaSenha) {
-        Optional<Usuario> usuarioOpt = usuarioRepository.findById(id);
-        if (usuarioOpt.isPresent()) {
-            Usuario usuario = usuarioOpt.get();
-            usuario.setSenha(passwordEncoder.encode(novaSenha));
-            usuarioRepository.save(usuario);
-        }
+        Usuario usuario = buscarUsuarioPorId(id);
+        usuario.setSenha(passwordEncoder.encode(novaSenha));
+        usuarioRepository.save(usuario);
     }
 
     public boolean deletarUsuario(UUID id) {
@@ -118,7 +109,7 @@ public class UsuarioService {
             usuarioRepository.deleteById(id);
             return true;
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado.");
+        throw new NaoEncontradoException("Usuário não encontrado.");
     }
 
     public UUID retornaIdUsuarioLogado() {
@@ -129,7 +120,11 @@ public class UsuarioService {
 
     public boolean atualizaStatus(Empresa empresa, StatusUsuario status) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByEmpresa(empresa);
-        if (!usuarioOpt.isPresent()) return false;
+
+        if (usuarioOpt.isEmpty()) {
+            return false;
+        }
+
         Usuario usuario = usuarioOpt.get();
         usuario.setStatus(status);
         usuarioRepository.save(usuario);

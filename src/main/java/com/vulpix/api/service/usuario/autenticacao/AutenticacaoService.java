@@ -1,6 +1,7 @@
 package com.vulpix.api.service.usuario.autenticacao;
 
 import com.vulpix.api.entity.Usuario;
+import com.vulpix.api.exception.exceptions.NaoEncontradoException;
 import com.vulpix.api.repository.UsuarioRepository;
 import com.vulpix.api.service.usuario.autenticacao.dto.UsuarioDetalhesDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ public class AutenticacaoService implements UserDetailsService {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(username);
 
         if (usuarioOpt.isEmpty()) {
-            throw new UsernameNotFoundException(String.format("usuario: %s nao encontrado", username));
+            throw new NaoEncontradoException(String.format("Usuário: %s não encontrado.", username));
         }
 
         return new UsuarioDetalhesDto(usuarioOpt.get());
