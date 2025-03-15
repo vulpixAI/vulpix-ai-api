@@ -125,6 +125,10 @@ public class EmpresaService {
         ConfigPrompt configPrompt = configRepository.findByEmpresaId(empresa.getId())
                 .orElseThrow(() -> new RuntimeException("ConfigPrompt não encontrado"));
 
+        if (configPrompt.getPrompt().isEmpty()) {
+            salvaPrompt(empresa);
+        }
+
         PublicacaoGeradaRetorno retorno = criativosService.buscaCriativos(configPrompt.getPrompt(), userRequest);
         return retorno;
     }
