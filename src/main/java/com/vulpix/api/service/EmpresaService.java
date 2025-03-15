@@ -108,6 +108,7 @@ public class EmpresaService {
         configPrompt.setForm(jsonForm);
 
         configRepository.save(configPrompt);
+        salvaPrompt(empresa);
         return formulario;
     }
 
