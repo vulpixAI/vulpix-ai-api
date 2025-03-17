@@ -1,0 +1,138 @@
+package com.vulpix.api.api;
+
+import com.vulpix.api.dto.CadastroInicial.CadastroRequisicaoDto;
+import com.vulpix.api.dto.CadastroInicial.CadastroRetornoDto;
+import com.vulpix.api.dto.Usuario.AtualizarSenhaDto;
+import com.vulpix.api.dto.Usuario.UsuarioEmpresaDto;
+import com.vulpix.api.entity.Usuario;
+import com.vulpix.api.service.usuario.autenticacao.dto.UsuarioLoginDto;
+import com.vulpix.api.service.usuario.autenticacao.dto.UsuarioTokenDto;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
+@RequestMapping("/usuarios")
+@Tag(name = "Usuário")
+public interface UsuarioApi {
+    @Operation(summary = "Cadastrar um novo usuário", description = "Realiza o cadastro de um novo usuário e sua empresa associada.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Usuário e empresa cadastrados com sucesso.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"id\": \"123e4567-e89b-12d3-a456-426614174000\", \"nome\": \"João\", \"empresa\": { \"nome\": \"Empresa Exemplo\" }}")
+                    )
+            ),
+            @ApiResponse(responseCode = "409", description = "Conflito ao salvar a empresa.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"status\": 409, \"detail\": \"Empresa já cadastrada.\", \"timestamp\": \"2025-03-17T16:59:50.5115104\" }")
+                    )
+            )
+    })
+    @PostMapping
+    ResponseEntity<CadastroRetornoDto> cadastrar(@RequestBody CadastroRequisicaoDto cadastroRequisicaoDto);
+
+    @Operation(summary = "Autenticar um usuário", description = "Realiza a autenticação de um usuário.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuário autenticado com sucesso.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"token\": \"abcdefg1234567\", \"usuarioId\": \"123e4567-e89b-12d3-a456-426614174000\" }")
+                    )
+            ),
+            @ApiResponse(responseCode = "401", description = "Falha na autenticação.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"status\": 401, \"detail\": \"E-mail ou senha inválido(s).\", \"timestamp\": \"2025-03-17T16:59:50.5115104\" }")
+                    )
+            )
+    })
+    @PostMapping("/login")
+    ResponseEntity<UsuarioTokenDto> autenticar(@RequestBody UsuarioLoginDto usuario);
+
+    @Operation(
+            summary = "Buscar dados do usuário e da empresa associada",
+            description = "Retorna os dados do usuário juntamente com os dados da empresa associada."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Dados do usuário e empresa retornados com sucesso.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"usuario\": { \"id\": \"123e4567-e89b-12d3-a456-426614174000\", \"nome\": \"João\" }, \"empresa\": { \"nome\": \"Empresa Exemplo\" } }")
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"status\": 404, \"detail\": \"Usuário ou empresa não encontrados.\", \"timestamp\": \"2025-03-17T16:59:50.5115104\" }")
+                    )
+            )
+    })
+    @GetMapping
+    ResponseEntity<UsuarioEmpresaDto> buscarUsuarioComEmpresa();
+
+    @Operation(summary = "Atualizar usuário", description = "Atualiza as informações de um usuário com base no ID fornecido.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"id\": \"123e4567-e89b-12d3-a456-426614174000\", \"nome\": \"João Atualizado\" }")
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"status\": 404, \"detail\": \"Usuário não encontrado.\", \"timestamp\": \"2025-03-17T16:59:50.5115104\" }")
+                    )
+            )
+    })
+    @PutMapping
+    ResponseEntity<Usuario> atualizar(@RequestBody Usuario usuarioAtualizado);
+
+    @Operation(
+            summary = "Atualizar senha do usuário",
+            description = "Atualiza a senha de um usuário autenticado, verificando a senha atual antes de aplicar a nova."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Senha atualizada com sucesso.", content = @Content(examples = @ExampleObject())),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Senha atual fornecida está incorreta.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"status\": 401, \"detail\": \"Senha atual fornecida está incorreta.\", \"timestamp\": \"2025-03-17T16:59:50.5115104\" }")
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Usuário não encontrado.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"status\": 404, \"detail\": \"Usuário não encontrado.\", \"timestamp\": \"2025-03-17T16:59:50.5115104\" }")
+                    )
+            )
+    })
+    @PatchMapping("/senha")
+    ResponseEntity<Void> atualizarSenha(@RequestBody AtualizarSenhaDto atualizarSenhaDto);
+
+    @Operation(summary = "Remover usuário", description = "Remove um usuário com base no ID fornecido.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Usuário removido com sucesso.", content = @Content(examples = @ExampleObject())),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"status\": 404, \"detail\": \"Usuário não encontrado.\", \"timestamp\": \"2025-03-17T16:59:50.5115104\" }")
+                    )
+            )
+    })
+    @DeleteMapping
+    ResponseEntity<Void> remover(@Parameter(description = "Usuário a ser removido", required = true) @PathVariable UUID id);
+}

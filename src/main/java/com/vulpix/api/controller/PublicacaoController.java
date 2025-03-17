@@ -38,7 +38,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/posts")
-@Tag(name = "Controller de Publicação")
+@Tag(name = "Publicação")
 public class PublicacaoController {
     @Autowired
     private PublicacaoService publicacaoService;
