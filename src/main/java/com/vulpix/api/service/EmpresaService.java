@@ -108,6 +108,7 @@ public class EmpresaService {
         configPrompt.setForm(jsonForm);
 
         configRepository.save(configPrompt);
+        salvaPrompt(empresa);
         return formulario;
     }
 
@@ -124,6 +125,10 @@ public class EmpresaService {
     public PublicacaoGeradaRetorno buscaCriativos(Empresa empresa, String userRequest){
         ConfigPrompt configPrompt = configRepository.findByEmpresaId(empresa.getId())
                 .orElseThrow(() -> new RuntimeException("ConfigPrompt não encontrado"));
+
+        if (configPrompt.getPrompt().isEmpty()) {
+            salvaPrompt(empresa);
+        }
 
         PublicacaoGeradaRetorno retorno = criativosService.buscaCriativos(configPrompt.getPrompt(), userRequest);
         return retorno;
