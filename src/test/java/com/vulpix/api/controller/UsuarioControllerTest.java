@@ -1,5 +1,6 @@
 package com.vulpix.api.controller;
 
+import com.vulpix.api.controller.impl.UsuarioControllerImpl;
 import com.vulpix.api.dto.CadastroInicial.CadastroRequisicaoDto;
 import com.vulpix.api.dto.CadastroInicial.CadastroRetornoDto;
 import com.vulpix.api.service.EmpresaService;
@@ -22,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class UsuarioControllerTest {
 
     @InjectMocks
-    private UsuarioController usuarioController;
+    private UsuarioControllerImpl usuarioController;
 
     @Mock
     private UsuarioService usuarioService;

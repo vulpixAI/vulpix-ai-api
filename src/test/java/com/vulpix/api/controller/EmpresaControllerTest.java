@@ -1,5 +1,6 @@
 package com.vulpix.api.controller;
 
+import com.vulpix.api.controller.impl.EmpresaControllerImpl;
 import com.vulpix.api.dto.Empresa.EmpresaEditDto;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.service.EmpresaService;
@@ -22,7 +23,7 @@ import static org.mockito.Mockito.*;
 class EmpresaControllerTest {
 
     @InjectMocks
-    private EmpresaController empresaController;
+    private EmpresaControllerImpl empresaController;
 
     @Mock
     private EmpresaService empresaService;
