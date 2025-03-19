@@ -1,4 +1,4 @@
-package com.vulpix.api.controller;
+package com.vulpix.api.controller.impl;
 
 import com.vulpix.api.dto.Publicacao.Insights.PublicacaoInsightDto;
 import com.vulpix.api.service.EmpresaService;
@@ -38,8 +38,8 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/posts")
-@Tag(name = "Controller de Publicação")
-public class PublicacaoController {
+@Tag(name = "Publicação")
+public class PublicacaoControllerImpl {
     @Autowired
     private PublicacaoService publicacaoService;
     @Autowired

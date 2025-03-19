@@ -2,37 +2,23 @@ package com.vulpix.api.controller;
 
 import com.vulpix.api.dto.Dashboard.DashKpiDto;
 import com.vulpix.api.dto.Dashboard.PostInsightsDto;
-import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.PostInsights;
-import com.vulpix.api.service.DashboardService;
-import com.vulpix.api.service.usuario.autenticacao.UsuarioAutenticadoUtil;
-import com.vulpix.api.utils.helpers.EmpresaHelper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@RestController
 @RequestMapping("/dash")
 @Tag(name = "Dashboard", description = "Endpoints para consultas de dados do dashboard.")
-public class DashboardController {
-    @Autowired
-    private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
-
-    @Autowired
-    private EmpresaHelper empresaHelper;
-
-    @Autowired
-    private DashboardService dashboardService;
-
+public interface DashboardController {
     @Operation(
             summary = "Busca a última métrica de um post",
             description = "Retorna as métricas do último post publicado pela empresa do usuário autenticado.",
@@ -43,7 +29,6 @@ public class DashboardController {
                             content = @Content(
                                     mediaType = "application/json",
                                     examples = @ExampleObject(
-                                            name = "Exemplo de resposta",
                                             value = """
                                                         [
                                                             {
@@ -57,24 +42,17 @@ public class DashboardController {
                                     )
                             )
                     ),
-                    @ApiResponse(responseCode = "204", description = "Nenhuma métrica encontrada."),
-                    @ApiResponse(responseCode = "404", description = "Empresa não encontrada.")
+                    @ApiResponse(responseCode = "204", description = "Nenhuma métrica encontrada.", content = @Content(examples = @ExampleObject())),
+                    @ApiResponse(responseCode = "404", description = "Empresa não encontrada.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(value = "{ \"status\": 404, \"detail\": \"Empresa não encontrada.\", \"timestamp\": \"2025-03-17T16:59:50.5115104\" }")
+                            )
+                    )
             }
     )
     @GetMapping("/grafico-ultima-metrica-post")
-    public ResponseEntity<List<PostInsights>> buscaUltimaMetricaPost() {
-        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
-        String emailUsuario = userDetails.getUsername();
-        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
-
-        List<PostInsights> response = dashboardService.buscaMetricaUltimoPost(empresa);
-
-        if (response.isEmpty()) {
-            return ResponseEntity.status(204).build();
-        }
-
-        return ResponseEntity.status(200).body(response);
-    }
+    ResponseEntity<List<PostInsights>> buscaUltimaMetricaPost();
 
     @Operation(
             summary = "Busca métricas de posts por período",
@@ -86,7 +64,6 @@ public class DashboardController {
                             content = @Content(
                                     mediaType = "application/json",
                                     examples = @ExampleObject(
-                                            name = "Exemplo de resposta",
                                             value = """
                                                         [
                                                             {
@@ -106,24 +83,17 @@ public class DashboardController {
                                     )
                             )
                     ),
-                    @ApiResponse(responseCode = "204", description = "Nenhuma métrica encontrada no período."),
-                    @ApiResponse(responseCode = "404", description = "Empresa não encontrada.")
+                    @ApiResponse(responseCode = "204", description = "Nenhuma métrica encontrada no período.", content = @Content(examples = @ExampleObject())),
+                    @ApiResponse(responseCode = "404", description = "Empresa não encontrada.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(value = "{ \"status\": 404, \"detail\": \"Empresa não encontrada.\", \"timestamp\": \"2025-03-17T16:59:50.5115104\" }")
+                            )
+                    )
             }
     )
     @GetMapping("/grafico-metricas-por-dia")
-    public ResponseEntity<List<PostInsightsDto>> buscaMetricasPorDia(@RequestParam LocalDate data_inicio, @RequestParam LocalDate data_fim) {
-        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
-        String emailUsuario = userDetails.getUsername();
-        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
-
-        List<PostInsightsDto> response = dashboardService.buscaMetricasPorDia(empresa, data_inicio, data_fim);
-
-        if (response.isEmpty()) {
-            return ResponseEntity.status(204).build();
-        }
-
-        return ResponseEntity.status(200).body(response);
-    }
+    ResponseEntity<List<PostInsightsDto>> buscaMetricasPorDia(@RequestParam LocalDate data_inicio, @RequestParam LocalDate data_fim);
 
     @Operation(
             summary = "Busca dados de KPIs",
@@ -135,7 +105,6 @@ public class DashboardController {
                             content = @Content(
                                     mediaType = "application/json",
                                     examples = @ExampleObject(
-                                            name = "Exemplo de resposta",
                                             value = """
                                                         {
                                                             "totalPosts": 50,
@@ -146,22 +115,15 @@ public class DashboardController {
                                     )
                             )
                     ),
-                    @ApiResponse(responseCode = "204", description = "Nenhum KPI encontrado."),
-                    @ApiResponse(responseCode = "404", description = "Empresa não encontrada.")
+                    @ApiResponse(responseCode = "204", description = "Nenhum KPI encontrado.", content = @Content(examples = @ExampleObject())),
+                    @ApiResponse(responseCode = "404", description = "Empresa não encontrada.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(value = "{ \"status\": 404, \"detail\": \"Empresa não encontrada.\", \"timestamp\": \"2025-03-17T16:59:50.5115104\" }")
+                            )
+                    )
             }
     )
     @GetMapping("/kpís")
-    public ResponseEntity<DashKpiDto> buscaDadosKpi() {
-        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
-        String emailUsuario = userDetails.getUsername();
-        Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
-
-        DashKpiDto response = dashboardService.buscaKpisPorPeriodo(empresa);
-
-        if (response == null) {
-            return ResponseEntity.status(204).build();
-        }
-
-        return ResponseEntity.status(200).body(response);
-    }
+    ResponseEntity<DashKpiDto> buscaDadosKpi();
 }

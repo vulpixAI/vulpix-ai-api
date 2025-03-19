@@ -1,5 +1,6 @@
 package com.vulpix.api.controller;
 
+import com.vulpix.api.controller.impl.PublicacaoControllerImpl;
 import com.vulpix.api.dto.Agent.PublicacaoGeradaRetorno;
 import com.vulpix.api.dto.Publicacao.PostPublicacaoDto;
 import com.vulpix.api.dto.Publicacao.PostPublicacaoResponse;
@@ -25,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class PublicacaoControllerTest {
 
     @InjectMocks
-    private PublicacaoController publicacaoController;
+    private PublicacaoControllerImpl publicacaoController;
 
 
     @Mock
