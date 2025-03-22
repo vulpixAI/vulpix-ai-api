@@ -1,11 +1,9 @@
 package com.vulpix.api.controller.impl;
 
-import com.vulpix.api.dto.Publicacao.Insights.PublicacaoInsightDto;
-import com.vulpix.api.service.EmpresaService;
-import com.vulpix.api.service.usuario.autenticacao.UsuarioAutenticadoUtil;
-import com.vulpix.api.utils.enums.StatusPublicacao;
-import com.vulpix.api.utils.enums.TipoIntegracao;
+import com.vulpix.api.controller.PublicacaoController;
+import com.vulpix.api.dto.Agent.PublicacaoGeradaRetorno;
 import com.vulpix.api.dto.Publicacao.GetPublicacaoDto;
+import com.vulpix.api.dto.Publicacao.Insights.PublicacaoInsightDto;
 import com.vulpix.api.dto.Publicacao.PostPublicacaoDto;
 import com.vulpix.api.dto.Publicacao.PostPublicacaoResponse;
 import com.vulpix.api.entity.Empresa;
@@ -13,15 +11,12 @@ import com.vulpix.api.entity.Integracao;
 import com.vulpix.api.entity.Publicacao;
 import com.vulpix.api.repository.EmpresaRepository;
 import com.vulpix.api.repository.PublicacaoRepository;
+import com.vulpix.api.service.EmpresaService;
 import com.vulpix.api.service.integracoes.graph.PublicacaoService;
-import com.vulpix.api.dto.Agent.PublicacaoGeradaRetorno;
+import com.vulpix.api.service.usuario.autenticacao.UsuarioAutenticadoUtil;
+import com.vulpix.api.utils.enums.StatusPublicacao;
+import com.vulpix.api.utils.enums.TipoIntegracao;
 import com.vulpix.api.utils.helpers.EmpresaHelper;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
@@ -29,7 +24,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.*;
 import java.time.LocalDateTime;
@@ -37,40 +35,26 @@ import java.time.OffsetDateTime;
 import java.util.*;
 
 @RestController
-@RequestMapping("/posts")
-@Tag(name = "Publicação")
-public class PublicacaoControllerImpl {
+public class PublicacaoControllerImpl implements PublicacaoController {
     @Autowired
     private PublicacaoService publicacaoService;
+
     @Autowired
     private PublicacaoRepository publicacaoRepository;
+
     @Autowired
     private EmpresaRepository empresaRepository;
+
     @Autowired
     private EmpresaService empresaService;
+
     @Autowired
     private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
+
     @Autowired
     private EmpresaHelper empresaHelper;
 
-    @Operation(summary = "Criar um novo post",
-            description = "Cria um novo post para a empresa informada. O post deve incluir a legenda e a URL da mídia.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Post criado com sucesso.",
-                    content = @Content(mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(value = "{\"legenda\":\"Novo Post\",\"id\":\"1\",\"fkEmpresa\":\"empresa-1\"}"),
-                                    @ExampleObject(value = "{\"legenda\":\"Post de Verão\",\"id\":\"2\",\"fkEmpresa\":\"empresa-1\"}"),
-                                    @ExampleObject(value = "{\"legenda\":\"Post de Natal\",\"id\":\"3\",\"fkEmpresa\":\"empresa-1\"}"),
-                                    @ExampleObject(value = "{\"legenda\":\"Post de Aniversário\",\"id\":\"4\",\"fkEmpresa\":\"empresa-1\"}"),
-                                    @ExampleObject(value = "{\"legenda\":\"Post de Lançamento\",\"id\":\"5\",\"fkEmpresa\":\"empresa-1\"}"),
-                                    @ExampleObject(value = "{\"legenda\":\"Post de Black Friday\",\"id\":\"6\",\"fkEmpresa\":\"empresa-1\"}")
-                            })),
-            @ApiResponse(responseCode = "404", description = "Empresa não encontrada.",
-                    content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(value = "{ \"message\": \"Erro: Empresa não encontrada.\" }")))
-    })
-    @PostMapping
+    @Override
     public ResponseEntity<PostPublicacaoResponse> criarPost(@RequestBody PostPublicacaoDto post) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
@@ -120,22 +104,7 @@ public class PublicacaoControllerImpl {
         return responseDto;
     }
 
-    @Operation(summary = "Gera uma publicação criativa com a AI",
-            description = "Gera uma publicação baseada na solicitação do usuário autenticado.",
-            responses = {
-                    @ApiResponse(responseCode = "201", description = "Publicação gerada com sucesso.",
-                            content = @Content(mediaType = "application/json",
-                                    examples = {
-                                            @ExampleObject(value = "[{\"id\":\"1\",\"legenda\":\"Post 1\",\"tipoMidia\":\"image\",\"urlMidia\":\"http://exemplo.com/post1\",\"dataPublicacao\":\"2024-11-01T10:00:00Z\",\"likeCount\":10}]"),
-                                            @ExampleObject(value = "[{\"id\":\"2\",\"legenda\":\"Post 2\",\"tipoMidia\":\"video\",\"urlMidia\":\"http://exemplo.com/post2\",\"dataPublicacao\":\"2024-11-02T10:00:00Z\",\"likeCount\":20}]"),
-                                            @ExampleObject(value = "[{\"id\":\"3\",\"legenda\":\"Post 3\",\"tipoMidia\":\"image\",\"urlMidia\":\"http://exemplo.com/post3\",\"dataPublicacao\":\"2024-11-03T10:00:00Z\",\"likeCount\":30}]"),
-                                            @ExampleObject(value = "[{\"id\":\"4\",\"legenda\":\"Post 4\",\"tipoMidia\":\"image\",\"urlMidia\":\"http://exemplo.com/post4\",\"dataPublicacao\":\"2024-11-04T10:00:00Z\",\"likeCount\":40}]"),
-                                            @ExampleObject(value = "[{\"id\":\"5\",\"legenda\":\"Post 5\",\"tipoMidia\":\"video\",\"urlMidia\":\"http://exemplo.com/post5\",\"dataPublicacao\":\"2024-11-05T10:00:00Z\",\"likeCount\":50}]"),
-                                            @ExampleObject(value = "[{\"id\":\"6\",\"legenda\":\"Post 6\",\"tipoMidia\":\"image\",\"urlMidia\":\"http://exemplo.com/post6\",\"dataPublicacao\":\"2024-11-06T10:00:00Z\",\"likeCount\":60}]")
-                                    })),
-                    @ApiResponse(responseCode = "502", description = "Erro ao gerar a publicação.")
-            })
-    @PostMapping("/gerar-post")
+    @Override
     public ResponseEntity<PublicacaoGeradaRetorno> gerarPublicacao(@RequestBody String userRequest) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
@@ -148,20 +117,7 @@ public class PublicacaoControllerImpl {
         return ResponseEntity.status(201).body(retorno);
     }
 
-    @PostMapping("/gerar-legenda")
-    @Operation(summary = "Gerar legenda para a publicação",
-            description = "Gera uma legenda com base na solicitação do usuário e na empresa associada ao usuário autenticado.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Legenda gerada com sucesso.",
-                    content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(value = "{ \"legenda\": \"Esta é a legenda gerada.\" }"))),
-            @ApiResponse(responseCode = "502", description = "Erro ao buscar a legenda, empresa ou solicitação inválida.",
-                    content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(value = "{ \"message\": \"Erro ao buscar a legenda.\" }"))),
-            @ApiResponse(responseCode = "400", description = "Solicitação inválida.",
-                    content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(value = "{ \"message\": \"Solicitação inválida.\" }")))
-    })
+    @Override
     public ResponseEntity<Map<String, String>> gerarLegenda(@RequestBody String userRequest) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
@@ -177,24 +133,7 @@ public class PublicacaoControllerImpl {
         return ResponseEntity.status(201).body(response);
     }
 
-    @Operation(summary = "Buscar posts por empresa",
-            description = "Retorna uma lista de publicações associadas a uma empresa especificada pelo ID.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de publicações retornada com sucesso.",
-                    content = @Content(mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(value = "[{\"id\":\"1\",\"legenda\":\"Post 1\",\"tipoMidia\":\"image\",\"urlMidia\":\"http://exemplo.com/post1\",\"dataPublicacao\":\"2024-11-01T10:00:00Z\",\"likeCount\":10}]"),
-                                    @ExampleObject(value = "[{\"id\":\"2\",\"legenda\":\"Post 2\",\"tipoMidia\":\"video\",\"urlMidia\":\"http://exemplo.com/post2\",\"dataPublicacao\":\"2024-11-02T10:00:00Z\",\"likeCount\":20}]"),
-                                    @ExampleObject(value = "[{\"id\":\"3\",\"legenda\":\"Post 3\",\"tipoMidia\":\"image\",\"urlMidia\":\"http://exemplo.com/post3\",\"dataPublicacao\":\"2024-11-03T10:00:00Z\",\"likeCount\":30}]"),
-                                    @ExampleObject(value = "[{\"id\":\"4\",\"legenda\":\"Post 4\",\"tipoMidia\":\"image\",\"urlMidia\":\"http://exemplo.com/post4\",\"dataPublicacao\":\"2024-11-04T10:00:00Z\",\"likeCount\":40}]"),
-                                    @ExampleObject(value = "[{\"id\":\"5\",\"legenda\":\"Post 5\",\"tipoMidia\":\"video\",\"urlMidia\":\"http://exemplo.com/post5\",\"dataPublicacao\":\"2024-11-05T10:00:00Z\",\"likeCount\":50}]"),
-                                    @ExampleObject(value = "[{\"id\":\"6\",\"legenda\":\"Post 6\",\"tipoMidia\":\"image\",\"urlMidia\":\"http://exemplo.com/post6\",\"dataPublicacao\":\"2024-11-06T10:00:00Z\",\"likeCount\":60}]")
-                            })),
-            @ApiResponse(responseCode = "404", description = "Empresa não encontrada.",
-                    content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(value = "{ \"message\": \"Erro: Empresa não encontrada.\" }")))
-    })
-    @GetMapping()
+    @Override
     public ResponseEntity<Page<GetPublicacaoDto>> buscarPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -209,24 +148,7 @@ public class PublicacaoControllerImpl {
         return ResponseEntity.ok(posts);
     }
 
-    @Operation(summary = "Somar likes das publicações utilizando Recursão",
-            description = "Retorna a soma total de likes de todas as publicações da empresa especificada pelo ID.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Soma total de likes retornada com sucesso.",
-                    content = @Content(mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(value = "150"),
-                                    @ExampleObject(value = "200"),
-                                    @ExampleObject(value = "300"),
-                                    @ExampleObject(value = "50"),
-                                    @ExampleObject(value = "75"),
-                                    @ExampleObject(value = "100")
-                            })),
-            @ApiResponse(responseCode = "204", description = "Nenhuma publicação encontrada para somar os likes.",
-                    content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(value = "{ \"message\": \"Nenhuma publicação encontrada.\" }")))
-    })
-    @GetMapping("/somar-likes-publicacao")
+    @Override
     public ResponseEntity<Integer> somarLikes() {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
@@ -250,21 +172,8 @@ public class PublicacaoControllerImpl {
         return posts.get(index).getLikeCount() + somarLikesRecursivo(posts, index + 1);
     }
 
-    @Operation(summary = "Buscar publicações por data",
-            description = "Retorna a publicação da empresa especificada pelo ID e pela data de publicação informada.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Publicação encontrada com sucesso.",
-                    content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "204", description = "Nenhuma publicação encontrada para a data especificada.",
-                    content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(value = "{ \"message\": \"Nenhuma publicação encontrada.\" }"))),
-            @ApiResponse(responseCode = "400", description = "Solicitação inválida. O formato da data pode ser incorreto.",
-                    content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(value = "{ \"message\": \"Formato de data inválido.\" }")))
-    })
-    @GetMapping("/buscar-por-data")
-    public ResponseEntity<GetPublicacaoDto> buscarPorData(
-            @RequestParam String dataPublicacao) {
+    @Override
+    public ResponseEntity<GetPublicacaoDto> buscarPorData(@RequestParam String dataPublicacao) {
         try {
             OffsetDateTime dataBusca = OffsetDateTime.parse(dataPublicacao + "T00:00:00Z");
             UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
@@ -289,24 +198,7 @@ public class PublicacaoControllerImpl {
         }
     }
 
-    @Operation(summary = "Exportar publicações para CSV",
-            description = "Gera um arquivo CSV contendo todas as publicações da empresa associada ao usuário autenticado.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Arquivo CSV gerado e retornado com sucesso.",
-                    content = @Content(mediaType = "text/csv",
-                            examples = {
-                                    @ExampleObject(value = "ID,Legenda,Tipo Mídia,URL Mídia,Data Publicação,Likes\n" +
-                                            "1,Exemplo de Legenda,imagem,https://exemplo.com/imagem.jpg,2024-11-03,150\n" +
-                                            "2,Outra Legenda,video,https://exemplo.com/video.mp4,2024-11-02,200")
-                            })),
-            @ApiResponse(responseCode = "204", description = "Nenhuma publicação encontrada para exportar.",
-                    content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(value = "{ \"message\": \"Nenhuma publicação encontrada.\" }"))),
-            @ApiResponse(responseCode = "500", description = "Erro ao exportar os dados.",
-                    content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(value = "{ \"message\": \"Erro ao exportar os dados.\" }")))
-    })
-    @GetMapping("/exportar-csv")
+    @Override
     public ResponseEntity<InputStreamResource> exportarPublicacoesCSV() {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
@@ -356,34 +248,7 @@ public class PublicacaoControllerImpl {
         }
     }
 
-    @Operation(
-            summary = "Busca um insight por ID",
-            description = "Retorna as informações detalhadas de um insight específico associado à empresa autenticada.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Insight encontrado com sucesso.",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    examples = @ExampleObject(
-                                            name = "Exemplo de resposta",
-                                            value = """
-                                                        {
-                                                            "id": "123456",
-                                                            "titulo": "Título do Insight",
-                                                            "descricao": "Descrição detalhada do insight.",
-                                                            "dataCriacao": "2024-11-01T10:00:00",
-                                                            "empresaId": "e6a8b7c9-4d2f-4f1a-9cde-123456789abc"
-                                                        }
-                                                    """
-                                    )
-                            )
-                    ),
-                    @ApiResponse(responseCode = "404", description = "Empresa ou insight não encontrado.")
-            }
-    )
-
-    @GetMapping("/{id}")
+    @Override
     public ResponseEntity<PublicacaoInsightDto> buscaInsightPorId(@PathVariable String id) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();

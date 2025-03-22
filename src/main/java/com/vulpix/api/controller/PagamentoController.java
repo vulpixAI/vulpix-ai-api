@@ -43,10 +43,10 @@ public interface PagamentoController {
             description = "Recebe eventos do webhook Stripe e atualiza o status dos pagamentos com base no evento recebido.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Evento processado com sucesso.", content = @Content(examples = @ExampleObject())),
-                    @ApiResponse(responseCode = "400", description = "Erro ao processar evento.",
+                    @ApiResponse(responseCode = "500", description = "Erro ao processar evento.",
                             content = @Content(
                                     mediaType = "application/json",
-                                    examples = @ExampleObject(value = "{ \"status\": 400, \"detail\": \"Erro ao processar evento.\", \"timestamp\": \"2025-03-17T16:59:50.5115104\" }")
+                                    examples = @ExampleObject(value = "{ \"status\": 500, \"detail\": \"Erro ao processar evento.\", \"timestamp\": \"2025-03-17T16:59:50.5115104\" }")
                             )
                     )
             }

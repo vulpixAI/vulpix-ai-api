@@ -5,7 +5,7 @@ import com.vulpix.api.dto.CadastroInicial.CadastroRequisicaoDto;
 import com.vulpix.api.dto.CadastroInicial.CadastroRetornoDto;
 import com.vulpix.api.service.EmpresaService;
 import com.vulpix.api.service.usuario.UsuarioService;
-import com.vulpix.api.service.usuario.autenticacao.dto.UsuarioTokenDto;
+import com.vulpix.api.dto.Usuario.UsuarioTokenDto;
 import com.vulpix.api.entity.Usuario;
 import com.vulpix.api.entity.Empresa;
 import org.junit.jupiter.api.BeforeEach;
