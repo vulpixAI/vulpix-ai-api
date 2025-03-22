@@ -1,4 +1,4 @@
-package com.vulpix.api.service.usuario.autenticacao.dto;
+package com.vulpix.api.dto.Usuario;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

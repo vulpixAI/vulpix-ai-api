@@ -3,11 +3,10 @@ package com.vulpix.api.service.usuario.autenticacao;
 import com.vulpix.api.entity.Usuario;
 import com.vulpix.api.exception.exceptions.NaoEncontradoException;
 import com.vulpix.api.repository.UsuarioRepository;
-import com.vulpix.api.service.usuario.autenticacao.dto.UsuarioDetalhesDto;
+import com.vulpix.api.dto.Usuario.UsuarioDetalhesDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -19,7 +18,7 @@ public class AutenticacaoService implements UserDetailsService {
     private UsuarioRepository usuarioRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(username);
 
         if (usuarioOpt.isEmpty()) {

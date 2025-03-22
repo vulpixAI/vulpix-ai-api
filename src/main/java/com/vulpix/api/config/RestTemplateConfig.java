@@ -1,4 +1,4 @@
-package com.vulpix.api.service;
+package com.vulpix.api.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -6,14 +6,12 @@ import com.stripe.model.PaymentLink;
 import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
 import com.stripe.param.PaymentLinkCreateParams;
-import com.vulpix.api.dto.Pagamento.PagamentoStatusDto;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.exception.exceptions.ErroInternoException;
 import com.vulpix.api.service.usuario.UsuarioService;
 import com.vulpix.api.utils.enums.StatusUsuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -26,9 +24,6 @@ public class PagamentoService {
 
     @Autowired
     EmpresaService empresaService;
-
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
 
     @Value("${stripe.chave-secreta}")
     private String stripeApiKey;
@@ -59,23 +54,19 @@ public class PagamentoService {
     public void criarWebhook(String payload, String sigHeader, String endpointSecret) {
         try {
             Event event = Webhook.constructEvent(payload, sigHeader, endpointSecret);
-            String status = null;
-            String empresaNome = null;
 
             switch (event.getType()) {
                 case "checkout.session.completed", "payment_intent.succeeded", "invoice.payment_succeeded":
                     System.out.println("Evento: " + event.getType());
-                    status = processarEvento(event, StatusUsuario.AGUARDANDO_FORMULARIO);
+                    processarEvento(event, StatusUsuario.AGUARDANDO_FORMULARIO);
                     break;
                 case "payment_intent.payment_failed", "invoice.payment_failed", "charge.failed":
                     System.out.println("Evento: " + event.getType());
-                    status = processarEvento(event, null);
+                    processarEvento(event, null);
                     break;
                 default:
                     break;
             }
-
-            messagingTemplate.convertAndSend("/topic/status-payment", PagamentoStatusDto.builder().status(status).empresaNome(empresaNome).build());
         } catch (Exception e) {
             throw new ErroInternoException("Houve uma falha ao criar o webhook.");
         }
