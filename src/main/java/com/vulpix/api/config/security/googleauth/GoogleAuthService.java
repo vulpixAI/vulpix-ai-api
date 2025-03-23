@@ -2,7 +2,9 @@ package com.vulpix.api.config.security.googleauth;
 
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
+import org.springframework.stereotype.Service;
 
+@Service
 public class GoogleAuthService {
 
     private final GoogleAuthenticator googleAuthenticator;
