@@ -15,7 +15,7 @@ public class GoogleAuthControllerImpl implements GoogleAuthController {
     @Override
     public ResponseEntity<GoogleAuthQRCodeResponse> gerarQRCode(String email) {
         String secret = googleAuthService.getSecret();
-        String qrcodeBase64 = googleAuthService.gerarQRCode(secret, email, "Vulpix");
+        String qrcodeBase64 = googleAuthService.gerarQRCode(secret, email, "vulpix.AI");
         GoogleAuthQRCodeResponse googleAuthQRCodeDto = GoogleAuthMapper.criaDtoQRCode(qrcodeBase64);
         return ResponseEntity.status(200).body(googleAuthQRCodeDto);
     }
