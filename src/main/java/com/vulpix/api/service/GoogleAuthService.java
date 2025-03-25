@@ -9,8 +9,11 @@ import com.warrenstrange.googleauth.GoogleAuthenticator;
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 import org.springframework.stereotype.Service;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,7 +40,21 @@ public class GoogleAuthService {
         return googleAuthenticator.authorize(key.getKey(), Integer.parseInt(otp));
     }
 
-    public BufferedImage gerarQRCode(String secret, String email, String issuer) {
+    private String converterBufferedImageParaBase64(BufferedImage imagem) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        try {
+            ImageIO.write(imagem, "PNG", baos);
+        } catch (Exception e) {
+            throw new ErroInternoException("Falha ao realizar conversão do QR Code para base64.");
+        }
+
+        byte[] imagemBytes = baos.toByteArray();
+
+        return Base64.getEncoder().encodeToString(imagemBytes);
+    }
+
+    public String gerarQRCode(String secret, String email, String issuer) {
         String uri = String.format("otpauth://totp/%s:%s?secret=%s&issuer=%s", issuer, email, secret, issuer);
 
         Map<EncodeHintType, Object> hints = new HashMap<>();
@@ -53,7 +70,7 @@ public class GoogleAuthService {
                 }
             }
 
-            return image;
+            return converterBufferedImageParaBase64(image);
         } catch (Exception e) {
             throw new ErroInternoException("Falha ao gerar QR Code.");
         }

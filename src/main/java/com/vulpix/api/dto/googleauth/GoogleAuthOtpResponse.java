@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 @Builder
-public class GoogleAuthOtpDto {
+public class GoogleAuthOtpResponse {
     private Boolean isOtpValido;
 }
