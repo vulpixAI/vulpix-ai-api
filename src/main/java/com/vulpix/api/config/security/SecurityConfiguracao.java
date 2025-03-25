@@ -45,7 +45,9 @@ public class SecurityConfiguracao {
             new AntPathRequestMatcher("/pagamentos/webhook"),
             new AntPathRequestMatcher("/swagger-ui/**"),
             new AntPathRequestMatcher("/swagger-resources/*"),
-            new AntPathRequestMatcher("/v3/api-docs/**")
+            new AntPathRequestMatcher("/v3/api-docs/**"),
+            new AntPathRequestMatcher("/autenticacoes/gerar-qrcode"),
+            new AntPathRequestMatcher("/autenticacoes/validar-otp")
     };
 
     @Bean
