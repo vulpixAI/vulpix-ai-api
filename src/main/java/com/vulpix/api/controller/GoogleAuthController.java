@@ -12,8 +12,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RequestMapping("/autenticacao")
-@Tag(name = "Google Auth")
+@RequestMapping("/autenticacoes")
+@Tag(name = "Autenticação")
 public interface GoogleAuthController {
     @Operation(summary = "Realiza a geração de um QR Code",
             description = "Realiza a geração de um QR Code para a autenticação do usuário.")
