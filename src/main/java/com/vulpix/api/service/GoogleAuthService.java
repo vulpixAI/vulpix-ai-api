@@ -43,7 +43,7 @@ public class GoogleAuthService {
         return googleAuthenticator.authorize(secretKey, Integer.parseInt(otp));
     }
 
-    public String gerarSecretKey() {
+    private String gerarSecretKey() {
         return googleAuthenticator.createCredentials().getKey();
     }
 
