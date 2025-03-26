@@ -61,7 +61,7 @@ public class GoogleAuthService {
         return googleAuthenticator.createCredentials().getKey();
     }
 
-    private void verificaExistenciaSecretKeyPorEmail(String email) {
+    private void verificarExistenciaSecretKeyPorEmail(String email) {
         Usuario usuario = usuarioService.buscarUsuarioPorEmail(email);
         if (usuario.getSecretKey() != null) {
             throw new ConflitoException("A autenticação de dois fatores já está ativada para sua conta.");
@@ -86,7 +86,7 @@ public class GoogleAuthService {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String email = userDetails.getUsername();
 
-        verificaExistenciaSecretKeyPorEmail(email);
+        verificarExistenciaSecretKeyPorEmail(email);
 
         String secretKey = gerarSecretKey();
         String issuer = "vulpix.AI";
