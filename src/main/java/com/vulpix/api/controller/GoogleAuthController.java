@@ -21,7 +21,7 @@ public interface GoogleAuthController {
             @ApiResponse(responseCode = "200", description = "QR Code gerado com sucesso.",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(value = "{\"qrcodeBase64\": \"base64\"}")
+                            examples = @ExampleObject(value = "{\"secretKey\": \"string\", \"qrcodeBase64\": \"string\"}")
                     )
             ),
             @ApiResponse(responseCode = "500", description = "Falha ao gerar QR Code.",

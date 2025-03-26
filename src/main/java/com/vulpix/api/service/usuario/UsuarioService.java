@@ -131,8 +131,8 @@ public class UsuarioService {
         return true;
     }
 
-    public void cadastrarSecretKey(String secret, Usuario usuario) {
-        usuario.setSecretKey(secret);
+    public void cadastrarSecretKey(String secretKey, Usuario usuario) {
+        usuario.setSecretKey(secretKey);
         usuarioRepository.save(usuario);
     }
 }

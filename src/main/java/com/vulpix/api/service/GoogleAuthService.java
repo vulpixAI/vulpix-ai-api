@@ -4,7 +4,10 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
+import com.vulpix.api.dto.googleauth.GoogleAuthOtpResponse;
+import com.vulpix.api.dto.googleauth.GoogleAuthQRCodeResponse;
 import com.vulpix.api.entity.Usuario;
+import com.vulpix.api.exception.exceptions.ConflitoException;
 import com.vulpix.api.exception.exceptions.ErroInternoException;
 import com.vulpix.api.service.usuario.UsuarioService;
 import com.vulpix.api.service.usuario.autenticacao.UsuarioAutenticadoUtil;
@@ -35,28 +38,34 @@ public class GoogleAuthService {
         googleAuthenticator = new GoogleAuthenticator();
     }
 
-    public Boolean validarOTP(String otp) {
+    public GoogleAuthOtpResponse validarOTP(String otp, String secretKey) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String email = userDetails.getUsername();
         Usuario usuario = usuarioService.buscarUsuarioPorEmail(email);
-        String secretKey = usuario.getSecretKey();
-        return googleAuthenticator.authorize(secretKey, Integer.parseInt(otp));
+        String secretKeyCadastrada = usuario.getSecretKey();
+
+        if (secretKeyCadastrada == null) {
+            secretKeyCadastrada = secretKey;
+        }
+
+        boolean isOtpValido = googleAuthenticator.authorize(secretKeyCadastrada, Integer.parseInt(otp));
+
+        if (isOtpValido && usuario.getSecretKey() == null) {
+            usuarioService.cadastrarSecretKey(secretKey, usuario);
+        }
+
+        return new GoogleAuthOtpResponse(isOtpValido);
     }
 
     private String gerarSecretKey() {
         return googleAuthenticator.createCredentials().getKey();
     }
 
-    private String getSecretKeyPorEmailUsuario(String email) {
+    private void verificaExistenciaSecretKeyPorEmail(String email) {
         Usuario usuario = usuarioService.buscarUsuarioPorEmail(email);
-        String secretKey = usuario.getSecretKey();
-
-        if (secretKey == null) {
-            secretKey = gerarSecretKey();
-            usuarioService.cadastrarSecretKey(secretKey, usuario);
+        if (usuario.getSecretKey() != null) {
+            throw new ConflitoException("A autenticação de dois fatores já está ativada para sua conta.");
         }
-
-        return secretKey;
     }
 
     private String converterBufferedImageParaBase64(BufferedImage imagem) {
@@ -73,12 +82,14 @@ public class GoogleAuthService {
         return Base64.getEncoder().encodeToString(imagemBytes);
     }
 
-    public String gerarQRCode() {
+    public GoogleAuthQRCodeResponse gerarQRCode() {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String email = userDetails.getUsername();
-        String secretKey = getSecretKeyPorEmailUsuario(email);
-        String issuer = "vulpix.AI";
 
+        verificaExistenciaSecretKeyPorEmail(email);
+
+        String secretKey = gerarSecretKey();
+        String issuer = "vulpix.AI";
         String uri = String.format("otpauth://totp/%s:%s?secret=%s&issuer=%s", issuer, email, secretKey, issuer);
 
         Map<EncodeHintType, Object> hints = new HashMap<>();
@@ -94,7 +105,9 @@ public class GoogleAuthService {
                 }
             }
 
-            return converterBufferedImageParaBase64(image);
+            String qrcodeBase64 = converterBufferedImageParaBase64(image);
+
+            return new GoogleAuthQRCodeResponse(secretKey, qrcodeBase64);
         } catch (Exception e) {
             throw new ErroInternoException("Falha ao gerar QR Code.");
         }

@@ -13,4 +13,5 @@ import lombok.NoArgsConstructor;
 public class GoogleAuthOtpRequest {
     @NotBlank
     private String otp;
+    private String secretKey;
 }
