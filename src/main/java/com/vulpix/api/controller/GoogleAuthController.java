@@ -24,6 +24,12 @@ public interface GoogleAuthController {
                             examples = @ExampleObject(value = "{\"secretKey\": \"string\", \"qrcodeBase64\": \"string\"}")
                     )
             ),
+            @ApiResponse(responseCode = "409", description = "Autenticação de dois fatores já habilitada.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"status\": 409, \"detail\": \"A autenticação de dois fatores já está habilitada em sua conta.\", \"timestamp\": \"2025-03-17T16:59:50.5115104\" }")
+                    )
+            ),
             @ApiResponse(responseCode = "500", description = "Falha ao gerar QR Code.",
                     content = @Content(
                             mediaType = "application/json",
