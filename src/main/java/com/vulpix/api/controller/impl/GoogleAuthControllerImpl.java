@@ -25,4 +25,10 @@ public class GoogleAuthControllerImpl implements GoogleAuthController {
         GoogleAuthOtpResponse googleAuthOtpResponse = googleAuthService.validarOTP(dto.getOtp(), dto.getSecretKey());
         return ResponseEntity.status(200).body(googleAuthOtpResponse);
     }
+
+    @Override
+    public ResponseEntity<Void> desabilitarAutenticacao(String otp) {
+        googleAuthService.desabilitarAutenticacao(otp);
+        return ResponseEntity.status(204).build();
+    }
 }

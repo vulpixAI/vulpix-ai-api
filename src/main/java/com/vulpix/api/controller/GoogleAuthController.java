@@ -42,8 +42,36 @@ public interface GoogleAuthController {
                             mediaType = "application/json",
                             examples = @ExampleObject(value = "{\"isOtpValido\":true}")
                     )
+            ),
+            @ApiResponse(responseCode = "409", description = "Autenticação de dois fatores não habilitada.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"status\": 409, \"detail\": \"Sua conta não possui a autenticação de dois fatores habilitada.\", \"timestamp\": \"2025-03-17T16:59:50.5115104\" }")
+                    )
             )
     })
     @PostMapping("/google/validar-otp")
     ResponseEntity<GoogleAuthOtpResponse> validarOtp(@RequestBody GoogleAuthOtpRequest googleAuthOtpRequest);
+
+    @Operation(summary = "Desabilita a autenticação de dois fatores",
+            description = "Desabilita a autenticação de dois fatores.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Autenticação de dois fatores desabilitada com sucesso.",
+                    content = @Content(examples = @ExampleObject())
+            ),
+            @ApiResponse(responseCode = "401", description = "OTP inválido.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"status\": 401, \"detail\": \"OTP inválido.\", \"timestamp\": \"2025-03-17T16:59:50.5115104\" }")
+                    )
+            ),
+            @ApiResponse(responseCode = "409", description = "Autenticação de dois fatores não habilitada.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"status\": 409, \"detail\": \"Sua conta não possui a autenticação de dois fatores habilitada.\", \"timestamp\": \"2025-03-17T16:59:50.5115104\" }")
+                    )
+            )
+    })
+    @DeleteMapping("/google")
+    ResponseEntity<Void> desabilitarAutenticacao(@RequestHeader String otp);
 }

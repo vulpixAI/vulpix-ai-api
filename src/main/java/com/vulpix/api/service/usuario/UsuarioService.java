@@ -135,4 +135,9 @@ public class UsuarioService {
         usuario.setSecretKey(secretKey);
         usuarioRepository.save(usuario);
     }
+
+    public void desabilitarAutenticacao(Usuario usuario) {
+        usuario.setSecretKey(null);
+        usuarioRepository.save(usuario);
+    }
 }

@@ -9,6 +9,7 @@ import com.vulpix.api.dto.googleauth.GoogleAuthQRCodeResponse;
 import com.vulpix.api.entity.Usuario;
 import com.vulpix.api.exception.exceptions.ConflitoException;
 import com.vulpix.api.exception.exceptions.ErroInternoException;
+import com.vulpix.api.exception.exceptions.NaoAutorizadoException;
 import com.vulpix.api.service.usuario.UsuarioService;
 import com.vulpix.api.service.usuario.autenticacao.UsuarioAutenticadoUtil;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
@@ -44,6 +45,10 @@ public class GoogleAuthService {
         Usuario usuario = usuarioService.buscarUsuarioPorEmail(email);
         String secretKeyCadastrada = usuario.getSecretKey();
 
+        if (secretKeyCadastrada == null && secretKey == null) {
+            throw new ConflitoException("Sua conta não possui a autenticação de dois fatores habilitada.");
+        }
+
         if (secretKeyCadastrada == null) {
             secretKeyCadastrada = secretKey;
         }
@@ -64,7 +69,7 @@ public class GoogleAuthService {
     private void verificarExistenciaSecretKeyPorEmail(String email) {
         Usuario usuario = usuarioService.buscarUsuarioPorEmail(email);
         if (usuario.getSecretKey() != null) {
-            throw new ConflitoException("A autenticação de dois fatores já está ativada para sua conta.");
+            throw new ConflitoException("A autenticação de dois fatores já está habilitada em sua conta.");
         }
     }
 
@@ -111,5 +116,24 @@ public class GoogleAuthService {
         } catch (Exception e) {
             throw new ErroInternoException("Falha ao gerar QR Code.");
         }
+    }
+
+    public void desabilitarAutenticacao(String otp) {
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String email = userDetails.getUsername();
+        Usuario usuario = usuarioService.buscarUsuarioPorEmail(email);
+        String secretKey = usuario.getSecretKey();
+
+        if (secretKey == null) {
+            throw new ConflitoException("Sua conta não possui a autenticação de dois fatores habilitada.");
+        }
+
+        boolean isOtpValido = googleAuthenticator.authorize(secretKey, Integer.parseInt(otp));
+
+        if (!isOtpValido) {
+            throw new NaoAutorizadoException("OTP inválido.");
+        }
+
+        usuarioService.desabilitarAutenticacao(usuario);
     }
 }
