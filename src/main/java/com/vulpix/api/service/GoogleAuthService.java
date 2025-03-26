@@ -4,9 +4,13 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
+import com.vulpix.api.entity.Usuario;
 import com.vulpix.api.exception.exceptions.ErroInternoException;
+import com.vulpix.api.service.usuario.UsuarioService;
+import com.vulpix.api.service.usuario.autenticacao.UsuarioAutenticadoUtil;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
-import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -19,25 +23,40 @@ import java.util.Map;
 
 @Service
 public class GoogleAuthService {
+    @Autowired
+    private UsuarioService usuarioService;
+
+    @Autowired
+    private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
+
     private final GoogleAuthenticator googleAuthenticator;
-    private final GoogleAuthenticatorKey key;
 
     public GoogleAuthService() {
         googleAuthenticator = new GoogleAuthenticator();
-        this.key = googleAuthenticator.createCredentials();
-    }
-
-    public String getSecret() {
-        return key.getKey();
-    }
-
-    public int gerarOTP() {
-        long timestamp = System.currentTimeMillis();
-        return googleAuthenticator.getTotpPassword(key.getKey(), timestamp);
     }
 
     public Boolean validarOTP(String otp) {
-        return googleAuthenticator.authorize(key.getKey(), Integer.parseInt(otp));
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String email = userDetails.getUsername();
+        Usuario usuario = usuarioService.buscarUsuarioPorEmail(email);
+        String secretKey = usuario.getSecretKey();
+        return googleAuthenticator.authorize(secretKey, Integer.parseInt(otp));
+    }
+
+    public String gerarSecretKey() {
+        return googleAuthenticator.createCredentials().getKey();
+    }
+
+    private String getSecretKeyPorEmailUsuario(String email) {
+        Usuario usuario = usuarioService.buscarUsuarioPorEmail(email);
+        String secretKey = usuario.getSecretKey();
+
+        if (secretKey == null) {
+            secretKey = gerarSecretKey();
+            usuarioService.cadastrarSecretKey(secretKey, usuario);
+        }
+
+        return secretKey;
     }
 
     private String converterBufferedImageParaBase64(BufferedImage imagem) {
@@ -54,8 +73,13 @@ public class GoogleAuthService {
         return Base64.getEncoder().encodeToString(imagemBytes);
     }
 
-    public String gerarQRCode(String secret, String email, String issuer) {
-        String uri = String.format("otpauth://totp/%s:%s?secret=%s&issuer=%s", issuer, email, secret, issuer);
+    public String gerarQRCode() {
+        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
+        String email = userDetails.getUsername();
+        String secretKey = getSecretKeyPorEmailUsuario(email);
+        String issuer = "vulpix.AI";
+
+        String uri = String.format("otpauth://totp/%s:%s?secret=%s&issuer=%s", issuer, email, secretKey, issuer);
 
         Map<EncodeHintType, Object> hints = new HashMap<>();
         hints.put(EncodeHintType.MARGIN, 1);

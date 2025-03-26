@@ -1,7 +1,10 @@
 package com.vulpix.api.controller.impl;
 
 import com.vulpix.api.controller.GoogleAuthController;
-import com.vulpix.api.dto.googleauth.*;
+import com.vulpix.api.dto.googleauth.GoogleAuthMapper;
+import com.vulpix.api.dto.googleauth.GoogleAuthOtpRequest;
+import com.vulpix.api.dto.googleauth.GoogleAuthOtpResponse;
+import com.vulpix.api.dto.googleauth.GoogleAuthQRCodeResponse;
 import com.vulpix.api.service.GoogleAuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +16,8 @@ public class GoogleAuthControllerImpl implements GoogleAuthController {
     private GoogleAuthService googleAuthService;
 
     @Override
-    public ResponseEntity<GoogleAuthQRCodeResponse> gerarQRCode(String email) {
-        String secret = googleAuthService.getSecret();
-        String qrcodeBase64 = googleAuthService.gerarQRCode(secret, email, "vulpix.AI");
+    public ResponseEntity<GoogleAuthQRCodeResponse> gerarQRCode() {
+        String qrcodeBase64 = googleAuthService.gerarQRCode();
         GoogleAuthQRCodeResponse googleAuthQRCodeDto = GoogleAuthMapper.criaDtoQRCode(qrcodeBase64);
         return ResponseEntity.status(200).body(googleAuthQRCodeDto);
     }

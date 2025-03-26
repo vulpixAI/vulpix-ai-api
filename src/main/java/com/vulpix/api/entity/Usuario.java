@@ -32,6 +32,8 @@ public class Usuario {
     private StatusUsuario status;
     @Column(name = "telefone")
     private String telefone;
+    @Column(name = "secret_key")
+    private String secretKey;
     @Column(name = "created_at")
     private LocalDateTime created_at;
     @Column(name = "updated_at")

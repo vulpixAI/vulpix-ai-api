@@ -32,7 +32,7 @@ public interface GoogleAuthController {
             )
     })
     @GetMapping("/gerar-qrcode")
-    ResponseEntity<GoogleAuthQRCodeResponse> gerarQRCode(@RequestParam String email);
+    ResponseEntity<GoogleAuthQRCodeResponse> gerarQRCode();
 
     @Operation(summary = "Verifica se o OTP é válido",
             description = "Verifica se o OTP enviado pelo usuário é válido.")
