@@ -13,7 +13,7 @@ CREATE TABLE usuario (
     telefone VARCHAR(15),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    scret_key VARCHAR(255)
+    secret_key VARCHAR(255)
 );
 
 -- Criação da tabela Empresa
