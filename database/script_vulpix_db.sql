@@ -12,7 +12,8 @@ CREATE TABLE usuario (
     status VARCHAR(50) NOT NULL DEFAULT 'AGUARDANDO_PAGAMENTO',
     telefone VARCHAR(15),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    secret_key VARCHAR(255)
 );
 
 -- Criação da tabela Empresa

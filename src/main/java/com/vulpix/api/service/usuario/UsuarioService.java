@@ -130,4 +130,14 @@ public class UsuarioService {
         usuarioRepository.save(usuario);
         return true;
     }
+
+    public void cadastrarSecretKey(String secretKey, Usuario usuario) {
+        usuario.setSecretKey(secretKey);
+        usuarioRepository.save(usuario);
+    }
+
+    public void desabilitarAutenticacao(Usuario usuario) {
+        usuario.setSecretKey(null);
+        usuarioRepository.save(usuario);
+    }
 }
