@@ -49,6 +49,12 @@ public interface GoogleAuthController {
                             examples = @ExampleObject(value = "{\"isOtpValido\":true}")
                     )
             ),
+            @ApiResponse(responseCode = "400", description = "Payload inválido.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"status\": 400, \"detail\": \"O OTP informado não é um número válido.\", \"timestamp\": \"2025-03-17T16:59:50.5115104\" }")
+                    )
+            ),
             @ApiResponse(responseCode = "409", description = "Autenticação de dois fatores não habilitada.",
                     content = @Content(
                             mediaType = "application/json",
