@@ -10,6 +10,7 @@ import com.vulpix.api.entity.Usuario;
 import com.vulpix.api.exception.exceptions.ConflitoException;
 import com.vulpix.api.exception.exceptions.ErroInternoException;
 import com.vulpix.api.exception.exceptions.NaoAutorizadoException;
+import com.vulpix.api.exception.exceptions.RequisicaoInvalidaException;
 import com.vulpix.api.service.usuario.UsuarioService;
 import com.vulpix.api.service.usuario.autenticacao.UsuarioAutenticadoUtil;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
@@ -39,7 +40,17 @@ public class GoogleAuthService {
         googleAuthenticator = new GoogleAuthenticator();
     }
 
+    public Integer converterOtpParaInteger(String otp) {
+        try {
+            return Integer.parseInt(otp);
+        } catch (NumberFormatException e) {
+            throw new RequisicaoInvalidaException("O OTP informado não é um número válido.");
+        }
+    }
+
     public GoogleAuthOtpResponse validarOTP(String otp, String secretKey) {
+        Integer valorOtp = converterOtpParaInteger(otp);
+
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String email = userDetails.getUsername();
         Usuario usuario = usuarioService.buscarUsuarioPorEmail(email);
@@ -49,11 +60,9 @@ public class GoogleAuthService {
             throw new ConflitoException("Sua conta não possui a autenticação de dois fatores habilitada.");
         }
 
-        if (secretKeyCadastrada == null) {
-            secretKeyCadastrada = secretKey;
-        }
+        if (secretKeyCadastrada == null) secretKeyCadastrada = secretKey;
 
-        boolean isOtpValido = googleAuthenticator.authorize(secretKeyCadastrada, Integer.parseInt(otp));
+        boolean isOtpValido = googleAuthenticator.authorize(secretKeyCadastrada, valorOtp);
 
         if (isOtpValido && usuario.getSecretKey() == null) {
             usuarioService.cadastrarSecretKey(secretKey, usuario);
@@ -119,6 +128,8 @@ public class GoogleAuthService {
     }
 
     public void desabilitarAutenticacao(String otp) {
+        Integer valorOtp = converterOtpParaInteger(otp);
+
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String email = userDetails.getUsername();
         Usuario usuario = usuarioService.buscarUsuarioPorEmail(email);
@@ -128,7 +139,7 @@ public class GoogleAuthService {
             throw new ConflitoException("Sua conta não possui a autenticação de dois fatores habilitada.");
         }
 
-        boolean isOtpValido = googleAuthenticator.authorize(secretKey, Integer.parseInt(otp));
+        boolean isOtpValido = googleAuthenticator.authorize(secretKey, valorOtp);
 
         if (!isOtpValido) {
             throw new NaoAutorizadoException("OTP inválido.");
