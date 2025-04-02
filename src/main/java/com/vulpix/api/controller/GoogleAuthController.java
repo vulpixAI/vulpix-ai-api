@@ -9,6 +9,9 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,7 +41,7 @@ public interface GoogleAuthController {
             )
     })
     @GetMapping("/google/gerar-qrcode")
-    ResponseEntity<GoogleAuthQRCodeResponse> gerarQRCode();
+    ResponseEntity<GoogleAuthQRCodeResponse> gerarQRCode(@RequestParam @Email @NotBlank String email);
 
     @Operation(summary = "Verifica se o OTP é válido",
             description = "Verifica se o OTP enviado pelo usuário é válido.")
@@ -63,7 +66,7 @@ public interface GoogleAuthController {
             )
     })
     @PostMapping("/google/validar-otp")
-    ResponseEntity<GoogleAuthOtpResponse> validarOtp(@RequestBody GoogleAuthOtpRequest googleAuthOtpRequest);
+    ResponseEntity<GoogleAuthOtpResponse> validarOtp(@Valid @RequestBody GoogleAuthOtpRequest googleAuthOtpRequest);
 
     @Operation(summary = "Desabilita a autenticação de dois fatores",
             description = "Desabilita a autenticação de dois fatores.")
@@ -85,5 +88,8 @@ public interface GoogleAuthController {
             )
     })
     @DeleteMapping("/google")
-    ResponseEntity<Void> desabilitarAutenticacao(@RequestHeader String otp);
+    ResponseEntity<Void> desabilitarAutenticacao(
+            @RequestHeader String otp,
+            @RequestHeader @Email @NotBlank String email
+    );
 }

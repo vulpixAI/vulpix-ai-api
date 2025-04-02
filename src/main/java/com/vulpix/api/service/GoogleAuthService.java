@@ -15,7 +15,6 @@ import com.vulpix.api.service.usuario.UsuarioService;
 import com.vulpix.api.service.usuario.autenticacao.UsuarioAutenticadoUtil;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -48,11 +47,8 @@ public class GoogleAuthService {
         }
     }
 
-    public GoogleAuthOtpResponse validarOTP(String otp, String secretKey) {
+    public GoogleAuthOtpResponse validarOTP(String otp, String secretKey, String email) {
         Integer valorOtp = converterOtpParaInteger(otp);
-
-        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
-        String email = userDetails.getUsername();
         Usuario usuario = usuarioService.buscarUsuarioPorEmail(email);
         String secretKeyCadastrada = usuario.getSecretKey();
 
@@ -96,10 +92,7 @@ public class GoogleAuthService {
         return Base64.getEncoder().encodeToString(imagemBytes);
     }
 
-    public GoogleAuthQRCodeResponse gerarQRCode() {
-        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
-        String email = userDetails.getUsername();
-
+    public GoogleAuthQRCodeResponse gerarQRCode(String email) {
         verificarExistenciaSecretKeyPorEmail(email);
 
         String secretKey = gerarSecretKey();
@@ -127,11 +120,8 @@ public class GoogleAuthService {
         }
     }
 
-    public void desabilitarAutenticacao(String otp) {
+    public void desabilitarAutenticacao(String otp, String email) {
         Integer valorOtp = converterOtpParaInteger(otp);
-
-        UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
-        String email = userDetails.getUsername();
         Usuario usuario = usuarioService.buscarUsuarioPorEmail(email);
         String secretKey = usuario.getSecretKey();
 
