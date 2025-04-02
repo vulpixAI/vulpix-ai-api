@@ -1,7 +1,7 @@
 package com.vulpix.api.controller;
 
-import com.vulpix.api.dto.Empresa.EmpresaEditDto;
-import com.vulpix.api.dto.Empresa.FormularioRequisicaoDto;
+import com.vulpix.api.dto.empresa.EmpresaEditDto;
+import com.vulpix.api.dto.empresa.FormularioRequisicaoDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;

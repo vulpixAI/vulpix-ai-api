@@ -2,7 +2,7 @@ package com.vulpix.api.service.integracoes.agentai;
 
 import com.vulpix.api.entity.ConfigPrompt;
 import com.vulpix.api.utils.JsonConverter;
-import com.vulpix.api.dto.Empresa.FormularioRequisicaoDto;
+import com.vulpix.api.dto.empresa.FormularioRequisicaoDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

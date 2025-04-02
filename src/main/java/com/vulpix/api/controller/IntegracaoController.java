@@ -1,7 +1,7 @@
 package com.vulpix.api.controller;
 
-import com.vulpix.api.dto.Integracao.IntegracaoDto;
-import com.vulpix.api.dto.Integracao.IntegracaoUpdateDto;
+import com.vulpix.api.dto.integracao.IntegracaoDto;
+import com.vulpix.api.dto.integracao.IntegracaoUpdateDto;
 import com.vulpix.api.entity.Integracao;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -91,4 +91,40 @@ public interface IntegracaoController {
     })
     @GetMapping("/possui-integracao")
     boolean possuiIntegracao();
+
+    @Operation(summary = "Busca os dados de integração",
+            description = "Busca os dados de integração")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Integração encontrada com sucesso.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "id": "550e8400-e29b-41d4-a716-446655440000",
+                                      "tipo": "INSTAGRAM",
+                                      "igUserId": "123456789",
+                                      "clientId": "cliente123",
+                                      "clientSecret": "segredo123",
+                                      "accessToken": "token_de_acesso",
+                                      "accessTokenExpireDate": "2025-04-02T12:00:00",
+                                      "status": true,
+                                      "created_at": "2024-04-02T10:00:00",
+                                      "updated_at": "2024-04-02T11:00:00",
+                                      "empresa": {
+                                        "id": 1,
+                                        "nome": "Empresa Exemplo"
+                                      }
+                                    }
+                                    """)
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "Empresa não encontrada.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = "{ \"status\": 404, \"detail\": \"Empresa não encontrada.\", \"timestamp\": \"2025-03-17T16:59:50.5115104\" }")
+                    )
+            )
+    })
+    @GetMapping
+    ResponseEntity<Integracao> retornaIntegracao();
 }
