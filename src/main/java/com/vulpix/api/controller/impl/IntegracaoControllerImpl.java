@@ -14,7 +14,6 @@ import com.vulpix.api.utils.helpers.EmpresaHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -78,7 +77,7 @@ public class IntegracaoControllerImpl implements IntegracaoController {
         return integracaoService.verificaExistenciaIntegracaoPorTipo(empresa, TipoIntegracao.INSTAGRAM);
     }
 
-    @GetMapping
+    @Override
     public ResponseEntity<Integracao> retornaIntegracao() {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
