@@ -1,7 +1,7 @@
 package com.vulpix.api.service;
 
-import com.vulpix.api.dto.Dashboard.DashKpiDto;
-import com.vulpix.api.dto.Dashboard.PostInsightsDto;
+import com.vulpix.api.dto.dashboard.DashKpiDto;
+import com.vulpix.api.dto.dashboard.PostInsightsDto;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.PostInsights;
 import com.vulpix.api.repository.DashboardRepository;

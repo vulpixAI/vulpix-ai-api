@@ -1,11 +1,11 @@
 package com.vulpix.api.service.integracoes.agentai;
 
-import com.vulpix.api.dto.Agent.PublicacaoGeradaResponse;
-import com.vulpix.api.dto.Agent.PublicacaoGeradaRetorno;
-import com.vulpix.api.dto.Criativo.CriativoMapper;
-import com.vulpix.api.dto.Criativo.CriativoRequisicaoDto;
-import com.vulpix.api.dto.Criativo.CriativoResponseDto;
-import com.vulpix.api.dto.Criativo.CriativoUnitDto;
+import com.vulpix.api.dto.agent.PublicacaoGeradaResponse;
+import com.vulpix.api.dto.agent.PublicacaoGeradaRetorno;
+import com.vulpix.api.dto.criativo.CriativoMapper;
+import com.vulpix.api.dto.criativo.CriativoRequisicaoDto;
+import com.vulpix.api.dto.criativo.CriativoResponseDto;
+import com.vulpix.api.dto.criativo.CriativoUnitDto;
 import com.vulpix.api.entity.Criativo;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.exception.exceptions.NaoEncontradoException;

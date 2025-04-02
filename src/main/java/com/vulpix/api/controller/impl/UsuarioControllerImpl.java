@@ -1,19 +1,19 @@
 package com.vulpix.api.controller.impl;
 
 import com.vulpix.api.controller.UsuarioController;
-import com.vulpix.api.dto.CadastroInicial.CadastroRequisicaoDto;
-import com.vulpix.api.dto.CadastroInicial.CadastroRequisicaoMapper;
-import com.vulpix.api.dto.CadastroInicial.CadastroRetornoDto;
-import com.vulpix.api.dto.Usuario.AtualizarSenhaDto;
-import com.vulpix.api.dto.Usuario.UsuarioEmpresaDto;
-import com.vulpix.api.dto.Usuario.UsuarioEmpresaMapper;
+import com.vulpix.api.dto.cadastroinicial.CadastroRequisicaoDto;
+import com.vulpix.api.dto.cadastroinicial.CadastroRequisicaoMapper;
+import com.vulpix.api.dto.cadastroinicial.CadastroRetornoDto;
+import com.vulpix.api.dto.usuario.AtualizarSenhaDto;
+import com.vulpix.api.dto.usuario.UsuarioEmpresaDto;
+import com.vulpix.api.dto.usuario.UsuarioEmpresaMapper;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.Usuario;
 import com.vulpix.api.service.EmpresaService;
 import com.vulpix.api.service.usuario.UsuarioService;
 import com.vulpix.api.service.usuario.autenticacao.UsuarioAutenticadoUtil;
-import com.vulpix.api.dto.Usuario.UsuarioLoginDto;
-import com.vulpix.api.dto.Usuario.UsuarioTokenDto;
+import com.vulpix.api.dto.usuario.UsuarioLoginDto;
+import com.vulpix.api.dto.usuario.UsuarioTokenDto;
 import com.vulpix.api.utils.helpers.EmpresaHelper;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,7 @@
 package com.vulpix.api.controller;
 
-import com.vulpix.api.dto.Criativo.CriativoRequisicaoDto;
-import com.vulpix.api.dto.Criativo.CriativoResponseDto;
+import com.vulpix.api.dto.criativo.CriativoRequisicaoDto;
+import com.vulpix.api.dto.criativo.CriativoResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;

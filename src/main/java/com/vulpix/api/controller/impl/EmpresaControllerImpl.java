@@ -1,8 +1,8 @@
 package com.vulpix.api.controller.impl;
 
 import com.vulpix.api.controller.EmpresaController;
-import com.vulpix.api.dto.Empresa.EmpresaEditDto;
-import com.vulpix.api.dto.Empresa.FormularioRequisicaoDto;
+import com.vulpix.api.dto.empresa.EmpresaEditDto;
+import com.vulpix.api.dto.empresa.FormularioRequisicaoDto;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.service.EmpresaService;
 import com.vulpix.api.service.usuario.autenticacao.UsuarioAutenticadoUtil;

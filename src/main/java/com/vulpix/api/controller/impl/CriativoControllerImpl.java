@@ -1,8 +1,8 @@
 package com.vulpix.api.controller.impl;
 
 import com.vulpix.api.controller.CriativoController;
-import com.vulpix.api.dto.Criativo.CriativoRequisicaoDto;
-import com.vulpix.api.dto.Criativo.CriativoResponseDto;
+import com.vulpix.api.dto.criativo.CriativoRequisicaoDto;
+import com.vulpix.api.dto.criativo.CriativoResponseDto;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.service.integracoes.agentai.CriativosService;
 import com.vulpix.api.service.usuario.autenticacao.UsuarioAutenticadoUtil;

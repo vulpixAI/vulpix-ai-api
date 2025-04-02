@@ -1,9 +1,9 @@
 package com.vulpix.api.controller.impl;
 
 import com.vulpix.api.controller.IntegracaoController;
-import com.vulpix.api.dto.Integracao.IntegracaoDto;
-import com.vulpix.api.dto.Integracao.IntegracaoMapper;
-import com.vulpix.api.dto.Integracao.IntegracaoUpdateDto;
+import com.vulpix.api.dto.integracao.IntegracaoDto;
+import com.vulpix.api.dto.integracao.IntegracaoMapper;
+import com.vulpix.api.dto.integracao.IntegracaoUpdateDto;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.Integracao;
 import com.vulpix.api.service.EmpresaService;

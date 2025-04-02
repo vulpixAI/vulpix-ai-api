@@ -7,7 +7,7 @@ import com.vulpix.api.repository.EmpresaRepository;
 import com.vulpix.api.service.integracoes.agentai.CriativosService;
 import com.vulpix.api.service.integracoes.agentai.PromptService;
 import com.vulpix.api.service.usuario.UsuarioService;
-import com.vulpix.api.dto.Agent.PublicacaoGeradaRetorno;
+import com.vulpix.api.dto.agent.PublicacaoGeradaRetorno;
 import com.vulpix.api.utils.JsonConverter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

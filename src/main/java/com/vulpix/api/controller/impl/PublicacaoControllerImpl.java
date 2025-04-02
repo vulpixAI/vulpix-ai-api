@@ -1,11 +1,11 @@
 package com.vulpix.api.controller.impl;
 
 import com.vulpix.api.controller.PublicacaoController;
-import com.vulpix.api.dto.Agent.PublicacaoGeradaRetorno;
-import com.vulpix.api.dto.Publicacao.GetPublicacaoDto;
-import com.vulpix.api.dto.Publicacao.Insights.PublicacaoInsightDto;
-import com.vulpix.api.dto.Publicacao.PostPublicacaoDto;
-import com.vulpix.api.dto.Publicacao.PostPublicacaoResponse;
+import com.vulpix.api.dto.agent.PublicacaoGeradaRetorno;
+import com.vulpix.api.dto.publicacao.GetPublicacaoDto;
+import com.vulpix.api.dto.publicacao.Insights.PublicacaoInsightDto;
+import com.vulpix.api.dto.publicacao.PostPublicacaoDto;
+import com.vulpix.api.dto.publicacao.PostPublicacaoResponse;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.Integracao;
 import com.vulpix.api.entity.Publicacao;

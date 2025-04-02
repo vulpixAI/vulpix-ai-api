@@ -3,7 +3,7 @@ package com.vulpix.api.service.usuario.autenticacao;
 import com.vulpix.api.entity.Usuario;
 import com.vulpix.api.exception.exceptions.NaoEncontradoException;
 import com.vulpix.api.repository.UsuarioRepository;
-import com.vulpix.api.dto.Usuario.UsuarioDetalhesDto;
+import com.vulpix.api.dto.usuario.UsuarioDetalhesDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

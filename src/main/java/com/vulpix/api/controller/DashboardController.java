@@ -1,7 +1,7 @@
 package com.vulpix.api.controller;
 
-import com.vulpix.api.dto.Dashboard.DashKpiDto;
-import com.vulpix.api.dto.Dashboard.PostInsightsDto;
+import com.vulpix.api.dto.dashboard.DashKpiDto;
+import com.vulpix.api.dto.dashboard.PostInsightsDto;
 import com.vulpix.api.entity.PostInsights;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

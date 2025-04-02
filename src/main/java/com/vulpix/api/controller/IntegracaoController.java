@@ -1,7 +1,7 @@
 package com.vulpix.api.controller;
 
-import com.vulpix.api.dto.Integracao.IntegracaoDto;
-import com.vulpix.api.dto.Integracao.IntegracaoUpdateDto;
+import com.vulpix.api.dto.integracao.IntegracaoDto;
+import com.vulpix.api.dto.integracao.IntegracaoUpdateDto;
 import com.vulpix.api.entity.Integracao;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
