@@ -33,11 +33,7 @@ public class GoogleAuthService {
     @Autowired
     private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
 
-    private final GoogleAuthenticator googleAuthenticator;
-
-    public GoogleAuthService() {
-        googleAuthenticator = new GoogleAuthenticator();
-    }
+    private final GoogleAuthenticator googleAuthenticator = new GoogleAuthenticator();
 
     public Integer converterOtpParaInteger(String otp) {
         try {
