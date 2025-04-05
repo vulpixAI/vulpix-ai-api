@@ -1,6 +1,8 @@
 package com.vulpix.api.service.usuario;
 
 import com.vulpix.api.config.security.jwt.GerenciadorTokenJwt;
+import com.vulpix.api.dto.autenticacao.LoginResponse;
+import com.vulpix.api.dto.autenticacao.MfaRequiredResponse;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.Usuario;
 import com.vulpix.api.exception.exceptions.ConflitoException;
@@ -9,7 +11,7 @@ import com.vulpix.api.exception.exceptions.NaoEncontradoException;
 import com.vulpix.api.repository.UsuarioRepository;
 import com.vulpix.api.dto.usuario.UsuarioLoginDto;
 import com.vulpix.api.dto.usuario.UsuarioMapper;
-import com.vulpix.api.dto.usuario.UsuarioTokenDto;
+import com.vulpix.api.dto.autenticacao.UsuarioTokenDto;
 import com.vulpix.api.service.usuario.autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.utils.enums.StatusUsuario;
 import com.vulpix.api.utils.helpers.EmpresaHelper;
@@ -21,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -62,18 +65,23 @@ public class UsuarioService {
         return usuarioRepository.findByEmail(email).orElseThrow(() -> new NaoEncontradoException("Usuário não encontrado pelo e-mail."));
     }
 
-    public UsuarioTokenDto autenticarUsuario(UsuarioLoginDto usuarioLoginDto) {
+    public LoginResponse autenticarUsuario(UsuarioLoginDto usuarioLoginDto) {
         final UsernamePasswordAuthenticationToken credentials = new UsernamePasswordAuthenticationToken(
                 usuarioLoginDto.getEmail(), usuarioLoginDto.getSenha()
         );
         final Authentication authentication = this.authenticationManager.authenticate(credentials);
-
-        Usuario usuarioAutenticado = buscarUsuarioPorEmail(usuarioLoginDto.getEmail());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        final String token = gerenciadorTokenJwt.generateToken(authentication);
+        Usuario usuario = buscarUsuarioPorEmail(usuarioLoginDto.getEmail());
 
-        return UsuarioMapper.retornaUsuario(usuarioAutenticado, token);
+        boolean mfaObrigatorio = usuario.getSecretKey() == null && !mfaConfiavel(usuario, usuarioLoginDto.getDispositivoCode());
+
+        if (mfaObrigatorio) {
+            return new MfaRequiredResponse(usuario.getEmail());
+        }
+
+        String token = gerenciadorTokenJwt.generateToken(authentication);
+        return UsuarioMapper.retornaUsuario(usuario, token);
     }
 
     public List<Usuario> listarUsuarios() {
@@ -139,5 +147,11 @@ public class UsuarioService {
     public void desabilitarAutenticacao(Usuario usuario) {
         usuario.setSecretKey(null);
         usuarioRepository.save(usuario);
+    }
+    public boolean mfaConfiavel(Usuario usuario, String dispositivoConfiavel) {
+        return dispositivoConfiavel != null
+                && dispositivoConfiavel.equals(usuario.getDispositivoConfiavel())
+                && usuario.getDispositivoExpiraEm() != null
+                && usuario.getDispositivoExpiraEm().isAfter(LocalDateTime.now());
     }
 }
