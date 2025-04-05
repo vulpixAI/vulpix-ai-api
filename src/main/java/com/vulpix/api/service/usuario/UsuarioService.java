@@ -74,7 +74,7 @@ public class UsuarioService {
 
         Usuario usuario = buscarUsuarioPorEmail(usuarioLoginDto.getEmail());
 
-        boolean mfaObrigatorio = usuario.getSecretKey() == null && !mfaConfiavel(usuario, usuarioLoginDto.getDispositivoCode());
+        boolean mfaObrigatorio = usuario.getSecretKey() == null || !mfaConfiavel(usuario, usuarioLoginDto.getDispositivoCode());
 
         if (mfaObrigatorio) {
             return new MfaRequiredResponse(usuario.getEmail());
