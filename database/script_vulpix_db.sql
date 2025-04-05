@@ -13,7 +13,9 @@ CREATE TABLE usuario (
     telefone VARCHAR(15),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    secret_key VARCHAR(255)
+    secret_key VARCHAR(255),
+    dispositivo_confiavel VARCHAR(255),
+    dispositivo_expiracao TIMESTAMP
 );
 
 -- Criação da tabela Empresa
