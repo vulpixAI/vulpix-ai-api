@@ -120,12 +120,6 @@ public class UsuarioService {
         throw new NaoEncontradoException("Usuário não encontrado.");
     }
 
-    public UUID retornaIdUsuarioLogado() {
-        String usuario = usuarioAutenticadoUtil.getUsernameAutenticado();
-
-        return usuarioRepository.findByEmail(usuario).get().getId();
-    }
-
     public boolean atualizaStatus(Empresa empresa, StatusUsuario status) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByEmpresa(empresa);
 
@@ -139,15 +133,6 @@ public class UsuarioService {
         return true;
     }
 
-    public void cadastrarSecretKey(String secretKey, Usuario usuario) {
-        usuario.setSecretKey(secretKey);
-        usuarioRepository.save(usuario);
-    }
-
-    public void desabilitarAutenticacao(Usuario usuario) {
-        usuario.setSecretKey(null);
-        usuarioRepository.save(usuario);
-    }
     public boolean mfaConfiavel(Usuario usuario, String dispositivoConfiavel) {
         return dispositivoConfiavel != null
                 && dispositivoConfiavel.equals(usuario.getDispositivoConfiavel())
