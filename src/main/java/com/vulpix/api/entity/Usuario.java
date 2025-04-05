@@ -38,6 +38,10 @@ public class Usuario {
     private LocalDateTime created_at;
     @Column(name = "updated_at")
     private LocalDateTime updated_at;
+    @Column(name = "dispositivo_confiavel")
+    private String dispositivoConfiavel;
+    @Column(name = "dispositivo_expiracao")
+    private LocalDateTime dispositivoExpiraEm;
 
     @OneToOne(mappedBy = "usuario")
     @JsonBackReference

@@ -1,5 +1,6 @@
 package com.vulpix.api.dto.usuario;
 
+import com.vulpix.api.dto.autenticacao.UsuarioTokenDto;
 import com.vulpix.api.entity.Usuario;
 
 public class UsuarioMapper {

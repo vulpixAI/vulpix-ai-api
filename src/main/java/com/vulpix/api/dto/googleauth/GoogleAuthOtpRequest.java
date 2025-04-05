@@ -18,4 +18,5 @@ public class GoogleAuthOtpRequest {
     @NotBlank
     private String otp;
     private String secretKey;
+    private String dispositivoCode;
 }

@@ -1,10 +1,11 @@
 package com.vulpix.api.service;
 
 import com.vulpix.api.config.security.jwt.GerenciadorTokenJwt;
+import com.vulpix.api.dto.autenticacao.LoginResponse;
 import com.vulpix.api.entity.Usuario;
 import com.vulpix.api.repository.UsuarioRepository;
 import com.vulpix.api.dto.usuario.UsuarioLoginDto;
-import com.vulpix.api.dto.usuario.UsuarioTokenDto;
+import com.vulpix.api.dto.autenticacao.UsuarioTokenDto;
 import com.vulpix.api.service.usuario.UsuarioService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -82,14 +83,16 @@ class UsuarioServiceTest {
     }
 
     @Test
-    @DisplayName("Dado que um usuário é buscado por id, então o usuário deve ser retornado")
-    void testAutenticarUsuario() {
+    @DisplayName("Dado que um usuário é autenticado, então os dados com token devem ser retornados")
+    void testAutenticarUsuario_TokenRetornado() {
         UsuarioLoginDto loginDto = new UsuarioLoginDto();
         loginDto.setEmail("teste@vulpix.com");
         loginDto.setSenha("senha123");
+        loginDto.setDispositivoCode("dispositivo123");
 
         Usuario usuario = new Usuario();
         usuario.setEmail(loginDto.getEmail());
+        usuario.setSecretKey(null); // MFA não configurado
 
         Authentication authentication = mock(Authentication.class);
 
@@ -98,13 +101,16 @@ class UsuarioServiceTest {
         when(usuarioRepository.findByEmail(loginDto.getEmail())).thenReturn(Optional.of(usuario));
         when(gerenciadorTokenJwt.generateToken(authentication)).thenReturn("tokenJWT");
 
-        UsuarioTokenDto resultado = usuarioService.autenticarUsuario(loginDto);
+        LoginResponse response = usuarioService.autenticarUsuario(loginDto);
 
-        assertNotNull(resultado);
+        assertNotNull(response);
+        assertTrue(response instanceof UsuarioTokenDto);
+
+        UsuarioTokenDto resultado = (UsuarioTokenDto) response;
         assertEquals("tokenJWT", resultado.getToken());
         assertEquals(usuario.getEmail(), resultado.getEmail());
-        verify(authenticationManager, times(1))
-                .authenticate(any(UsernamePasswordAuthenticationToken.class));
+
+        verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(usuarioRepository, times(1)).findByEmail(loginDto.getEmail());
         verify(gerenciadorTokenJwt, times(1)).generateToken(authentication);
     }
@@ -119,7 +125,7 @@ class UsuarioServiceTest {
         when(usuarioRepository.existsById(id)).thenReturn(true);
         when(usuarioRepository.save(usuarioAtualizado)).thenReturn(usuarioAtualizado);
 
-        Optional<Usuario> resultado = usuarioService.atualizarUsuario(id, usuarioAtualizado);
+        Optional<Usuario> resultado = Optional.ofNullable(usuarioService.atualizarUsuario(id, usuarioAtualizado));
 
         assertTrue(resultado.isPresent());
         assertEquals(id, resultado.get().getId());

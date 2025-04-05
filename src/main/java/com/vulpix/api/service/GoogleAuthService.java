@@ -4,17 +4,22 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
-import com.vulpix.api.dto.googleauth.GoogleAuthOtpResponse;
+import com.vulpix.api.config.security.jwt.GerenciadorTokenJwt;
+import com.vulpix.api.dto.autenticacao.MfaLoginDto;
+import com.vulpix.api.dto.autenticacao.UsuarioTokenDto;
 import com.vulpix.api.dto.googleauth.GoogleAuthQRCodeResponse;
+import com.vulpix.api.dto.usuario.UsuarioMapper;
 import com.vulpix.api.entity.Usuario;
 import com.vulpix.api.exception.exceptions.ConflitoException;
 import com.vulpix.api.exception.exceptions.ErroInternoException;
 import com.vulpix.api.exception.exceptions.NaoAutorizadoException;
 import com.vulpix.api.exception.exceptions.RequisicaoInvalidaException;
-import com.vulpix.api.service.usuario.UsuarioService;
 import com.vulpix.api.service.usuario.autenticacao.UsuarioAutenticadoUtil;
+import com.vulpix.api.utils.helpers.UsuarioHelper;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -28,10 +33,13 @@ import java.util.Map;
 @Service
 public class GoogleAuthService {
     @Autowired
-    private UsuarioService usuarioService;
+    private UsuarioHelper usuarioHelper;
 
     @Autowired
     private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
+
+    @Autowired
+    private GerenciadorTokenJwt gerenciadorTokenJwt;
 
     private final GoogleAuthenticator googleAuthenticator = new GoogleAuthenticator();
 
@@ -43,9 +51,9 @@ public class GoogleAuthService {
         }
     }
 
-    public GoogleAuthOtpResponse validarOTP(String otp, String secretKey, String email) {
+    public UsuarioTokenDto validarOTP(String otp, String secretKey, String email, String dispositivoCode) {
         Integer valorOtp = converterOtpParaInteger(otp);
-        Usuario usuario = usuarioService.buscarUsuarioPorEmail(email);
+        Usuario usuario = usuarioHelper.buscaUsuarioPorEmail(email);
         String secretKeyCadastrada = usuario.getSecretKey();
 
         if (secretKeyCadastrada == null && secretKey == null) {
@@ -56,11 +64,22 @@ public class GoogleAuthService {
 
         boolean isOtpValido = googleAuthenticator.authorize(secretKeyCadastrada, valorOtp);
 
-        if (isOtpValido && usuario.getSecretKey() == null) {
-            usuarioService.cadastrarSecretKey(secretKey, usuario);
+        if (!isOtpValido) {
+            throw new NaoAutorizadoException("OTP inválido.");
         }
 
-        return new GoogleAuthOtpResponse(isOtpValido);
+        if (usuario.getSecretKey() == null) {
+            usuarioHelper.cadastrarSecretKey(secretKey, usuario);
+        }
+
+        if (dispositivoCode != null) {
+            usuarioHelper.marcarDispositivoComoConfiavel(usuario, dispositivoCode);
+        }
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(usuario.getEmail(), usuario.getSenha());
+        String token = gerenciadorTokenJwt.generateToken(auth);
+
+        return UsuarioMapper.retornaUsuario(usuario, token);
     }
 
     private String gerarSecretKey() {
@@ -68,7 +87,7 @@ public class GoogleAuthService {
     }
 
     private void verificarExistenciaSecretKeyPorEmail(String email) {
-        Usuario usuario = usuarioService.buscarUsuarioPorEmail(email);
+        Usuario usuario = usuarioHelper.buscaUsuarioPorEmail(email);
         if (usuario.getSecretKey() != null) {
             throw new ConflitoException("A autenticação de dois fatores já está habilitada em sua conta.");
         }
@@ -118,7 +137,7 @@ public class GoogleAuthService {
 
     public void desabilitarAutenticacao(String otp, String email) {
         Integer valorOtp = converterOtpParaInteger(otp);
-        Usuario usuario = usuarioService.buscarUsuarioPorEmail(email);
+        Usuario usuario = usuarioHelper.buscaUsuarioPorEmail(email);
         String secretKey = usuario.getSecretKey();
 
         if (secretKey == null) {
@@ -131,6 +150,19 @@ public class GoogleAuthService {
             throw new NaoAutorizadoException("OTP inválido.");
         }
 
-        usuarioService.desabilitarAutenticacao(usuario);
+        usuarioHelper.desabilitarAutenticacao(usuario);
+    }
+
+    public UsuarioTokenDto autenticarComMfa(MfaLoginDto mfaLoginDto) {
+        UsuarioTokenDto response = validarOTP(mfaLoginDto.getOtp(), mfaLoginDto.getSecretKey(), mfaLoginDto.getEmail(), mfaLoginDto.getDispositivoCode());
+
+        Usuario usuario = usuarioHelper.buscaUsuarioPorEmail(mfaLoginDto.getEmail());
+
+        usuarioHelper.marcarDispositivoComoConfiavel(usuario, mfaLoginDto.getDispositivoCode());
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(usuario.getEmail(), usuario.getSenha());
+        String token = gerenciadorTokenJwt.generateToken(auth);
+
+        return UsuarioMapper.retornaUsuario(usuario, token);
     }
 }

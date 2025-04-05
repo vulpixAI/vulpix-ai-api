@@ -1,7 +1,7 @@
 package com.vulpix.api.controller;
 
+import com.vulpix.api.dto.autenticacao.UsuarioTokenDto;
 import com.vulpix.api.dto.googleauth.GoogleAuthOtpRequest;
-import com.vulpix.api.dto.googleauth.GoogleAuthOtpResponse;
 import com.vulpix.api.dto.googleauth.GoogleAuthQRCodeResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -66,7 +66,7 @@ public interface GoogleAuthController {
             )
     })
     @PostMapping("/google/validar-otp")
-    ResponseEntity<GoogleAuthOtpResponse> validarOtp(@Valid @RequestBody GoogleAuthOtpRequest googleAuthOtpRequest);
+    ResponseEntity<UsuarioTokenDto> validarOtp(@Valid @RequestBody GoogleAuthOtpRequest googleAuthOtpRequest);
 
     @Operation(summary = "Desabilita a autenticação de dois fatores",
             description = "Desabilita a autenticação de dois fatores.")
