@@ -118,11 +118,4 @@ public class UsuarioControllerImpl implements UsuarioController {
 
         return ResponseEntity.status(204).build();
     }
-
-    @Override
-    public ResponseEntity<UsuarioTokenDto> autenticarComOtp(@RequestBody MfaLoginDto mfaLoginDto) {
-        UsuarioTokenDto dto = googleAuthService.autenticarComMfa(mfaLoginDto);
-        return ResponseEntity.ok(dto);
-    }
-
 }

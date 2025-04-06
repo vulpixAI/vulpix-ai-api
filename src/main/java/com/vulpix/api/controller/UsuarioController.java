@@ -151,6 +151,4 @@ public interface UsuarioController {
     @DeleteMapping
     ResponseEntity<Void> remover(@Parameter(description = "Usuário a ser removido", required = true) @PathVariable UUID id);
 
-    @PostMapping("/login/otp")
-    ResponseEntity<UsuarioTokenDto> autenticarComOtp(@RequestBody MfaLoginDto mfaLoginDto);
 }
