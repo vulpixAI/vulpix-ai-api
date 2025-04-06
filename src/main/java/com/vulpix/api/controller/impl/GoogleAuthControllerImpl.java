@@ -1,8 +1,8 @@
 package com.vulpix.api.controller.impl;
 
 import com.vulpix.api.controller.GoogleAuthController;
+import com.vulpix.api.dto.autenticacao.UsuarioTokenDto;
 import com.vulpix.api.dto.googleauth.GoogleAuthOtpRequest;
-import com.vulpix.api.dto.googleauth.GoogleAuthOtpResponse;
 import com.vulpix.api.dto.googleauth.GoogleAuthQRCodeResponse;
 import com.vulpix.api.service.GoogleAuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +21,8 @@ public class GoogleAuthControllerImpl implements GoogleAuthController {
     }
 
     @Override
-    public ResponseEntity<GoogleAuthOtpResponse> validarOtp(GoogleAuthOtpRequest dto) {
-        GoogleAuthOtpResponse googleAuthOtpResponse = googleAuthService.validarOTP(dto.getOtp(), dto.getSecretKey(), dto.getEmail());
+    public ResponseEntity<UsuarioTokenDto> validarOtp(GoogleAuthOtpRequest dto) {
+        UsuarioTokenDto googleAuthOtpResponse = googleAuthService.validarOTP(dto.getOtp(), dto.getSecretKey(), dto.getEmail(), dto.getDispositivoCode());
         return ResponseEntity.status(200).body(googleAuthOtpResponse);
     }
 

@@ -1,19 +1,21 @@
 package com.vulpix.api.controller.impl;
 
 import com.vulpix.api.controller.UsuarioController;
+import com.vulpix.api.dto.autenticacao.LoginResponse;
+import com.vulpix.api.dto.autenticacao.MfaRequiredResponse;
 import com.vulpix.api.dto.cadastroinicial.CadastroRequisicaoDto;
 import com.vulpix.api.dto.cadastroinicial.CadastroRequisicaoMapper;
 import com.vulpix.api.dto.cadastroinicial.CadastroRetornoDto;
 import com.vulpix.api.dto.usuario.AtualizarSenhaDto;
 import com.vulpix.api.dto.usuario.UsuarioEmpresaDto;
 import com.vulpix.api.dto.usuario.UsuarioEmpresaMapper;
+import com.vulpix.api.dto.usuario.UsuarioLoginDto;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.Usuario;
 import com.vulpix.api.service.EmpresaService;
+import com.vulpix.api.service.GoogleAuthService;
 import com.vulpix.api.service.usuario.UsuarioService;
 import com.vulpix.api.service.usuario.autenticacao.UsuarioAutenticadoUtil;
-import com.vulpix.api.dto.usuario.UsuarioLoginDto;
-import com.vulpix.api.dto.usuario.UsuarioTokenDto;
 import com.vulpix.api.utils.helpers.EmpresaHelper;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,9 @@ public class UsuarioControllerImpl implements UsuarioController {
     @Autowired
     private EmpresaHelper empresaHelper;
 
+    @Autowired
+    GoogleAuthService googleAuthService;
+
     @Override
     public ResponseEntity<CadastroRetornoDto> cadastrar(@RequestBody CadastroRequisicaoDto cadastroRequisicaoDto) {
         Usuario usuarioEntidade = CadastroRequisicaoMapper.criaEntidadeUsuario(cadastroRequisicaoDto);
@@ -53,9 +58,14 @@ public class UsuarioControllerImpl implements UsuarioController {
     }
 
     @Override
-    public ResponseEntity<UsuarioTokenDto> autenticar(@RequestBody UsuarioLoginDto usuario) {
-        UsuarioTokenDto usuarioRetorno = usuarioService.autenticarUsuario(usuario);
-        return ResponseEntity.status(200).body(usuarioRetorno);
+    public ResponseEntity<LoginResponse> autenticar(@RequestBody UsuarioLoginDto usuario) {
+        LoginResponse response = usuarioService.autenticarUsuario(usuario);
+
+        if (response instanceof MfaRequiredResponse) {
+            return ResponseEntity.status(202).body(response); // MFA Requerido
+        }
+
+        return ResponseEntity.ok(response); // MFA OK
     }
 
     @Override

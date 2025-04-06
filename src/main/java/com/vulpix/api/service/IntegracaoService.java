@@ -1,14 +1,14 @@
 package com.vulpix.api.service;
 
-import com.vulpix.api.exception.exceptions.ConflitoException;
-import com.vulpix.api.exception.exceptions.NaoEncontradoException;
-import com.vulpix.api.utils.enums.TipoIntegracao;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.Integracao;
+import com.vulpix.api.exception.exceptions.ConflitoException;
+import com.vulpix.api.exception.exceptions.NaoEncontradoException;
 import com.vulpix.api.repository.EmpresaRepository;
 import com.vulpix.api.repository.IntegracaoRepository;
 import com.vulpix.api.service.integracoes.graph.TokenService;
 import com.vulpix.api.service.usuario.UsuarioService;
+import com.vulpix.api.utils.enums.TipoIntegracao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

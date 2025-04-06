@@ -1,16 +1,17 @@
 package com.vulpix.api.controller;
 
+import com.vulpix.api.dto.autenticacao.LoginResponse;
 import com.vulpix.api.dto.cadastroinicial.CadastroRequisicaoDto;
 import com.vulpix.api.dto.cadastroinicial.CadastroRetornoDto;
 import com.vulpix.api.dto.usuario.AtualizarSenhaDto;
 import com.vulpix.api.dto.usuario.UsuarioEmpresaDto;
-import com.vulpix.api.entity.Usuario;
 import com.vulpix.api.dto.usuario.UsuarioLoginDto;
-import com.vulpix.api.dto.usuario.UsuarioTokenDto;
+import com.vulpix.api.entity.Usuario;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -56,17 +57,29 @@ public interface UsuarioController {
             )
     })
     @PostMapping("/login")
-    ResponseEntity<UsuarioTokenDto> autenticar(@RequestBody UsuarioLoginDto usuario);
+    ResponseEntity<LoginResponse> autenticar(@RequestBody UsuarioLoginDto usuario);
 
     @Operation(
             summary = "Buscar dados do usuário e da empresa associada",
             description = "Retorna os dados do usuário juntamente com os dados da empresa associada."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Dados do usuário e empresa retornados com sucesso.",
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Usuário autenticado com sucesso.",
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(value = "{ \"usuario\": { \"id\": \"123e4567-e89b-12d3-a456-426614174000\", \"nome\": \"João\" }, \"empresa\": { \"nome\": \"Empresa Exemplo\" } }")
+                            schema = @Schema(implementation = com.vulpix.api.dto.autenticacao.UsuarioTokenDto.class),
+                            examples = @ExampleObject(value = "{ \"userId\": \"123e4567-e89b-12d3-a456-426614174000\", \"nome\": \"João\", \"email\": \"joao@email.com\", \"token\": \"jwt-token\", \"status\": \"ATIVO\" }")
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "MFA requerido para concluir autenticação.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = com.vulpix.api.dto.autenticacao.MfaRequiredResponse.class),
+                            examples = @ExampleObject(value = "{ \"status\": \"MFA_REQUIRED\", \"email\": \"joao@email.com\" }")
                     )
             ),
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado.",
@@ -135,4 +148,5 @@ public interface UsuarioController {
     })
     @DeleteMapping
     ResponseEntity<Void> remover(@Parameter(description = "Usuário a ser removido", required = true) @PathVariable UUID id);
+
 }

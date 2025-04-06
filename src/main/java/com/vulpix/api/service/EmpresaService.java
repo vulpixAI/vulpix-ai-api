@@ -1,6 +1,9 @@
 package com.vulpix.api.service;
+
+import com.vulpix.api.dto.agent.PublicacaoGeradaRetorno;
 import com.vulpix.api.dto.empresa.EmpresaEditDto;
 import com.vulpix.api.dto.empresa.EmpresaMapper;
+import com.vulpix.api.dto.empresa.FormularioRequisicaoDto;
 import com.vulpix.api.entity.ConfigPrompt;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.exception.exceptions.ConflitoException;
@@ -9,12 +12,10 @@ import com.vulpix.api.repository.ConfigRepository;
 import com.vulpix.api.repository.EmpresaRepository;
 import com.vulpix.api.service.integracoes.agentai.CriativosService;
 import com.vulpix.api.service.integracoes.agentai.PromptService;
-import com.vulpix.api.service.usuario.autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.service.usuario.UsuarioService;
-import com.vulpix.api.utils.enums.StatusUsuario;
+import com.vulpix.api.service.usuario.autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.utils.JsonConverter;
-import com.vulpix.api.dto.agent.PublicacaoGeradaRetorno;
-import com.vulpix.api.dto.empresa.FormularioRequisicaoDto;
+import com.vulpix.api.utils.enums.StatusUsuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
