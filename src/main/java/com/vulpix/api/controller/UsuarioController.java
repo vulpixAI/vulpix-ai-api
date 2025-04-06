@@ -1,14 +1,12 @@
 package com.vulpix.api.controller;
 
 import com.vulpix.api.dto.autenticacao.LoginResponse;
-import com.vulpix.api.dto.autenticacao.MfaLoginDto;
 import com.vulpix.api.dto.cadastroinicial.CadastroRequisicaoDto;
 import com.vulpix.api.dto.cadastroinicial.CadastroRetornoDto;
 import com.vulpix.api.dto.usuario.AtualizarSenhaDto;
 import com.vulpix.api.dto.usuario.UsuarioEmpresaDto;
-import com.vulpix.api.entity.Usuario;
 import com.vulpix.api.dto.usuario.UsuarioLoginDto;
-import com.vulpix.api.dto.autenticacao.UsuarioTokenDto;
+import com.vulpix.api.entity.Usuario;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

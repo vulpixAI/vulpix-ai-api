@@ -5,7 +5,6 @@ import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
 import com.vulpix.api.config.security.jwt.GerenciadorTokenJwt;
-import com.vulpix.api.dto.autenticacao.MfaLoginDto;
 import com.vulpix.api.dto.autenticacao.UsuarioTokenDto;
 import com.vulpix.api.dto.googleauth.GoogleAuthQRCodeResponse;
 import com.vulpix.api.dto.usuario.UsuarioMapper;
@@ -151,18 +150,5 @@ public class GoogleAuthService {
         }
 
         usuarioHelper.desabilitarAutenticacao(usuario);
-    }
-
-    public UsuarioTokenDto autenticarComMfa(MfaLoginDto mfaLoginDto) {
-        UsuarioTokenDto response = validarOTP(mfaLoginDto.getOtp(), mfaLoginDto.getSecretKey(), mfaLoginDto.getEmail(), mfaLoginDto.getDispositivoCode());
-
-        Usuario usuario = usuarioHelper.buscaUsuarioPorEmail(mfaLoginDto.getEmail());
-
-        usuarioHelper.marcarDispositivoComoConfiavel(usuario, mfaLoginDto.getDispositivoCode());
-
-        Authentication auth = new UsernamePasswordAuthenticationToken(usuario.getEmail(), usuario.getSenha());
-        String token = gerenciadorTokenJwt.generateToken(auth);
-
-        return UsuarioMapper.retornaUsuario(usuario, token, usuario.getSecretKey());
     }
 }
