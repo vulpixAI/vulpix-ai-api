@@ -77,11 +77,11 @@ public class UsuarioService {
         boolean mfaObrigatorio = usuario.getSecretKey() == null || !mfaConfiavel(usuario, usuarioLoginDto.getDispositivoCode());
 
         if (mfaObrigatorio) {
-            return new MfaRequiredResponse(usuario.getEmail());
+            return new MfaRequiredResponse(usuario.getEmail(), usuario.getSecretKey());
         }
 
         String token = gerenciadorTokenJwt.generateToken(authentication);
-        return UsuarioMapper.retornaUsuario(usuario, token);
+        return UsuarioMapper.retornaUsuario(usuario, token, usuario.getSecretKey());
     }
 
     public List<Usuario> listarUsuarios() {

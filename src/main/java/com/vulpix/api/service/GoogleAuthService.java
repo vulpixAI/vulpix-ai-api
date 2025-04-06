@@ -79,7 +79,7 @@ public class GoogleAuthService {
         Authentication auth = new UsernamePasswordAuthenticationToken(usuario.getEmail(), usuario.getSenha());
         String token = gerenciadorTokenJwt.generateToken(auth);
 
-        return UsuarioMapper.retornaUsuario(usuario, token);
+        return UsuarioMapper.retornaUsuario(usuario, token, usuario.getSecretKey());
     }
 
     private String gerarSecretKey() {
@@ -163,6 +163,6 @@ public class GoogleAuthService {
         Authentication auth = new UsernamePasswordAuthenticationToken(usuario.getEmail(), usuario.getSenha());
         String token = gerenciadorTokenJwt.generateToken(auth);
 
-        return UsuarioMapper.retornaUsuario(usuario, token);
+        return UsuarioMapper.retornaUsuario(usuario, token, usuario.getSecretKey());
     }
 }
