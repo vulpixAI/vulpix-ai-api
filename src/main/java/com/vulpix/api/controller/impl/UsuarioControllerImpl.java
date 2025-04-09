@@ -69,9 +69,13 @@ public class UsuarioControllerImpl implements UsuarioController {
     }
 
     @Override
-    public ResponseEntity<UsuarioEmpresaDto> buscarUsuarioComEmpresa() {
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String emailUsuario = userDetails.getUsername();
+    public ResponseEntity<UsuarioEmpresaDto> buscarUsuarioComEmpresa(String email) {
+        String emailUsuario = email;
+
+        if (email == null) {
+            UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            emailUsuario = userDetails.getUsername();
+        }
 
         Usuario usuario = usuarioService.buscarUsuarioPorEmail(emailUsuario);
         Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(usuario.getEmail());
