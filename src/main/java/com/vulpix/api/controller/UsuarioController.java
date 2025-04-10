@@ -92,7 +92,7 @@ public interface UsuarioController {
             )
     })
     @GetMapping
-    ResponseEntity<UsuarioEmpresaDto> buscarUsuarioComEmpresa(@RequestParam(required = false) String email);
+    ResponseEntity<UsuarioEmpresaDto> buscarUsuarioComEmpresa(@RequestParam(required = false) @Nullable String email);
 
     @Operation(summary = "Atualizar usuário", description = "Atualiza as informações de um usuário com base no ID fornecido.")
     @ApiResponses(value = {
