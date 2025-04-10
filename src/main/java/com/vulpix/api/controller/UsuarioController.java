@@ -15,6 +15,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.Null;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -90,7 +92,7 @@ public interface UsuarioController {
             )
     })
     @GetMapping
-    ResponseEntity<UsuarioEmpresaDto> buscarUsuarioComEmpresa();
+    ResponseEntity<UsuarioEmpresaDto> buscarUsuarioComEmpresa(@RequestParam(required = false) @Nullable String email);
 
     @Operation(summary = "Atualizar usuário", description = "Atualiza as informações de um usuário com base no ID fornecido.")
     @ApiResponses(value = {
