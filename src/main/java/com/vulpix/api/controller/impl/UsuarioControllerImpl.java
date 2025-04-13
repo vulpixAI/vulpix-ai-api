@@ -6,10 +6,7 @@ import com.vulpix.api.dto.autenticacao.MfaRequiredResponse;
 import com.vulpix.api.dto.cadastroinicial.CadastroRequisicaoDto;
 import com.vulpix.api.dto.cadastroinicial.CadastroRequisicaoMapper;
 import com.vulpix.api.dto.cadastroinicial.CadastroRetornoDto;
-import com.vulpix.api.dto.usuario.AtualizarSenhaDto;
-import com.vulpix.api.dto.usuario.UsuarioEmpresaDto;
-import com.vulpix.api.dto.usuario.UsuarioEmpresaMapper;
-import com.vulpix.api.dto.usuario.UsuarioLoginDto;
+import com.vulpix.api.dto.usuario.*;
 import com.vulpix.api.entity.Empresa;
 import com.vulpix.api.entity.Usuario;
 import com.vulpix.api.service.EmpresaService;
@@ -116,6 +113,13 @@ public class UsuarioControllerImpl implements UsuarioController {
         Usuario usuario = usuarioService.buscarUsuarioPorEmail(emailUsuario);
         usuarioService.deletarUsuario(usuario.getId());
 
+        return ResponseEntity.status(204).build();
+    }
+
+    @Override
+    public ResponseEntity<Void> atualizarSenhaPorRecuperacaoDeConta(AtualizarSenhaRecuperacaoContaDto atualizarSenhaRecuperacaoContaDto) {
+        String novaSenha = atualizarSenhaRecuperacaoContaDto.getNovaSenha();
+        usuarioService.atualizarSenhaPorRecuperacaoDeConta(novaSenha);
         return ResponseEntity.status(204).build();
     }
 }
