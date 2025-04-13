@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class AtualizarSenhaRecuperacaoContaDto {
+public class AtualizarSenhaRecuperacaoDto {
     @NotBlank
     private String novaSenha;
 }

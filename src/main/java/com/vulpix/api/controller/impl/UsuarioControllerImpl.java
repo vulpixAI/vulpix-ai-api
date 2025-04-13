@@ -117,9 +117,9 @@ public class UsuarioControllerImpl implements UsuarioController {
     }
 
     @Override
-    public ResponseEntity<Void> atualizarSenhaPorRecuperacaoDeConta(AtualizarSenhaRecuperacaoContaDto atualizarSenhaRecuperacaoContaDto) {
-        String novaSenha = atualizarSenhaRecuperacaoContaDto.getNovaSenha();
-        usuarioService.atualizarSenhaPorRecuperacaoDeConta(novaSenha);
+    public ResponseEntity<Void> atualizarSenhaPorRecuperacao(AtualizarSenhaRecuperacaoDto atualizarSenhaRecuperacaoDto) {
+        String novaSenha = atualizarSenhaRecuperacaoDto.getNovaSenha();
+        usuarioService.atualizarSenhaPorRecuperacao(novaSenha);
         return ResponseEntity.status(204).build();
     }
 }

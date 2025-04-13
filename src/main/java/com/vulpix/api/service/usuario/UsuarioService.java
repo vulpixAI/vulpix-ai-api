@@ -112,7 +112,7 @@ public class UsuarioService {
         usuarioRepository.save(usuario);
     }
 
-    public void atualizarSenhaPorRecuperacaoDeConta(String novaSenha) {
+    public void atualizarSenhaPorRecuperacao(String novaSenha) {
         UserDetails userDetails = usuarioAutenticadoUtil.getUsuarioDetalhes();
         String emailUsuario = userDetails.getUsername();
         Usuario usuario = buscarUsuarioPorEmail(emailUsuario);
