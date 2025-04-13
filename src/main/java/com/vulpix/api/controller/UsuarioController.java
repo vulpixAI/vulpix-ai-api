@@ -152,7 +152,7 @@ public interface UsuarioController {
     @DeleteMapping
     ResponseEntity<Void> remover(@Parameter(description = "Usuário a ser removido", required = true) @PathVariable UUID id);
 
-    @Operation(summary = "Atualizar senha do usuário", description = "Atualiza a senha do usuário através da recuperação de conta.")
+    @Operation(summary = "Atualizar senha do usuário", description = "Atualiza a senha do usuário através da recuperação de senha.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Senha atualizada com sucesso.", content = @Content(examples = @ExampleObject()))
     })
