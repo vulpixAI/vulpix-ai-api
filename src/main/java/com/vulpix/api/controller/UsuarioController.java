@@ -4,6 +4,7 @@ import com.vulpix.api.dto.autenticacao.LoginResponse;
 import com.vulpix.api.dto.cadastroinicial.CadastroRequisicaoDto;
 import com.vulpix.api.dto.cadastroinicial.CadastroRetornoDto;
 import com.vulpix.api.dto.usuario.AtualizarSenhaDto;
+import com.vulpix.api.dto.usuario.AtualizarSenhaRecuperacaoDto;
 import com.vulpix.api.dto.usuario.UsuarioEmpresaDto;
 import com.vulpix.api.dto.usuario.UsuarioLoginDto;
 import com.vulpix.api.entity.Usuario;
@@ -16,7 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.Null;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -151,4 +152,10 @@ public interface UsuarioController {
     @DeleteMapping
     ResponseEntity<Void> remover(@Parameter(description = "Usuário a ser removido", required = true) @PathVariable UUID id);
 
+    @Operation(summary = "Atualizar senha do usuário", description = "Atualiza a senha do usuário através da recuperação de senha.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Senha atualizada com sucesso.", content = @Content(examples = @ExampleObject()))
+    })
+    @PatchMapping("/senha/recuperacao")
+    ResponseEntity<Void> atualizarSenhaPorRecuperacao(@RequestBody @Valid AtualizarSenhaRecuperacaoDto atualizarSenhaRecuperacaoDto);
 }
