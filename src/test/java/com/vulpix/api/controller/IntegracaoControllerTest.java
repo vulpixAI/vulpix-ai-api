@@ -1,4 +1,4 @@
-package com.vulpix.api.controller;
-
-public class IntegracaoControllerTest {
-}
+//package com.vulpix.api.controller;
+//
+//public class IntegracaoControllerTest {
+//}
