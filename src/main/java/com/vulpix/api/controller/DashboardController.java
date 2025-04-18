@@ -124,6 +124,6 @@ public interface DashboardController {
                     )
             }
     )
-    @GetMapping("/kpís")
+    @GetMapping("/kpis")
     ResponseEntity<DashKpiDto> buscaDadosKpi();
 }
