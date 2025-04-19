@@ -40,13 +40,13 @@ public class SecurityConfiguracao {
     private AutenticacaoEntryPoint autenticacaoJwtEntryPoint;
 
     private static final AntPathRequestMatcher[] URLS_PERMITIDAS = {
-            new AntPathRequestMatcher("/usuarios/login"),
-            new AntPathRequestMatcher("/usuarios"),
-            new AntPathRequestMatcher("/pagamentos/webhook"),
-            new AntPathRequestMatcher("/swagger-ui/**"),
-            new AntPathRequestMatcher("/swagger-resources/*"),
-            new AntPathRequestMatcher("/v3/api-docs/**"),
-            new AntPathRequestMatcher("/autenticacoes/**")
+            new AntPathRequestMatcher("/api/usuarios/login"),
+            new AntPathRequestMatcher("/api/usuarios"),
+            new AntPathRequestMatcher("/api/pagamentos/webhook"),
+            new AntPathRequestMatcher("/api/swagger-ui/**"),
+            new AntPathRequestMatcher("/api/swagger-resources/*"),
+            new AntPathRequestMatcher("/api/v3/api-docs/**"),
+            new AntPathRequestMatcher("/api/autenticacoes/**")
     };
 
     @Bean
