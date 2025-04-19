@@ -4,6 +4,7 @@ import com.vulpix.api.entity.ConfigPrompt;
 import com.vulpix.api.utils.JsonConverter;
 import com.vulpix.api.dto.empresa.FormularioRequisicaoDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -17,7 +18,10 @@ import java.util.Map;
 
 @Service
 public class PromptService {
-    private String URL = "http://127.0.0.1:5000/generate-prompt";
+
+    @Value("${ip.agent}")
+    private String ipAgent;
+    private String URL = ipAgent + "/generate-prompt";
 
     @Autowired
     private RestTemplate restTemplate;

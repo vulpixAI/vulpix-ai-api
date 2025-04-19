@@ -14,6 +14,7 @@ import com.vulpix.api.repository.CriativoRepository;
 import com.vulpix.api.service.usuario.autenticacao.UsuarioAutenticadoUtil;
 import com.vulpix.api.utils.helpers.EmpresaHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
 import org.springframework.http.*;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,9 +40,13 @@ public class CriativosService {
 
     @Autowired
     private EmpresaHelper empresaHelper;
+    @Value("${ip.agent}")
+    private String ipAgent;
+
 
     public PublicacaoGeradaRetorno buscaCriativos(String prompt, String userRequest) {
-        String URL = "http://127.0.0.1:5000/generate-content";
+
+        String URL = ipAgent + "/generate-content";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -95,7 +100,7 @@ public class CriativosService {
     }
 
     public String buscaLegenda(String prompt, String userRequest) {
-        String URL = "http://127.0.0.1:5000/generate-caption";
+        String URL = ipAgent + "/generate-caption";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
