@@ -40,13 +40,12 @@ public class CriativosService {
 
     @Autowired
     private EmpresaHelper empresaHelper;
+
     @Value("${ip.agent}")
     private String ipAgent;
 
-
     public PublicacaoGeradaRetorno buscaCriativos(String prompt, String userRequest) {
-
-        String URL = ipAgent + "/generate-content";
+        String URL = "http://" + ipAgent + ":5000/generate-content";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -100,7 +99,7 @@ public class CriativosService {
     }
 
     public String buscaLegenda(String prompt, String userRequest) {
-        String URL = ipAgent + "/generate-caption";
+        String URL = "http://" + ipAgent + ":5000/generate-caption";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 

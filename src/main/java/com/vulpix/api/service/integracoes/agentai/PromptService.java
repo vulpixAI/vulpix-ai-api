@@ -18,15 +18,15 @@ import java.util.Map;
 
 @Service
 public class PromptService {
-
     @Value("${ip.agent}")
     private String ipAgent;
-    private String URL = ipAgent + "/generate-prompt";
 
     @Autowired
     private RestTemplate restTemplate;
 
     public String generatePrompt(FormularioRequisicaoDto formData) {
+        String URL = "http://" + ipAgent + ":5000/generate-prompt";
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 

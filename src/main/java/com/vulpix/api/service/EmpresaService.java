@@ -6,7 +6,6 @@ import com.vulpix.api.dto.empresa.EmpresaMapper;
 import com.vulpix.api.dto.empresa.FormularioRequisicaoDto;
 import com.vulpix.api.entity.ConfigPrompt;
 import com.vulpix.api.entity.Empresa;
-import com.vulpix.api.exception.exceptions.ConflitoException;
 import com.vulpix.api.exception.exceptions.NaoEncontradoException;
 import com.vulpix.api.repository.ConfigRepository;
 import com.vulpix.api.repository.EmpresaRepository;
@@ -23,10 +22,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 import java.util.UUID;
+
 @Service
 public class EmpresaService {
     @Autowired
-     EmpresaRepository empresaRepository;
+    EmpresaRepository empresaRepository;
 
     @Autowired
     private UsuarioAutenticadoUtil usuarioAutenticadoUtil;
@@ -49,7 +49,7 @@ public class EmpresaService {
     @Autowired
     private EmpresaEditDto empresaEditDto;
 
-    public Empresa buscaPorId(UUID id){
+    public Empresa buscaPorId(UUID id) {
         Optional<Empresa> empresaOpt = empresaRepository.findById(id);
 
         if (empresaOpt.isEmpty()) return null;
@@ -83,12 +83,14 @@ public class EmpresaService {
         String jsonForm = JsonConverter.toJson(formulario);
         configPrompt.setForm(jsonForm);
 
-        configRepository.findByEmpresaId(empresa.getId()).orElseThrow(() -> new ConflitoException("Essa empresa já possui suas informações cadastradas."));
+        Optional<ConfigPrompt> prompt = configRepository.findByEmpresaId(empresa.getId());
 
-        configPrompt.setEmpresa(empresa);
-        configRepository.save(configPrompt);
+        if (prompt.isEmpty()) {
+            configPrompt.setEmpresa(empresa);
+            configRepository.save(configPrompt);
+            salvaPrompt(empresa);
+        }
 
-        salvaPrompt(empresa);
         usuarioService.atualizaStatus(empresa, StatusUsuario.CADASTRO_FINALIZADO);
 
         return formulario;
@@ -96,14 +98,16 @@ public class EmpresaService {
 
     public FormularioRequisicaoDto buscaFormulario(Empresa empresa) {
         ConfigPrompt configPrompt = configRepository.findByEmpresaId(empresa.getId())
-                .orElseThrow(() -> new NaoEncontradoException("ConfigPrompt não encontrado."));;
+                .orElseThrow(() -> new NaoEncontradoException("ConfigPrompt não encontrado."));
+        ;
 
         return JsonConverter.fromJson(configPrompt.getForm());
     }
 
     public FormularioRequisicaoDto atualizaFormulario(Empresa empresa, FormularioRequisicaoDto formulario) {
         ConfigPrompt configPrompt = configRepository.findByEmpresaId(empresa.getId())
-                .orElseThrow(() -> new NaoEncontradoException("ConfigPrompt não encontrado."));;
+                .orElseThrow(() -> new NaoEncontradoException("ConfigPrompt não encontrado."));
+        ;
 
         String jsonForm = JsonConverter.toJson(formulario);
         configPrompt.setForm(jsonForm);
@@ -123,21 +127,20 @@ public class EmpresaService {
         configRepository.save(configPrompt);
     }
 
-    public PublicacaoGeradaRetorno buscaCriativos(Empresa empresa, String userRequest){
-        ConfigPrompt configPrompt = configRepository.findByEmpresaId(empresa.getId())
-                .orElseThrow(() -> new RuntimeException("ConfigPrompt não encontrado"));
+    public PublicacaoGeradaRetorno buscaCriativos(Empresa empresa, String userRequest) {
+        Optional<ConfigPrompt> configPrompt = configRepository.findByEmpresaId(empresa.getId());
 
-        if (configPrompt.getPrompt().isEmpty()) {
+        if (configPrompt.get().getPrompt() == null) {
             salvaPrompt(empresa);
         }
 
-        PublicacaoGeradaRetorno retorno = criativosService.buscaCriativos(configPrompt.getPrompt(), userRequest);
+        PublicacaoGeradaRetorno retorno = criativosService.buscaCriativos(configPrompt.get().getPrompt(), userRequest);
         return retorno;
     }
 
     public String buscaLegenda(Empresa empresa, String userRequest) {
         ConfigPrompt configPrompt = configRepository.findByEmpresaId(empresa.getId())
-                .orElseThrow(() -> new RuntimeException("ConfigPrompt não encontrado"));
+                .orElseThrow(() -> new NaoEncontradoException("ConfigPrompt não encontrado"));
 
         String legenda = criativosService.buscaLegenda(configPrompt.getPrompt(), userRequest);
         return legenda;
