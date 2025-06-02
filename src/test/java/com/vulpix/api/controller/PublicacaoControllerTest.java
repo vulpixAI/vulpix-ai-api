@@ -22,7 +22,7 @@ import java.util.UUID;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("Teste da Clase PublicacaoController")
+@DisplayName("Teste da Classe PublicacaoController")
 class PublicacaoControllerTest {
 
     @InjectMocks
