@@ -21,7 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@DisplayName("Teste da Clase EmpresaController")
+@DisplayName("Teste da Classe EmpresaController")
 class EmpresaControllerTest {
 
     @InjectMocks
