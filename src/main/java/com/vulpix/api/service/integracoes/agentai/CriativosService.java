@@ -139,6 +139,7 @@ public class CriativosService {
         LocalDateTime currentCreatedAt = criativo.getCreatedAt();
         LocalDateTime newCreatedAt = currentCreatedAt.minusHours(3);
         criativo.setCreatedAt(newCreatedAt);
+        criativo.setUpdatedAt(newCreatedAt);
         criativoRepository.save(criativo);
     }
 

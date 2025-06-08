@@ -173,7 +173,7 @@ public class PublicacaoService {
                         OffsetDateTime currentCreatedAt = item.getDataPublicacao();
                         OffsetDateTime newCreatedAt = currentCreatedAt.minusHours(3);
                         postDto.setCreated_at(newCreatedAt.toLocalDateTime());
-                        postDto.setDataPublicacao(item.getDataPublicacao());
+                        postDto.setDataPublicacao(newCreatedAt);
                         postDto.setLikeCount(item.getLikeCount());
                         idsPostsAtuais.add(item.getId());
                         return postDto;
@@ -265,6 +265,7 @@ public class PublicacaoService {
                 LocalDateTime currentCreatedAt = post.getCreated_at();
                 LocalDateTime newCreatedAt = currentCreatedAt.minusHours(3);
                 post.setCreated_at(newCreatedAt);
+                post.setDataPublicacao(OffsetDateTime.from(newCreatedAt));
                 publicacaoRepository.save(post);
             }
         });
