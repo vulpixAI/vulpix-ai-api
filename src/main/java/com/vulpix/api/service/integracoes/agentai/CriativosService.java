@@ -136,6 +136,9 @@ public class CriativosService {
         CriativoRequisicaoDto dto = CriativoRequisicaoDto.builder().imageUrl(imageUrl).prompt(prompt).build();
 
         Criativo criativo = CriativoMapper.criaEntidadeCriativo(dto, empresa);
+        LocalDateTime currentCreatedAt = criativo.getCreatedAt();
+        LocalDateTime newCreatedAt = currentCreatedAt.minusHours(3);
+        criativo.setCreatedAt(newCreatedAt);
         criativoRepository.save(criativo);
     }
 

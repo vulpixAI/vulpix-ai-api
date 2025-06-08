@@ -39,6 +39,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.*;
@@ -258,6 +259,9 @@ public class PublicacaoService {
             post.setEmpresa(empresa);
             Optional<Publicacao> postExistente = publicacaoRepository.findByIdReturned(post.getIdReturned());
             if (postExistente.isEmpty()) {
+                LocalDateTime currentCreatedAt = post.getCreated_at();
+                LocalDateTime newCreatedAt = currentCreatedAt.minusHours(3);
+                post.setCreated_at(newCreatedAt);
                 publicacaoRepository.save(post);
             }
         });
