@@ -51,7 +51,7 @@ public class InsightService {
         for (Publicacao publicacao : publicacoes) {
             Map<String, String> operation = new HashMap<>();
             operation.put("method", "GET");
-            operation.put("relative_url", publicacao.getIdReturned() + "/insights?metric=impressions,saved,likes,comments,shares,profile_visits,follows");
+            operation.put("relative_url", publicacao.getIdReturned() + "/insights?metric=saved,likes,comments,shares,profile_visits,follows");
             batchRequests.add(operation);
         }
 
@@ -105,9 +105,6 @@ public class InsightService {
                 int value = extrairMetricas(metric);
 
                 switch (name) {
-                    case "impressions":
-                        postInsights.setImpressions(value);
-                        break;
                     case "saved":
                         postInsights.setSaves(value);
                         break;
