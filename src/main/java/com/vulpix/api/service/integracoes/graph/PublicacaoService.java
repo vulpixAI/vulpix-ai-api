@@ -170,6 +170,9 @@ public class PublicacaoService {
                         postDto.setLegenda(item.getLegenda());
                         postDto.setTipoMidia(item.getTipoMidia());
                         postDto.setUrlMidia(item.getUrlMidia());
+                        OffsetDateTime currentCreatedAt = item.getDataPublicacao();
+                        OffsetDateTime newCreatedAt = currentCreatedAt.minusHours(3);
+                        postDto.setCreated_at(newCreatedAt.toLocalDateTime());
                         postDto.setDataPublicacao(item.getDataPublicacao());
                         postDto.setLikeCount(item.getLikeCount());
                         idsPostsAtuais.add(item.getId());
