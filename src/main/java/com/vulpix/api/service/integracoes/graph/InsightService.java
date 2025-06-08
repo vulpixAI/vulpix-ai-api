@@ -105,9 +105,6 @@ public class InsightService {
                 int value = extrairMetricas(metric);
 
                 switch (name) {
-                    case "impressions":
-                        postInsights.setImpressions(value);
-                        break;
                     case "saved":
                         postInsights.setSaves(value);
                         break;
