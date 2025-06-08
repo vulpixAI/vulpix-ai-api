@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -68,25 +69,38 @@ public class DashboardService {
         return 0L;
     }
 
-    public DashKpiDto buscaKpisPorPeriodo(Empresa empresa) {
-        UUID empresaId = empresa.getId();
+    public DashKpiDto buscaKpisPorPeriodo(UUID empresaId) {
+        List<Object[]> metricasList = dashboardRepository.findMetricasBasicas(empresaId);
 
-        List<Object[]> results = dashboardRepository.findTaxas(empresaId);
+        Integer totalImpressoes = 0;
+        Integer totalShares = 0;
+        Integer totalSaves = 0;
 
-        BigDecimal taxaSalvo = null;
-        BigDecimal taxaShares = null;
-
-        if (!results.isEmpty()) {
-            Object[] row = results.get(0);
-            taxaShares = (BigDecimal) row[1];
-            taxaSalvo = (BigDecimal) row[2];
+        if (!metricasList.isEmpty() && metricasList.get(0) != null) {
+            Object[] metricas = metricasList.get(0);
+            totalImpressoes = metricas[0] != null ? ((Number) metricas[0]).intValue() : 0;
+            totalShares = metricas[1] != null ? ((Number) metricas[1]).intValue() : 0;
+            totalSaves = metricas[2] != null ? ((Number) metricas[2]).intValue() : 0;
         }
 
-        return DashKpiDto.builder()
-                .taxaSaves(taxaSalvo)
-                .taxaCompartilhamento(taxaShares)
-                .visualizacoesTotais(dashboardRepository.findImpressoesTotais(empresaId))
-                .alcanceUltimoPost(dashboardRepository.findAlcanceTotalUltimoPost(empresaId))
-                .build();
+        BigDecimal taxaCompartilhamento = totalImpressoes > 0 
+            ? new BigDecimal(totalShares).multiply(new BigDecimal("100")).divide(new BigDecimal(totalImpressoes), 2, RoundingMode.HALF_UP)
+            : BigDecimal.ZERO;
+            
+        BigDecimal taxaSaves = totalImpressoes > 0 
+            ? new BigDecimal(totalSaves).multiply(new BigDecimal("100")).divide(new BigDecimal(totalImpressoes), 2, RoundingMode.HALF_UP)
+            : BigDecimal.ZERO;
+
+        Integer alcanceUltimoPost = dashboardRepository.findAlcanceUltimoPost(empresaId);
+        if (alcanceUltimoPost == null) {
+            alcanceUltimoPost = 0;
+        }
+        
+        return new DashKpiDto(
+            taxaCompartilhamento,
+            taxaSaves,
+            totalImpressoes,
+            alcanceUltimoPost
+        );
     }
 }

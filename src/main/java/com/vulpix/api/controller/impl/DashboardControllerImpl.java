@@ -64,12 +64,11 @@ public class DashboardControllerImpl implements DashboardController {
         String emailUsuario = userDetails.getUsername();
         Empresa empresa = empresaHelper.buscarEmpresaPeloUsuario(emailUsuario);
 
-        DashKpiDto response = dashboardService.buscaKpisPorPeriodo(empresa);
-
-        if (response == null) {
+        if (empresa == null) {
             return ResponseEntity.status(204).build();
         }
 
-        return ResponseEntity.status(200).body(response);
+        DashKpiDto kpiDto = dashboardService.buscaKpisPorPeriodo(empresa.getId());
+        return ResponseEntity.ok(kpiDto);
     }
 }
