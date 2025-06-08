@@ -129,4 +129,35 @@ public interface DashboardRepository extends JpaRepository<PostInsights, UUID> {
                 p.fk_empresa
                 """, nativeQuery = true)
     List<Object[]> findTaxas(@Param("empresa_id") UUID empresaId);
+
+    @Query(value = """
+            SELECT 
+                COALESCE(SUM(pi.impressions), 0) as total_impressions,
+                COALESCE(SUM(pi.shares), 0) as total_shares,
+                COALESCE(SUM(pi.saves), 0) as total_saves
+            FROM 
+                post_insights pi
+            JOIN 
+                publicacao p ON pi.fk_publicacao = p.id_publicacao
+            WHERE 
+                p.fk_empresa = :empresa_id
+            GROUP BY
+                p.fk_empresa
+            """, nativeQuery = true)
+    List<Object[]> findMetricasBasicas(@Param("empresa_id") UUID empresaId);
+
+    @Query(value = """
+            SELECT 
+                COALESCE(pi.impressions, 0) as alcance_ultimo_post
+            FROM 
+                post_insights pi
+            JOIN 
+                publicacao p ON pi.fk_publicacao = p.id_publicacao
+            WHERE 
+                p.fk_empresa = :empresa_id
+            ORDER BY 
+                p.created_at DESC
+            LIMIT 1
+            """, nativeQuery = true)
+    Integer findAlcanceUltimoPost(@Param("empresa_id") UUID empresaId);
 }
