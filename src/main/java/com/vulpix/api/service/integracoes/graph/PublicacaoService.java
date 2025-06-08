@@ -301,7 +301,7 @@ public class PublicacaoService {
         String url = UriComponentsBuilder.fromHttpUrl(Graph.BASE_URL)
                 .pathSegment(idNoInsta, "insights")
                 .queryParam("date_preset", "today")
-                .queryParam("metric", "impressions,reach,likes,comments,shares,saved,profile_visits")
+                .queryParam("metric", "reach,likes,comments,shares,saved,profile_visits")
                 .queryParam("access_token", integracao.getAccessToken())
                 .toUriString();
 
