@@ -1,0 +1,20 @@
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Pull Docker image
+        run: docker pull leohsantos/vulpix-ai-api
+
+      - name: Stop Docker container
+        run: docker stop ci-example || true
+
+      - name: Remove Docker container
+        run: docker rm ci-example || true
+
+      - name: Run Docker container
+        run: docker run --name ci-example -d -p 8080:8080 --restart unless-stopped leohsantos/vulpix-ai-api
